@@ -1,0 +1,96 @@
+<!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <title>Lil websocket chat</title>
+</head>
+
+<body>
+
+  <div id="container">
+    <script type="text/javascript" src="browser_detect.js"></script>
+    <script language="javascript" type="text/javascript">
+      function browserDetect()
+      {
+        document.getElementById("browserType").innerHTML += BrowserDetect.browser + ' ' + BrowserDetect.version;
+        document.getElementById("platform").innerHTML += BrowserDetect.OS;
+
+        if (window.WebSocket)
+        {
+          document.getElementById("wsSupportImg").src = "img/check.png"
+        }
+        else
+        {
+          document.getElementById("wsSupportImg").src = "img/cross.png"
+        }
+      }
+      // Handle difference for IE.
+      if (window.attachEvent)
+      {
+        window.attachEvent("load", browserDetect)
+      }
+      else
+      {
+        window.addEventListener("load", browserDetect, false);
+      }
+    </script>
+
+    <div id="main-container">
+      <div id="main">
+
+        <div id="webSocketSupp">
+          <div class="float-left">
+            <img src="img/check.png" width="36" height="36" align="absmiddle">
+          </div>
+          <div class="support-message">
+            This browser supports WebSocket.
+          </div>
+        </div>
+
+        <div id="noWebSocketSupp">
+          <div class="float-left">
+            <img src="img/cross.png" width="36" height="36" align="absmiddle">
+          </div>
+          <div class="support-message">
+            <p>The browser you're using doesn't have native support for WebSocket.
+              <br />
+            That means you probably can't use this little chat.
+            </p>
+          </div>
+        </div>
+
+        <div><br/></div>
+
+        <hr />
+
+        <div id="chat">
+          <div id="config" class="float-left">
+            <strong>Location:</strong><br>
+            <input id="wsUri" size="35">
+            <br>
+            <input type="checkbox" id="secureCb" onClick="toggleTls();">
+            <span id="secureCbLabel">Use secure WebSocket (TLS)</span><br>
+            <button id="connect">Connect</button>
+            <button id="disconnect">Disconnect</button>
+            <br>
+            <br>
+            <strong>Message:</strong><br>
+            <input id="sendMessage" size="35" value="O HAI">
+            <br>
+            <button id="send" class="wsButton">Send</button>
+          </div>
+          <div id="log"> <strong>Log:</strong>
+            <div id="consoleLog"></div>
+            <button id="clearLogBut">Clear log</button>
+          </div>
+        </div>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="chat.js"></script>
+
+</body>
+</html>
