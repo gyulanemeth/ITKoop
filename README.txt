@@ -1,1 +1,1 @@
-Próba README
+Chatprogram desktop része CBA-tól, tök fölöslegesen, mivel beüzemelés elõtt továbbléptünk.
