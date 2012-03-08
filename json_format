@@ -1,16 +1,58 @@
-JSON üzenetformátum:
+JSON üzenetek formátuma
 
-{
-	"type" : <integer>
-	"sender" : <string>
-	"message" : <depends on type, may be null>
-}
+ {
+        "type":
+        "sender":
+        "message": {
+                //ez type függő
+        }
+ }
+
+ type == 2 -> objektum mozgatása
+ message: {
+        "objId":
+        "x":
+        "y":
+        "savePos":
+ }
+
+ type == 3 -> objektum létrehozása
+ message: {
+        exampleString
+        x
+        y
+        z
+ }
+
+ type == 4 -> objektum törlése
+ message: {
+        objectId
+ }
+
+ type == 5 -> objektum módosítása
+ message: {
+        objectId
+        exampleString
+ }
 
 
-For type==2 (objektum absztrakt mozgatása)
+ type == 1000 -> chat message
+ message: {
+        "userName":
+        "msg":
+        "timeStamp":
+ }
 
-message : {
-	objId : <mozgatott objektum azonosítója>
-	x : <integer, new x coord of object>
-	y : <integer, new y coord of object>
-}
+
+ Az adatbázisban lévő objektumok:
+ objektum: {
+        _id
+        pos: {
+                x
+                y
+                z
+        },
+        data: {
+                exampleString
+        }
+ }
