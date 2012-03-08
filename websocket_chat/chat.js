@@ -55,11 +55,11 @@
   {
     if (secureCb.checked)
     {
-      wsUri.value = "wss://localhost:8080";
+      wsUri.value = "wss://localhost:8787";
     }
     else
     {
-      wsUri.value = "ws://localhost:8080";
+      wsUri.value = "ws://localhost:8787";
     }
   }
 
@@ -130,8 +130,12 @@
 
   function onMessage(evt)
   {
-    var m = JSON.parse(JSON.parse(evt.data).msg); // JSON format???
-    logToConsole('<span style="color: blue;">GOT: ' + m.msg + '  (from: ' + m.sender + ')</span>');
+    //var m = JSON.parse(JSON.parse(evt.data).msg); // JSON format???
+    //logToConsole('<span style="color: blue;">GOT: ' + m.msg + '  (from: ' + m.sender + ')</span>');
+    var m = JSON.parse(evt.data).msg;
+    var s = JSON.parse(evt.data).sender;
+
+    if (m) logToConsole('<span style="color: blue;">GOT: ' + JSON.parse(evt.data).msg + '<br /> FROM: ' + s +' </span>');
   }
 
   function onError(evt)
