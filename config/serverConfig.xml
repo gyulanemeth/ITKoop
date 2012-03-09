@@ -236,7 +236,7 @@
 	<servers>
 		<server>
 			<name>org.jwebsocket.server.TokenServer</name>
-			<id>ts0</id>
+			<id>coop1</id>
 			<jar>jWebSocketTokenServer-1.0.jar</jar>
 			<!-- define the thread pool properties. Thread are spawned when Token's spawnThread value is true 
 			 Queue sizes and maximum pool sizes may be traded off for each other: Using large queues and small pools minimizes CPU usage, OS resources, and context-switching overhead, but can lead to artificially low throughput. 
@@ -270,105 +270,7 @@
 			<description>Send message to a single target client.</description>
 		</right>
 
-		<!-- configuration of chat plug-in specific rights -->
 
-		
-		<!-- configuration of rpc plug-in specific rights -->
-		<!-- Nem kell most 
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>rpc</id>
-			<description>Allow Remote Procedure Calls (RPC) to server</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>rrpc</id>
-			<description>Allow Reverse Remote Procedure Calls (RRPC) to other clients</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.getMD5</id>
-			<description>A sample RPC demo</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.getRPCObject</id>
-			<description>A RPC demo with custom RPC objects as arguments and return values</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runIntDemo(int)</id>
-			<description>A demo how to pass integers to unique (i.e. not overloaded) RPC's</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runStringDemo(string)</id>
-			<description>A demo how to pass strings to unique (i.e. not overloaded) RPC's</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runListDemo(array)</id>
-			<description>A demo how to pass arrays (lists) to unique (i.e. not overloaded) RPC's</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runMapDemo(map)</id>
-			<description>A demo how to pass maps to unique (i.e. not overloaded) RPC's</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runOverloadDemo(int)</id>
-			<description>A demo how to call overloaded methods (here with int argument).</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runOverloadDemo(string)</id>
-			<description>A demo how to call overloaded methods (here with string argument).</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runOverloadDemo(array)</id>
-			<description>A demo how to call overloaded methods (here with array argument).</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.runOverloadDemo(map)</id>
-			<description>A demo how to call overloaded methods (here with map argument).</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.Messaging.getMyMessages</id>
-			<description>Return user's messages'</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.rrpcTest1()</id>
-			<description>rpcTest</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.rrpcTest1(string)</id>
-			<description>rpcTest</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.rrpcTest1(int)</id>
-			<description>rpcTest</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.SampleRPCLibrary.rrpcTest2(array, array)</id>
-			<description>rpcTest</description>
-		</right>
-
-		<right>
-			<ns>org.jwebsocket.plugins.rpc</ns>
-			<id>org.jwebsocket.rpc.sample.Messaging.getMyMessages</id>
-			<description>Return user's messages'</description>
-		</right>
-			-->
-
-		<!-- configuration of jdbc plug-in specific rights -->
 		<right>
 			<ns>org.jwebsocket.plugins.jdbc</ns>
 			<id>select</id>
@@ -404,98 +306,7 @@
 			<id>execSQL</id>
 			<description>Allow to update database meta data using native SQL</description>
 		</right>
-
-		<!-- configuration of jms plug-in specific rights -->
-		<!--		
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>sendAndListen.queue.testQueue</id>
-			<description>send and listen to queue with name: testQueue</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>listen.topic.testTopic</id>
-			<description>listen to topic with name: testTopic</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>send.topic.testTopic</id>
-			<description>send messages to topic with name: testTopic
-			</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>sendAndListen.topic.stockTopic</id>
-			<description>send and listen to topic with name: stockTopic</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>createConnection</id>
-			<description>createConnection</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>createSession</id>
-			<description>createSession</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>createQueue</id>
-			<description>createQueue</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>createConsumer</id>
-			<description>createConsumer</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.jms</ns>
-			<id>rw.test.queue</id>
-			<description>read/write</description>
-		</right>
-		-->
-		<!-- configuration of filesystem plug-in specific rights -->
-		<right>
-			<ns>org.jwebsocket.plugins.filesystem</ns>
-			<id>load</id>
-			<description>Allow to load files from file system (public area)</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.filesystem</ns>
-			<id>save</id>
-			<description>Allow to save files to file system (public area)</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.filesystem</ns>
-			<id>send</id>
-			<description>Allow to send files from one client to another client</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.filesystem</ns>
-			<id>getFilelist</id>
-			<description>Allow to retrieve file lists from the server</description>
-		</right>
-
-		<!-- Caution! Be careful with this right!
-				Unauthorized use could stop your server from
-				providing its services! -->
-		<right>
-			<ns>org.jwebsocket.plugins.admin</ns>
-			<id>shutdown</id>
-			<description>Allow to shutdown the server</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.admin</ns>
-			<id>gc</id>
-			<description>Allows to start the server's garbage collector</description>
-		</right>
-		<right>
-			<ns>org.jwebsocket.plugins.admin</ns>
-			<id>getConnections</id>
-			<description>Allow to retreive current connections</description>
-		</right>
-
-		<!-- Channel rights -->
+	<!-- Channel rights -->
 		<right>
 			<ns>org.jwebsocket.plugins.channels</ns>
 			<id>start</id>
@@ -816,7 +627,7 @@
 				<setting key="allowAutoAnonymous">true</setting>
 			</settings>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -829,7 +640,7 @@
 			<ns>org.jwebsocket.plugins.flashbridge</ns>
 			<jar>jWebSocketServer-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 			<settings>
 				<!-- if you remove this setting the plug-in uses an internal
@@ -845,7 +656,7 @@
 			<ns>org.jwebsocket.plugins.chat</ns>
 			<jar>jWebSocketChatPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
@@ -857,7 +668,7 @@
 			<ns>org.jwebsocket.plugins.sharedobjects</ns>
 			<jar>jWebSocketSharedObjectsPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -868,7 +679,7 @@
 			<ns>org.jwebsocket.plugins.streaming</ns>
 			<jar>jWebSocketStreamingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -879,7 +690,7 @@
 			<ns>org.jwebsocket.plugins.channels</ns>
 			<jar>jWebSocketChannelPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="spring_config">${JWEBSOCKET_HOME}/conf/ChannelPlugIn/channel.xml</setting>
@@ -896,7 +707,7 @@
 			<ns>org.jwebsocket.plugins.statistics</ns>
 			<jar>jWebSocketStatisticsPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -909,7 +720,7 @@
 			<ns>org.jWebSocket.plugins.jms</ns>
 			<jar>jWebSocketJMSPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="spring_config">${JWEBSOCKET_HOME}/conf/JMSPlugIn/jms.xml</setting>
@@ -930,7 +741,7 @@
 			<ns>org.jwebsocket.plugins.logging</ns>
 			<jar>jWebSocketLoggingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="implementation">Log4J</setting>
@@ -948,7 +759,7 @@
 			<ns>org.jwebsocket.plugins.sample</ns>
 			<jar>jWebSocketSamples-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -961,7 +772,7 @@
 			<ns>org.jwebsocket.plugins.reporting</ns>
 			<jar>jWebSocketReportingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 			<settings>
 				<!-- folder where the report specs are located -->
@@ -982,7 +793,7 @@
 				<setting key="config_file">api/api.xml</setting>
 			</settings>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -993,7 +804,7 @@
 			<ns>org.jwebsocket.plugins.test</ns>
 			<jar>jWebSocketTestPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -1004,7 +815,7 @@
 			<ns>org.jwebsocket.plugins.benchmark</ns>
 			<jar>jWebSocketBenchmarkPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -1015,7 +826,7 @@
 			<ns>org.jwebsocket.plugins.test</ns>
 			<jar>jWebSocketTestPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -1028,7 +839,7 @@
 			<ns>org.jwebsocket.jquery</ns>
 			<jar>jWebSocketJQueryPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
@@ -1052,7 +863,7 @@
 			</settings>
 			- - >
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
@@ -1066,7 +877,7 @@
 			<ns>org.jwebsocket.filters.custom</ns>
 			<jar>jWebSocketPlugins-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>ts0</server-assignment>
+				<server-assignment>coop1</server-assignment>
 			</server-assignments>
 		</filter>
 	</filters>
