@@ -22,14 +22,13 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 	
 	public void init(){
 		try{
-			/* Start the factory asdasd*/
+			/* Start the factory */
 			JWebSocketFactory.start();
-			_tokenServer = (TokenServer) JWebSocketFactory.getServer("CooProject Token server");
+			_tokenServer = (TokenServer) JWebSocketFactory.getServer("ts0");
 			if(_tokenServer != null ){
 				System.out.println("Server is running!");
 				_tokenServer.addListener(this);
 			}else{
-				System.out.println("Server is not running!");
 				System.out.println("Server is not running!");
 			}
 			

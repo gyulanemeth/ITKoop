@@ -24,7 +24,12 @@ function build(){
 	echo "running javac"
 	javac -classpath /tmp/badassdeps/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
 	echo "done"
+}
 
+function run(){
+	echo "Starting server"
+	export JWEBSOCKET_HOME="/tmp/badassdeps/jWebSocket-1.0"
+	java -classpath CoopServer/console_build:/tmp/badassdeps/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar server.cooproject.itk.hu.serverMain -config config/serverConfig.xml
 }
 
 if [[ $1 == "setup" ]];
