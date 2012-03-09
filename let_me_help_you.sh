@@ -14,17 +14,29 @@ function setup(){
 	echo "Done"
 }
 
-function run(){
-	echo "Let's run our bad-ass server!"
+function build(){
+	echo "Let's build our bad-ass server!"
+	export JWEBSOCKET_HOME="/tmp/badassdeps/jwebsocket-1.0"
+	echo "Deleting old bins"
+	rm -rf CoopServer/console_build
+	echo "Creating console_build directory"
+	mkdir -p CoopServer/console_build
+	echo "running javac"
+	javac -classpath /tmp/badassdeps/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/bin CoopServer/src/server/cooproject/itk/hu/*.java
+	echo "done"
+
 }
 
 if [[ $1 == "setup" ]];
 then
 	setup
+elif [[ $1 == "build" ]];
+then
+	build
 elif [[ $1 == "run" ]];
 then
 	run
 else
-	echo "missing argument run/setup"
+	echo "missing argument setup/build/run"
 fi
 

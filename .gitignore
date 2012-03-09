@@ -26,3 +26,4 @@ local.properties
 .buildpath
 
 CoopServer/bin/**
+CoopServer/console_build/*
