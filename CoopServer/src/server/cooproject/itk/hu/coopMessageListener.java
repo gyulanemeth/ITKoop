@@ -1,45 +1,68 @@
 package server.cooproject.itk.hu;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
-import org.jwebsocket.api.PluginConfiguration;
-import org.jwebsocket.api.WebSocketConnector;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.factory.JWebSocketFactory;
-import org.jwebsocket.kit.PlugInResponse;
 import org.jwebsocket.kit.WebSocketServerEvent;
 import org.jwebsocket.listener.WebSocketServerTokenEvent;
 import org.jwebsocket.listener.WebSocketServerTokenListener;
-import org.jwebsocket.logging.Logging;
-import org.jwebsocket.plugins.TokenPlugIn;
 import org.jwebsocket.server.TokenServer;
 import org.jwebsocket.token.Token;
+import org.jwebsocket.token.TokenFactory;
 
 
 public class coopMessageListener implements WebSocketServerTokenListener{
 
+	private static TokenServer _tServer = (TokenServer) JWebSocketFactory.getServer("ts0");
 	private static Logger log = Logger.getLogger(coopMessageListener.class.getName());
+	private HashMap<String, String> _users;
+	
 
 	public coopMessageListener() {
 		super();
 		log.info("Coop Server listener successfully loaded");
+		_users = new HashMap<String, String>();
 	}
 
 	@Override
-	public void processClosed(WebSocketServerEvent arg0) {
-		// TODO Auto-generated method stub
+	public void processClosed(WebSocketServerEvent aEvent) {
+		//Broadcastolj, ha lelep valaki
+		
 		
 	}
 
 	@Override
-	public void processOpened(WebSocketServerEvent arg0) {
-		// TODO Auto-generated method stub
+	public void processOpened(WebSocketServerEvent aEvent) {
+		//Broadcastolj, ha belep valaki
+		/* A szerzo kommentje:
+		* Mivel semmi authunk nincs, igy fogalmunk sincs hogy mi az uj user neve
+		* Tehat, a kovetkezo lehetosegeink vannak
+		* 1, Hagyjuk igy, hogy csak jelezzuk ha valaki joinol
+		* 2, Lesz egy join type, amire kesobb lehet szurni, es broadcastolni
+		* 3, Az csinaljuk, hogy ha ujkent kerul be hashmapbe akkor kuldunk rol
+		*/
+		//Token dResponse = new Token();
+		//_tServer.broadcastToken(aToken);
 		
 	}
 
 	@Override
-	public void processPacket(WebSocketServerEvent arg0, WebSocketPacket arg1) {
+	public void processPacket(WebSocketServerEvent aEvent, WebSocketPacket arg1) {
 		// TODO Auto-generated method stub
-		
+		//keressuk elo user mapbol
+		if(!_users.containsKey(aEvent.getSessionId())){
+			String username = _users.get(aEvent.getSessionId());
+			_users.remove(aEvent.getSessionId());
+			log.info("Deleting record from _users map : "+aEvent.getSessionId()+" - "+username);
+			Token dResponse = TokenFactory.createToken("response");
+			//dResponse.setString("type","1000");//chat message
+			dResponse.setString("sender","CooProjectServer");
+			dResponse.setString("msg",username+" left the server");//REMOVEME: csak a regi kliensek miatt
+			dResponse.setString("message",username+" left the server");//chat message
+			_tServer.broadcastToken(dResponse);
+		}
 	}
 
 	@Override
@@ -57,13 +80,21 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 		}
 		//Loggoljuk
 		log.info("New token received from "+cSenderName+" and the message is "+cMessage);
+		updateUsername(aEvent,cSenderName);//updateljuk a sessionId - nev parost
+		boolean should_be_broadcasted = true;//mindent broadcastolunk, kiveve amit nem :(
 		// dolgozzuk fel type alapjan
 		switch(cType){
-			case 2:
-					break;
+			//Egy chat message. Egyelore csak broadcastoljuk
+			case 1000: should_be_broadcasted = true;
+					   break;
 		
 			//Nem jot kuldott, biztos elnezte. Hat adjuk a tudtara asszertiv kommunikacioval
 			default: handleUnknowTypeField(aEvent,aToken,cType);
+					 break;
+		}
+		//Ha broadcastolni kell
+		if(should_be_broadcasted){
+			_tServer.broadcastToken(aToken);
 		}
 		
 	}
@@ -83,6 +114,33 @@ private void handleUnknowTypeField(WebSocketServerTokenEvent aEvent, Token aToke
 	dResponse.setString("msg", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket! Es az msg fieldet sem kene feldolgoznod ...");
 	dResponse.setString("message", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket!");
 	aEvent.sendToken(dResponse);
+}
+
+/**
+ * Arra szolgal, hogy updatelje a usernevet ha valtozik, vagy hozzaadja a maphez ha meg nincs benne
+ * @param aEvent Az event object
+ * @param username A jsonbol kinyert username
+ */
+private void updateUsername(WebSocketServerTokenEvent aEvent, String username){
+	//REMOVEME: csak ameddig kliens nem kul usernevet
+	if(username == null) username = aEvent.getSessionId();
+	//Ha nincs benne, rakjuk bele es broadcast
+	if(!_users.containsKey(aEvent.getSessionId())){
+		_users.put(aEvent.getSessionId(),username);
+		log.info("New record in _users map : "+aEvent.getSessionId()+" - "+username);
+		Token dResponse = TokenFactory.createToken("response");
+		//dResponse.setString("type","1000");//chat message
+		dResponse.setString("sender","CooProjectServer");
+		dResponse.setString("msg",username+" joined");//REMOVEME: csak a regi kliensek miatt
+		dResponse.setString("message",username+" joined");//chat message
+		_tServer.broadcastToken(dResponse);
+	}else{
+		if(_users.get(aEvent.getSessionId()) != username){
+			log.info("_users map updated with "+aEvent.getSessionId()+" - "+username);
+			_users.put(aEvent.getSessionId(),username);
+		}
+	}
+	
 }
 	
 	
