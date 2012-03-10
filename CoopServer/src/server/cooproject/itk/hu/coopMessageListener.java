@@ -1,45 +1,29 @@
 package server.cooproject.itk.hu;
 
+import org.apache.log4j.Logger;
+import org.jwebsocket.api.PluginConfiguration;
+import org.jwebsocket.api.WebSocketConnector;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.factory.JWebSocketFactory;
+import org.jwebsocket.kit.PlugInResponse;
 import org.jwebsocket.kit.WebSocketServerEvent;
 import org.jwebsocket.listener.WebSocketServerTokenEvent;
 import org.jwebsocket.listener.WebSocketServerTokenListener;
+import org.jwebsocket.logging.Logging;
+import org.jwebsocket.plugins.TokenPlugIn;
 import org.jwebsocket.server.TokenServer;
 import org.jwebsocket.token.Token;
 
 
 public class coopMessageListener implements WebSocketServerTokenListener{
-	private TokenServer _tokenServer;
-	
-	/**
-	 * Built in
-	 * @return
-	 */
-	public TokenServer getTokenServer(){
-		return _tokenServer;
+
+	private static Logger log = Logger.getLogger(coopMessageListener.class.getName());
+
+	public coopMessageListener() {
+		super();
+		log.info("Coop Server listener successfully loaded");
 	}
-	
-	public void init(){
-		try{
-			/* Start the factory */
-			JWebSocketFactory.start();
-			_tokenServer = (TokenServer) JWebSocketFactory.getServer("coop1");
-			if(_tokenServer != null ){
-				//System.out.println("Server is running!");
-				_tokenServer.addListener(this);
-			}else{
-				//System.out.println("Server is not running!");
-			}
-			
-		}catch(Exception e){
-			System.out.println("Error:"+e.getMessage());
-			
-		}
-		
-		
-	}
-	
+
 	@Override
 	public void processClosed(WebSocketServerEvent arg0) {
 		// TODO Auto-generated method stub
@@ -48,31 +32,58 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 
 	@Override
 	public void processOpened(WebSocketServerEvent arg0) {
-		System.out.println("New client connected to our websocket server");
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void processPacket(WebSocketServerEvent arg0, WebSocketPacket arg1) {
-		System.out.println("Packet received: "+arg1.getString());
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void processToken(WebSocketServerTokenEvent tEvent, Token receivedToken) {
-		System.out.println("New token: "+receivedToken.getNS()+" -> "+receivedToken.getType());
-		/* simple echo */
-		  // create a response token
-	      Token echoResponse = tEvent.createResponse(receivedToken);
-	      echoResponse.setString("code", "-1");
-	      echoResponse.setString("msg", "Ping - Pong");
-	      tEvent.sendToken(echoResponse);
-	      /* Simple broadcast */
-	      Token brToken = tEvent.createResponse(receivedToken);
-	      brToken.setString("code", "255");
-	      brToken.setString("msg", "This is a broadcast message");
-	      _tokenServer.broadcastToken(brToken);
+	public void processToken(WebSocketServerTokenEvent aEvent, Token aToken) {
+		// Dolgozzuk fel a letezo fieldeket
+		int cType = 0;
+		if(aToken.getString("type") != null){
+			cType = Integer.parseInt(aToken.getString("type"));
+		}
+		String cSenderName = aToken.getString("sender");
+		String cMessage = aToken.getString("message");
+		//DEBUG, amig nem refactoraljak klienseket
+		if(cMessage == null){
+			cMessage = aToken.getString("msg");
+		}
+		//Loggoljuk
+		log.info("New token received from "+cSenderName+" and the message is "+cMessage);
+		// dolgozzuk fel type alapjan
+		switch(cType){
+			case 2:
+					break;
+		
+			//Nem jot kuldott, biztos elnezte. Hat adjuk a tudtara asszertiv kommunikacioval
+			default: handleUnknowTypeField(aEvent,aToken,cType);
+		}
+		
 	}
+	
+	
+	/**
+	 * Ismeretlen type field a jsonben valaszoljuk a feladonak.
+	 * @param aEvent A websocketservertokeEvent
+	 * @param aToken Maga a token
+	 * @param cType A hibasnak/ismeretlennek itelt type mezo tartalma
+	 */
+private void handleUnknowTypeField(WebSocketServerTokenEvent aEvent, Token aToken, int cType){
+	log.warn("Message with invalid type field "+cType);
+	Token dResponse = aEvent.createResponse(aToken);
+	//REMOVEME: transition phase miatt
+	dResponse.setString("sender","CooProjectServer");
+	dResponse.setString("msg", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket! Es az msg fieldet sem kene feldolgoznod ...");
+	dResponse.setString("message", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket!");
+	aEvent.sendToken(dResponse);
+}
 	
 	
 }

@@ -236,7 +236,7 @@
 	<servers>
 		<server>
 			<name>org.jwebsocket.server.TokenServer</name>
-			<id>coop1</id>
+			<id>ts0</id>
 			<jar>jWebSocketTokenServer-1.0.jar</jar>
 			<!-- define the thread pool properties. Thread are spawned when Token's spawnThread value is true 
 			 Queue sizes and maximum pool sizes may be traded off for each other: Using large queues and small pools minimizes CPU usage, OS resources, and context-switching overhead, but can lead to artificially low throughput. 
@@ -627,7 +627,7 @@
 				<setting key="allowAutoAnonymous">true</setting>
 			</settings>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -640,7 +640,7 @@
 			<ns>org.jwebsocket.plugins.flashbridge</ns>
 			<jar>jWebSocketServer-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
 				<!-- if you remove this setting the plug-in uses an internal
@@ -656,7 +656,7 @@
 			<ns>org.jwebsocket.plugins.chat</ns>
 			<jar>jWebSocketChatPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
@@ -668,7 +668,7 @@
 			<ns>org.jwebsocket.plugins.sharedobjects</ns>
 			<jar>jWebSocketSharedObjectsPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -679,7 +679,7 @@
 			<ns>org.jwebsocket.plugins.streaming</ns>
 			<jar>jWebSocketStreamingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -690,7 +690,7 @@
 			<ns>org.jwebsocket.plugins.channels</ns>
 			<jar>jWebSocketChannelPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="spring_config">${JWEBSOCKET_HOME}/conf/ChannelPlugIn/channel.xml</setting>
@@ -707,7 +707,7 @@
 			<ns>org.jwebsocket.plugins.statistics</ns>
 			<jar>jWebSocketStatisticsPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -720,7 +720,7 @@
 			<ns>org.jWebSocket.plugins.jms</ns>
 			<jar>jWebSocketJMSPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="spring_config">${JWEBSOCKET_HOME}/conf/JMSPlugIn/jms.xml</setting>
@@ -741,7 +741,7 @@
 			<ns>org.jwebsocket.plugins.logging</ns>
 			<jar>jWebSocketLoggingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
 				<setting key="implementation">Log4J</setting>
@@ -759,7 +759,7 @@
 			<ns>org.jwebsocket.plugins.sample</ns>
 			<jar>jWebSocketSamples-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -772,7 +772,7 @@
 			<ns>org.jwebsocket.plugins.reporting</ns>
 			<jar>jWebSocketReportingPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 			<settings>
 				<!-- folder where the report specs are located -->
@@ -793,7 +793,7 @@
 				<setting key="config_file">api/api.xml</setting>
 			</settings>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -804,7 +804,7 @@
 			<ns>org.jwebsocket.plugins.test</ns>
 			<jar>jWebSocketTestPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -815,7 +815,7 @@
 			<ns>org.jwebsocket.plugins.benchmark</ns>
 			<jar>jWebSocketBenchmarkPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -826,7 +826,7 @@
 			<ns>org.jwebsocket.plugins.test</ns>
 			<jar>jWebSocketTestPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 
@@ -839,7 +839,7 @@
 			<ns>org.jwebsocket.jquery</ns>
 			<jar>jWebSocketJQueryPlugIn-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
@@ -863,11 +863,23 @@
 			</settings>
 			- - >
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</plugin>
 		-->
+		
+		<plugin>
+			<name>server.cooproject.itk.hu.serverPlugin</name>
+			<id>jws.coopserver</id>
+			<ns>hu.itk.cooproject.server</ns>
+			<jar>jWebSocketNotUsed-1.0.jar</jar>
+			<server-assignments>
+				<server-assignment>ts0</server-assignment>
+			</server-assignments>
+		</plugin>
 	</plugins>
+
+
 
 	<!-- filters to be instantiated for jWebSocket -->
 	<filters>
@@ -877,7 +889,7 @@
 			<ns>org.jwebsocket.filters.custom</ns>
 			<jar>jWebSocketPlugins-1.0.jar</jar>
 			<server-assignments>
-				<server-assignment>coop1</server-assignment>
+				<server-assignment>ts0</server-assignment>
 			</server-assignments>
 		</filter>
 	</filters>
