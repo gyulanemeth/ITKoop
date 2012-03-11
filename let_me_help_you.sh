@@ -1,6 +1,8 @@
 #!/bin/bash
 
 JWSDIR="./CoopServer/libs"
+LOGDIR="./CoopServer/logs"
+LOGFIL="serverlog.txt"
 
 function setup(){
 	echo "Let me do the setup part for you ..."
@@ -36,7 +38,14 @@ function run(){
 	stop
 	echo "Starting server"
 	export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
-	java -classpath CoopServer/console_build:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml &
+	mkdir -p ${LOGDIR}
+	echo -e "$(date +"%Y-%m-%d %T") Server started \n" >> ${LOGDIR}/${LOGFIL}
+	OUT="| tee -a"
+	if [[ $1 == "silent" ]];
+	then
+		OUT=">>"
+	fi
+	eval java -classpath CoopServer/console_build:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml ${OUT} ${LOGDIR}/${LOGFIL} &
 }
 
 function update(){
@@ -49,7 +58,17 @@ function update(){
 function stop(){
 	echo "Stopping anything listening on 8787..."
 	fuser -k 8787/tcp
+	mkdir -p ${LOGDIR}
+	echo -e "$(date +"%Y-%m-%d %T") Server stopped \n" >> ${LOGDIR}/${LOGFIL}
 	echo "done"
+}
+
+function check_logs(){
+	tail ${LOGDIR}/${LOGFIL}
+}
+
+function clear_logs(){
+	echo "" > ${LOGDIR}/${LOGFIL}
 }
 
 if [[ $1 == "setup" ]];
@@ -60,13 +79,19 @@ then
 	build
 elif [[ $1 == "run" ]];
 then
-	run
+	run $2
 elif [[ $1 == "stop" ]];
 then
 	stop
 elif [[ $1 == "update" ]];
 then
 	update
+elif [[ $1 == "check_logs" ]];
+then
+	check_logs
+elif [[ $1 == "clear_logs" ]];
+then
+	clear_logs
 else
 	echo "missing argument setup/build/run"
 fi
