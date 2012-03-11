@@ -30,3 +30,6 @@ CoopServer/console_build/*
 
 CoopServer/libs/**
 CoopServer/logs/**
+
+# Gedit backup files
+*~
