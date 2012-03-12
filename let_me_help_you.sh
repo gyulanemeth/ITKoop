@@ -94,12 +94,12 @@ then
 	clear_logs
 else
 	echo -e "missing argument. Valid arguments are:
-  setup			install the dependencies.
-  build			compile sources.
-  run [silent]	run the server [without console output]
-  stop 			stop any running servers
-  update		get fresh source from the master
-  check_logs	get the latest log entries. Try tail -f ${LOGDIR}/${LOGFIL} for full tailing
-  clear_logs	clear all log entries."
+  setup        install the dependencies.
+  build        compile sources.
+  run [silent] run the server [without console output]
+  stop         stop any running servers
+  update       get fresh source from the master
+  check_logs   get the latest log entries. Try tail -f ${LOGDIR}/${LOGFIL} for full tailing
+  clear_logs   clear all log entries."
 fi
 

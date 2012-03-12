@@ -102,7 +102,7 @@
 				<domain>http://10.208.7.110</domain>
 				<domain>http://10.21.68.56</domain>
 				<domain>http://lilchat.heroku.com</domain>
-				<domaon>http://nemgy.itk.ppke.hu</domain>
+				<domain>http://nemgy.itk.ppke.hu</domain>
 			</domains>
 			<!-- default session timeout 1h, max timeout currently 1 hour -->
 			<timeout>0</timeout>
