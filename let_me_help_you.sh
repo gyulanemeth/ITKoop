@@ -51,7 +51,7 @@ function run(){
 function update(){
 	stop
 	echo "Attempting to update from git origin, whatever that may be"
-	git pull origin serverside
+	git pull origin master
 	echo "Done. run build to compile."
 }
 
@@ -93,6 +93,13 @@ elif [[ $1 == "clear_logs" ]];
 then
 	clear_logs
 else
-	echo "missing argument setup/build/run"
+	echo -e "missing argument. Valid arguments are:
+  setup			install the dependencies.
+  build			compile sources.
+  run [silent]	run the server [without console output]
+  stop 			stop any running servers
+  update		get fresh source from the master
+  check_logs	get the latest log entries. Try tail -f ${LOGDIR}/${LOGFIL} for full tailing
+  clear_logs	clear all log entries."
 fi
 
