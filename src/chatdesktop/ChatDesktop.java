@@ -28,6 +28,7 @@ public class ChatDesktop extends Application {
     private MenuItem fileDisconnect, fileExit;
     private ChatPane root=new ChatPane();
     private LoginPane login=new LoginPane();
+    private Canvas canvas=new Canvas();
     private boolean isConnected=false;
     public static final int base_height=400, base_width=300;
     /**
@@ -118,6 +119,7 @@ public class ChatDesktop extends Application {
                 root.setName(login.getName());
                 login.clear();
                 bpane.setCenter(root);
+                bpane.setLeft(canvas);
                 }}});
         login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override

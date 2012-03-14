@@ -93,9 +93,6 @@ public class ChatPane extends BorderPane{
         messages.setEditable(false);
         messages.autosize();
         messages.setWrapText(true);
-       // messages.setFocusTraversable(false);
-       // messages.setDisable(true);
-       // messages.setStyle("-fx-font-size: 30px;color: #ff0000");
         messages.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent arg0) {
