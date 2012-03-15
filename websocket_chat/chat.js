@@ -105,7 +105,7 @@
   {
     var m = {
         sender: username.value,
-        type: 1000, //chat message
+        type: '1000',   //chat message
         message: sendMessage.value
     };
     logToConsole('SENT: ' + sendMessage.value, "sent");
