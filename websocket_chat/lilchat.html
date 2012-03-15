@@ -66,24 +66,29 @@
 
         <div id="chat">
           <div id="config" class="float-left">
-            <strong>Location:</strong><br>
-            <input id="wsUri" size="35">
-            <br>
-            <input type="checkbox" id="secureCb" onClick="toggleTls();">
-            <span id="secureCbLabel">Use secure WebSocket (TLS)</span><br>
-            <button id="connect">Connect</button>
-            <button id="disconnect">Disconnect</button>
+			<form id='connForm'>
+				<strong>Location:</strong><br>
+				<input id="wsUri" size="35">
+				<br>
+				<input type="checkbox" id="secureCb" onClick="toggleTls();">
+				<span id="secureCbLabel">Use secure WebSocket (TLS)</span><br>
+				<input type='submit' id="connect" value='Connect' />
+			</form>
+			<button id="disconnect">Disconnect</button>
 
             <br>
             <br>
-            <strong>Username:</strong><br>
-            <input id="username" size="35" value="Lilchat">
-            <br>
-            <br>
-            <strong>Message:</strong><br>
-            <input id="sendMessage" size="35" value="O HAI">
-            <br>
-            <button id="send" class="wsButton">Send</button>
+
+			<strong>Username:</strong><br>
+			<input id="username" size="35" value="Lilchat">
+			<br>
+			<br>
+            <form id='msgForm' action='#'>
+				<strong>Message:</strong><br>
+				<input id="sendMessage" size="35" value="O HAI">
+				<br>
+				<input type='submit' id="send" value='Send' class="wsButton" />
+			</form>
           </div>
           <div id="log"> <strong>Log:</strong>
             <div id="consoleLog"></div>

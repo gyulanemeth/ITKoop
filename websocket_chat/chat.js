@@ -30,7 +30,10 @@
     toggleTls();
 
     connectBut = document.getElementById("connect");
-    connectBut.onclick = doConnect;
+    document.getElementById('connForm').onsubmit=function() {
+        doConnect();
+        return false;
+    }
 
     disconnectBut = document.getElementById("disconnect");
     disconnectBut.onclick = doDisconnect;
@@ -40,7 +43,10 @@
     sendMessage = document.getElementById("sendMessage");
 
     sendBut = document.getElementById("send");
-    sendBut.onclick = doSend;
+    document.getElementById('msgForm').onsubmit=function() {
+        doSend();
+        return false;
+    }
 
     consoleLog = document.getElementById("consoleLog");
 
@@ -50,8 +56,6 @@
     setGuiConnected(false);
 
     document.getElementById("disconnect").onclick = doDisconnect;
-    document.getElementById("send").onclick = doSend;
-
   }
 
   function toggleTls()
@@ -145,8 +149,11 @@
     if(message.type == 'welcome') {
       logToConsole("The server welcomes you!");
     }
-    else if(message.message) {
+    else if(message.type == '1000' && message.message) {
       logToConsole('GOT: ' + message.message + '<br /> FROM: ' + message.sender, 'got');
+    }
+    else if(message.message) {
+      logToConsole('Message of unknown type: ' + message.message + '<br /> FROM: ' + message.sender, 'error');
     }
   }
 
