@@ -1,5 +1,7 @@
 package chatdesktop;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,6 +20,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jwebsocket.client.cgi.CGITokenClient;
+import org.jwebsocket.client.token.BaseTokenClient;
+import org.jwebsocket.kit.WebSocketException;
 
 /**
  *
@@ -30,6 +35,11 @@ public class ChatDesktop extends Application {
     private LoginPane login=new LoginPane();
     private boolean isConnected=false;
     public static final int base_height=400, base_width=300;
+    
+    private JWSCHandler wsHandler = JWSCHandler.getInstance();
+    
+    
+    
     /**
      * csatolófüggvény, megírásra szorul, mert nem értek a websocketekhez
      * @return JSONObjecttel tér vissza, benne a felhasználó login és pw-jével
@@ -39,9 +49,11 @@ public class ChatDesktop extends Application {
     public JSONObject sendAuth() throws JSONException, Exception{
         JSONObject object=new JSONObject();
         if(login.isFilled()){                    
-        object.append("name", login.getName());
-        object.append("pw", login.getPwField().getText());}
-        else throw new Exception("Error: Empty acc/pw field!");
+            object.append("name", login.getName());
+            object.append("pw", login.getPwField().getText());
+        }
+        else
+            throw new Exception("Error: Empty acc/pw field!");
         return object;
     }
     /**
@@ -75,10 +87,10 @@ public class ChatDesktop extends Application {
         while(obj.has("msg")){
             sb.append(obj.getString("msg"));
         }
-            root.addText(name, sb.toString());
+        root.addText(name, sb.toString());
     }
     @Override
-    public void start(final Stage primaryStage) {       
+    public void start(final Stage primaryStage) {    
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();
         final MenuBar menubar=new MenuBar();
@@ -117,6 +129,12 @@ public class ChatDesktop extends Application {
                 isConnected=true;
                 root.setName(login.getName());
                 login.clear();
+                if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
+                    Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
+                    System.err.println("Login Failed");
+                }else{
+                    System.out.println("Go!");
+                }
                 bpane.setCenter(root);
                 }}});
         login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
