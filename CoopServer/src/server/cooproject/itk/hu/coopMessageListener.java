@@ -57,9 +57,8 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 			_users.remove(aEvent.getSessionId());
 			log.info("Deleting record from _users map : "+aEvent.getSessionId()+" - "+username);
 			Token dResponse = TokenFactory.createToken("response");
-			//dResponse.setString("type","1000");//chat message
+			dResponse.setString("type","1000");//chat message
 			dResponse.setString("sender","CooProjectServer");
-			dResponse.setString("msg",username+" left the server");//REMOVEME: csak a regi kliensek miatt
 			dResponse.setString("message",username+" left the server");//chat message
 			_tServer.broadcastToken(dResponse);
 		}
@@ -74,10 +73,7 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 		}
 		String cSenderName = aToken.getString("sender");
 		String cMessage = aToken.getString("message");
-		//DEBUG, amig nem refactoraljak klienseket
-		if(cMessage == null){
-			cMessage = aToken.getString("msg");
-		}
+
 		//Loggoljuk
 		log.info("New token received from "+cSenderName+" and the message is "+cMessage);
 		updateUsername(aEvent,cSenderName);//updateljuk a sessionId - nev parost
@@ -111,7 +107,6 @@ private void handleUnknowTypeField(WebSocketServerTokenEvent aEvent, Token aToke
 	Token dResponse = aEvent.createResponse(aToken);
 	//REMOVEME: transition phase miatt
 	dResponse.setString("sender","CooProjectServer");
-	dResponse.setString("msg", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket! Es az msg fieldet sem kene feldolgoznod ...");
 	dResponse.setString("message", "Ne haragudj, de elrontottad a type("+cType+") mezo erteket!");
 	aEvent.sendToken(dResponse);
 }
@@ -129,14 +124,21 @@ private void updateUsername(WebSocketServerTokenEvent aEvent, String username){
 		_users.put(aEvent.getSessionId(),username);
 		log.info("New record in _users map : "+aEvent.getSessionId()+" - "+username);
 		Token dResponse = TokenFactory.createToken("response");
-		//dResponse.setString("type","1000");//chat message
+		dResponse.setString("type","1000");//chat message
 		dResponse.setString("sender","CooProjectServer");
-		dResponse.setString("msg",username+" joined");//REMOVEME: csak a regi kliensek miatt
 		dResponse.setString("message",username+" joined");//chat message
 		_tServer.broadcastToken(dResponse);
 	}else{
 		if(_users.get(aEvent.getSessionId()) != username){
 			log.info("_users map updated with "+aEvent.getSessionId()+" - "+username);
+
+			Token dResponse = TokenFactory.createToken("response");
+			dResponse.setString("type","1000");
+			dResponse.setString("sender","CooProjectServer");
+			dResponse.setString("message",_users.get(aEvent.getSessionId())+" is now known as "+username);
+
+			_tServer.broadcastToken(dResponse);
+
 			_users.put(aEvent.getSessionId(),username);
 		}
 	}
