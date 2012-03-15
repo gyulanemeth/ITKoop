@@ -4,6 +4,7 @@
   var consoleLog;
   var connectBut;
   var disconnectBut;
+  var username;
   var sendMessage;
   var sendBut;
   var clearLogBut;
@@ -33,6 +34,8 @@
 
     disconnectBut = document.getElementById("disconnect");
     disconnectBut.onclick = doDisconnect;
+
+    username=document.getElementById('username');
 
     sendMessage = document.getElementById("sendMessage");
 
@@ -97,17 +100,20 @@
   function doSend()
   {
     var m = {
-        sender: "Lilchat",
+        sender: username.value,
         type: 1000, //chat message
         message: sendMessage.value
     };
-    logToConsole('<span style="color: green;">SENT: ' + sendMessage.value + '</span>');
+    logToConsole('SENT: ' + sendMessage.value, "sent");
     websocket.send(JSON.stringify(m));
   }
 
-  function logToConsole(message)
+  function logToConsole(message, type)
   {
     var pre = document.createElement("p");
+
+    if(type) pre.className=type;
+    
     pre.style.wordWrap = "break-word";
     pre.innerHTML = getSecureTag()+message;
     consoleLog.appendChild(pre);
@@ -140,13 +146,13 @@
       logToConsole("The server welcomes you!");
     }
     else if(message.message) {
-      logToConsole('<span style="color: blue;">GOT: ' + message.message + '<br /> FROM: ' + message.sender +' </span>');
+      logToConsole('GOT: ' + message.message + '<br /> FROM: ' + message.sender, 'got');
     }
   }
 
   function onError(evt)
   {
-    logToConsole('<span style="color: red;">ERROR:</span> ' + evt.data);
+    logToConsole('ERROR: ' + evt.data, 'error');
   }
 
   function setGuiConnected(isConnected)

@@ -18,6 +18,16 @@
 	line-height: 150%;
 }
 
+#consoleLog p.error {
+    color: red;
+}
+#consoleLog p.sent {
+    color: green;
+}
+#consoleLog p.got {
+    color: blue;
+}
+
 #clearLogBut {
   position: relative;
   top: 3px;
