@@ -96,7 +96,11 @@
 
   function doSend()
   {
-    var m = { msg: sendMessage.value }; // JSON format???
+    var m = {
+        sender: "Lilchat",
+        type: 1000, //chat message
+        message: sendMessage.value
+    };
     logToConsole('<span style="color: green;">SENT: ' + sendMessage.value + '</span>');
     websocket.send(JSON.stringify(m));
   }
@@ -130,12 +134,14 @@
 
   function onMessage(evt)
   {
-    //var m = JSON.parse(JSON.parse(evt.data).msg); // JSON format???
-    //logToConsole('<span style="color: blue;">GOT: ' + m.msg + '  (from: ' + m.sender + ')</span>');
-    var m = JSON.parse(evt.data).msg;
-    var s = JSON.parse(evt.data).sender;
+    var message=JSON.parse(evt.data);
 
-    if (m) logToConsole('<span style="color: blue;">GOT: ' + JSON.parse(evt.data).msg + '<br /> FROM: ' + s +' </span>');
+    if(message.type == 'welcome') {
+      logToConsole("The server welcomes you!");
+    }
+    else if(message.message) {
+      logToConsole('<span style="color: blue;">GOT: ' + message.message + '<br /> FROM: ' + message.sender +' </span>');
+    }
   }
 
   function onError(evt)
