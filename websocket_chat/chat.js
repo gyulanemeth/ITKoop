@@ -119,7 +119,12 @@
     if(type) pre.className=type;
     
     pre.style.wordWrap = "break-word";
-    pre.innerHTML = getSecureTag()+message;
+
+    pre.innerHTML = message;
+
+    var sec=getSecureTag();
+    if(sec) pre.insertBefore(sec, pre.firstChild);
+
     consoleLog.appendChild(pre);
 
     while (consoleLog.childNodes.length > 50)
@@ -186,15 +191,18 @@
     }
   }
 
+  var secureTag = document.createElement('img');
+  secureTag.src="img/lock_icon.gif";
+  
   function getSecureTag()
   {
     if (secureCb.checked)
     {
-      return '<img src="img/tls-lock.png" width="6px" height="9px"> ';
+      return secureTag.cloneNode(true);
     }
     else
     {
-      return '';
+      return null;
     }
   }
 

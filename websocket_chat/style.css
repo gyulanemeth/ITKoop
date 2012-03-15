@@ -3,6 +3,10 @@
 	width: 960px;
 }
 
+form {
+    display: inline;
+}
+
 #consoleLog {
 	border: solid 1px #999999;
 	border-top-color: #CCCCCC;
