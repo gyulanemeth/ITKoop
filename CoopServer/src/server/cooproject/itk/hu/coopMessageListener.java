@@ -129,7 +129,7 @@ private void updateUsername(WebSocketServerTokenEvent aEvent, String username){
 		dResponse.setString("message",username+" joined");//chat message
 		_tServer.broadcastToken(dResponse);
 	}else{
-		if(_users.get(aEvent.getSessionId()) != username){
+		if(!_users.get(aEvent.getSessionId()).equals(username)){
 			log.info("_users map updated with "+aEvent.getSessionId()+" - "+username);
 
 			Token dResponse = TokenFactory.createToken("response");
