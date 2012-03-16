@@ -103,6 +103,7 @@
 				<domain>http://10.21.68.56</domain>
 				<domain>http://lilchat.heroku.com</domain>
 				<domain>http://nemgy.itk.ppke.hu</domain>
+				<domain>http://users.itk.ppke.hu</domain>
 
 				<domain>null</domain>
 			</domains>
