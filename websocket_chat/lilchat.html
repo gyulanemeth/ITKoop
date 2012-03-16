@@ -4,38 +4,21 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="style.css">
   <title>Lil websocket chat</title>
+  <script type="text/javascript" src="websocket.js"></script>
+  <script type="text/javascript" src="chat.js"></script>
+  <script type="text/javascript" src="canvasing.js"></script>
+  <script type="text/javascript">
+    if (window.attachEvent){
+	window.attachEvent("load", canvasingInit);
+    } else {
+	window.addEventListener("load", canvasingInit, false);
+    }
+  </script>
 </head>
 
 <body>
 
   <div id="container">
-    <script type="text/javascript" src="browser_detect.js"></script>
-    <script language="javascript" type="text/javascript">
-      function browserDetect()
-      {
-        document.getElementById("browserType").innerHTML += BrowserDetect.browser + ' ' + BrowserDetect.version;
-        document.getElementById("platform").innerHTML += BrowserDetect.OS;
-
-        if (window.WebSocket)
-        {
-          document.getElementById("wsSupportImg").src = "img/check.png"
-        }
-        else
-        {
-          document.getElementById("wsSupportImg").src = "img/cross.png"
-        }
-      }
-      // Handle difference for IE.
-      if (window.attachEvent)
-      {
-        window.attachEvent("load", browserDetect)
-      }
-      else
-      {
-        window.addEventListener("load", browserDetect, false);
-      }
-    </script>
-
     <div id="main-container">
       <div id="main">
 
@@ -97,9 +80,11 @@
         </div>
       </div>
     </div>
+
+    <div id='canvas_cont'>
+	<canvas width='800' height='600' id='canvas'>
+	</canvas>
+    </div>
   </div>
-
-  <script type="text/javascript" src="chat.js"></script>
-
 </body>
 </html>

@@ -70,46 +70,27 @@
     }
   }
 
-  function doConnect()
-  {
-    if (window.MozWebSocket)
-    {
-        logToConsole('<span style="color: red;"><strong>Info:</strong> This browser supports WebSocket using the MozWebSocket constructor</span>');
-        window.WebSocket = window.MozWebSocket;
-    }
-    else if (!window.WebSocket)
-    {
-        logToConsole('<span style="color: red;"><strong>Error:</strong> This browser does not have support for WebSocket</span>');
-        return;
-    }
-
-    var uri = wsUri.value;
-    if (uri.indexOf("?") == -1) {
-        uri += "?encoding=text";
-    } else {
-        uri += "&encoding=text";
-    }
-    websocket = new WebSocket(uri);
-    websocket.onopen = function(evt) { onOpen(evt) };
-    websocket.onclose = function(evt) { onClose(evt) };
-    websocket.onmessage = function(evt) { onMessage(evt) };
-    websocket.onerror = function(evt) { onError(evt) };
-  }
-
+  
   function doDisconnect()
   {
-    websocket.close()
+    if(getWS()) getWS().close();
   }
 
   function doSend()
   {
+    if (!getWS()) return;
+
     var m = {
         sender: username.value,
         type: '1000',   //chat message
         message: sendMessage.value
     };
     logToConsole('SENT: ' + sendMessage.value, "sent");
-    websocket.send(JSON.stringify(m));
+    getWS().send(JSON.stringify(m));
+  }
+
+  function onChatMessage(message) {
+    logToConsole('GOT: ' + message.message + '<br /> FROM: ' + message.sender, 'got');
   }
 
   function logToConsole(message, type)
@@ -135,37 +116,6 @@
     consoleLog.scrollTop = consoleLog.scrollHeight;
   }
 
-  function onOpen(evt)
-  {
-    logToConsole("CONNECTED");
-    setGuiConnected(true);
-  }
-
-  function onClose(evt)
-  {
-    logToConsole("DISCONNECTED");
-    setGuiConnected(false);
-  }
-
-  function onMessage(evt)
-  {
-    var message=JSON.parse(evt.data);
-
-    if(message.type == 'welcome') {
-      logToConsole("The server welcomes you!");
-    }
-    else if(message.type == '1000' && message.message) {
-      logToConsole('GOT: ' + message.message + '<br /> FROM: ' + message.sender, 'got');
-    }
-    else if(message.message) {
-      logToConsole('Message of unknown type: ' + message.message + '<br /> FROM: ' + message.sender, 'error');
-    }
-  }
-
-  function onError(evt)
-  {
-    logToConsole('ERROR: ' + evt.data, 'error');
-  }
 
   function setGuiConnected(isConnected)
   {
