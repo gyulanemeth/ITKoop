@@ -2,54 +2,101 @@
 	A canvast kezelő függvények.
 */
 
-var canvas=null;
-var context=null;
+var stage=null;  ///< a Kinetic.Stage magában foglalja a canvast is.
+var board=null;  ///< erre a Kinetic.Layerre fogunk rajzolni.
 
-var colors=['#ff0000', '#00ff00', '#0000ff'];
+var colors=['#ff0000', '#00ff00', '#0000ff']; ///< ebből a listából választunk színt az objektumoknak: id % colors.length
 
+/**
+	Inicializálás
+*/
 function canvasingInit() {
-	if(!document.getElementById('canvas')) return false;
+	if(!document.getElementById('canvas_cont')) return false;
 	
-	canvas=document.getElementById('canvas');
-	context=canvas.getContext('2d');
+	stage=new Kinetic.Stage("canvas_cont", 800,600);	//ez létrehozza a canvast is.
+	board=new Kinetic.Layer();
 
-	createObject(0, 50, 50, "Nulla");
-	createObject(1, 300, 300, "Egy");
-	createObject(2, 300, 300, "Kettő");
+	stage.add(board);
 
-	draw();
+	createObject(0, 50, 50, "ITK");
+	createObject(1, 100, 100, "Kooperatív");
+	createObject(2, 200, 200, "Izé");	
 
+	stage.draw();
+
+	moveObject(2, 100,200);
 	return true;
 }
 
-var objmap = {};	// ebben a mapben tároljuk az objektumainkat { <identifier> : {x: <xval>, y: <yval>, message: <msg>} } formában. Kezdetben üres.
+var objmap = {};	// ebben a mapben tároljuk az objektumainkat {id: <Kinetic.Text object>} formában
 
+/**
+	Lokálisan új objektum létrehozása. Wrapper a new Kinetic.Text-hez.
+*/
 function createObject(id, x, y, label) {
-	objmap[id] = { x: x, y: y, message: label };
+	objmap[id] = new Kinetic.Text({
+		x: x,
+		y: y,
+		text: label,
+		stroke: "black",
+		strokeWidth: 1,
+		fill: colors[id % colors.length],
+		fontSize: 12,
+		fontFamily: "Arial",
+		textFill: "white",
+		padding: 5,
+		align: "center",
+		verticalAlign: "middle",
+		draggable: true
+	});
+
+
+	objmap[id].on("dragstart", function(){
+		objmap[id].moveToTop();
+	});
+
+
+	//notify server about movement
+	objmap[id].on("dragend", function(){
+				sendMovementMessage(id);
+            });
+
+	board.add(objmap[id]);
 	return true;
 }
 
+/**
+	Objektum lokális, programatikus mozgatása.
+*/
 function moveObject(id, x, y) {
 	if(!objmap[id]) {
-		logToConsole("Wanted to move object #" +id+", no such object.");
+		logToConsole("Wanted to move object #" +id+", no such object.", "error");
 		return false;
 	}
 
+	if(objmap[id].x==x || objmap[id].y==y) return true;
+
 	objmap[id].x=x;
 	objmap[id].y=y;
+
+	stage.draw();
+
 	return true;
 }
 
-function draw() {
-	context.clearRect(0, 0, canvas.width, canvas.height);
+/**
+	Üzenet küldése a szervernek id azonosítójú objektum mozgatásáról.
+*/
+function sendMovementMessage(id) {
+	var m={
+		type: '2',
+		message: {
+			objId: id,
+			x: objmap[id].x,
+			y: objmap[id].y,
+			savePos: true
+		}
+	};
 
-	for (obj in objmap) {
-		context.beginPath();
-		context.rect(objmap[obj].x, objmap[obj].y, 20, 20);
-			context.fillStyle=colors[ obj % colors.length ];
-		context.fill();
-			context.lineWidth=1;
-			context.strokestyle="#000";
-		context.stroke();
-	}
+	message(m);
 }

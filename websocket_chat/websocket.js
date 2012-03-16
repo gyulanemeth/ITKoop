@@ -8,6 +8,7 @@ var websocket = null;
     return websocket;
   }
 
+
   function doConnect()
   {
     if (window.MozWebSocket)
@@ -53,6 +54,10 @@ var websocket = null;
     if(message.type == 'welcome') {
       logToConsole("The server welcomes you!");
     }
+    else if(message.type == '2' ) {
+        logToConsole("Got message: "+evt.data, "debug");
+        moveObject(message.message.objId, message.message.x, message.message.y);
+    }
     else if(message.type == '1000' && message.message) {
       onChatMessage(message);
     }
@@ -65,3 +70,19 @@ var websocket = null;
   {
     logToConsole('ERROR: ' + evt.data, 'error');
   }
+
+    function message(m) {
+        if(!m) return false;
+
+        m.sender=username.value;
+
+        if(!getWS()) {
+            logToConsole("I don't think we're connected, boss", "error");
+            return false;
+        }
+
+        getWS().send(JSON.stringify(m));
+
+        logToConsole("Sent message: "+JSON.stringify(m), "debug");
+    }
+

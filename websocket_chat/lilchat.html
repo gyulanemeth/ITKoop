@@ -6,6 +6,7 @@
   <title>Lil websocket chat</title>
   <script type="text/javascript" src="websocket.js"></script>
   <script type="text/javascript" src="chat.js"></script>
+  <script type="text/javascript" src="libs/kinetic-v3.8.3.min.js"></script>
   <script type="text/javascript" src="canvasing.js"></script>
   <script type="text/javascript">
     if (window.attachEvent){
@@ -82,8 +83,9 @@
     </div>
 
     <div id='canvas_cont'>
-	<canvas width='800' height='600' id='canvas'>
-	</canvas>
+	<noscript>
+	    It seems Javascript is not enabled in your browser. The Lilchat Canvas needs JS to function.
+	</noscript>
     </div>
   </div>
 </body>
