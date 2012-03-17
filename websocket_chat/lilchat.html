@@ -9,10 +9,14 @@
   <script type="text/javascript" src="libs/kinetic-v3.8.3.min.js"></script>
   <script type="text/javascript" src="canvasing.js"></script>
   <script type="text/javascript">
+    function init() {
+	canv=new canvasing(document.getElementById('canvas_cont'));
+    }
+
     if (window.attachEvent){
-	window.attachEvent("load", canvasingInit);
+	window.attachEvent("load", init);
     } else {
-	window.addEventListener("load", canvasingInit, false);
+	window.addEventListener("load", init, false);
     }
   </script>
 </head>

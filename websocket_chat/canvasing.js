@@ -1,102 +1,91 @@
 /**
-	A canvast kezelő függvények.
+	Canvast kezelő objektum. Konstruktor.
+
+	@param canvas_container  az a html node, ahová a canvast be szeretnénk szúrni.
 */
+function canvasing(canvas_container) {
 
-var stage=null;  ///< a Kinetic.Stage magában foglalja a canvast is.
-var board=null;  ///< erre a Kinetic.Layerre fogunk rajzolni.
+	this.stage=null;  ///< a Kinetic.Stage magában foglalja a canvast is.
+	this.board=null;  ///< erre a Kinetic.Layerre fogunk rajzolni.
+	this.objmap = {};  ///< ebben a mapben tároljuk az objektumainkat {id: <Kinetic.Text object>} formában
 
-var colors=['#ff0000', '#00ff00', '#0000ff']; ///< ebből a listából választunk színt az objektumoknak: id % colors.length
+	this.stage=new Kinetic.Stage(canvas_container, 800,600);	//ez létrehozza a canvast is.
+	this.board=new Kinetic.Layer();
 
-/**
-	Inicializálás
-*/
-function canvasingInit() {
-	if(!document.getElementById('canvas_cont')) return false;
-	
-	stage=new Kinetic.Stage("canvas_cont", 800,600);	//ez létrehozza a canvast is.
-	board=new Kinetic.Layer();
+	this.stage.add(this.board);
 
-	stage.add(board);
+	this.createObject(0, 50, 50, "ITK");
+	this.createObject(1, 100, 100, "Kooperatív");
+	this.createObject(2, 200, 200, "Izé");	
 
-	createObject(0, 50, 50, "ITK");
-	createObject(1, 100, 100, "Kooperatív");
-	createObject(2, 200, 200, "Izé");	
+	this.stage.draw();
 
-	stage.draw();
-
-	moveObject(2, 100,200);
-	return true;
+	this.moveObject(2, 200,200);
 }
 
-var objmap = {};	// ebben a mapben tároljuk az objektumainkat {id: <Kinetic.Text object>} formában
+canvasing.prototype.colors=['#ff0000', '#00ff00', '#0000ff']; ///< ebből a listából választunk színt az objektumoknak: id % colors.length
+
 
 /**
-	Lokálisan új objektum létrehozása. Wrapper a new Kinetic.Text-hez.
+	Objektum lokális létrehozása a vásznon.
 */
-function createObject(id, x, y, label) {
-	objmap[id] = new Kinetic.Text({
+canvasing.prototype.createObject=function(id, x, y, label) {
+	this.objmap[id] = new Kinetic.Text({
 		x: x,
 		y: y,
 		text: label,
 		stroke: "black",
 		strokeWidth: 1,
-		fill: colors[id % colors.length],
+		fill: this.colors[id % this.colors.length],
 		fontSize: 12,
 		fontFamily: "Arial",
 		textFill: "white",
 		padding: 5,
 		align: "center",
 		verticalAlign: "middle",
-		draggable: true
+		draggable: true,
+		id: id,
+		sendMovementMessage: this.sendMovementMessage
 	});
 
-
-	objmap[id].on("dragstart", function(){
-		objmap[id].moveToTop();
-	});
+	this.objmap[id].on("dragstart", this.objmap[id].moveToTop);
 
 
 	//notify server about movement
-	objmap[id].on("dragend", function(){
-				sendMovementMessage(id);
-            });
+	this.objmap[id].on("dragend", this.objmap[id].sendMovementMessage);
 
-	board.add(objmap[id]);
+	this.board.add(this.objmap[id]);
 	return true;
 }
 
 /**
-	Objektum lokális, programatikus mozgatása.
+	Objektum lokális, programatikus mozgatása a vásznon.
 */
-function moveObject(id, x, y) {
-	if(!objmap[id]) {
-		logToConsole("Wanted to move object #" +id+", no such object.", "error");
-		return false;
-	}
+canvasing.prototype.moveObject=function(id, x, y) {
+	if(!this.objmap[id]) throw ("Wanted to move object #" +id+", no such object.");
 
-	if(objmap[id].x==x || objmap[id].y==y) return true;
+	if(this.objmap[id].x==x || this.objmap[id].y==y) return true;
 
-	objmap[id].x=x;
-	objmap[id].y=y;
+	this.objmap[id].x=x;
+	this.objmap[id].y=y;
 
-	stage.draw();
-
-	return true;
+	this.stage.draw();
 }
 
 /**
-	Üzenet küldése a szervernek id azonosítójú objektum mozgatásáról.
+	Üzenet a szervernek az objektum mozgatásáról.
 */
-function sendMovementMessage(id) {
+canvasing.prototype.sendMovementMessage = function(obj) {
+	if(!obj) obj = this;
+
 	var m={
 		type: '2',
 		message: {
-			objId: id,
-			x: objmap[id].x,
-			y: objmap[id].y,
+			objId: obj.id,
+			x: obj.x,
+			y: obj.y,
 			savePos: true
 		}
-	};
-
+	}
 	message(m);
-}
+};
