@@ -1,14 +1,21 @@
-  var secureCb;
-  var secureCbLabel;
-  var wsUri;
-  var consoleLog;
-  var connectBut;
-  var disconnectBut;
-  var username;
-  var sendMessage;
-  var sendBut;
-  var clearLogBut;
+/**
+    A GUIra és a chatre vonatkozó globális függvények.
+*/
 
+  var secureCb; // a "Use secure WebSocket" checkbox
+  var secureCbLabel;  //a checkboxhoz tartozó label
+  var wsUri;  // az URI input field.
+  var consoleLog;  // a log.
+  var connectBut;  // kapcsolódás gomb
+  var disconnectBut;  //disconnect gomb
+  var username;  // felhasználói név input gomb
+  var sendMessage;  // az üzenet input fieldje
+  var sendBut;  // üzenet küldése gomb
+  var clearLogBut;  // log törlése gomb.
+
+  /**
+    A GUI inicializálása, a fenti globális változók beállítása.
+  */
   function echoHandlePageLoad()
   {
     if (window.WebSocket)
@@ -58,16 +65,26 @@
     document.getElementById("disconnect").onclick = doDisconnect;
   }
 
+  /**
+    Secure connection ki- és bekapcsolása.
+  */
   function toggleTls()
   {
+    var x = (wsUri.value.length < 1? x="ws://localhost:8787" : wsUri.value);
+    x=new Uri(x);    
+
     if (secureCb.checked)
     {
-      wsUri.value = "wss://localhost:8787";
+      x.setProtocol('wss');
+      x.setPort('9797');
     }
     else
     {
-      wsUri.value = "ws://localhost:8787";
+      x.setProtocol('ws');
+      x.setPort('8787');
     }
+
+    wsUri.value=x.toString();
   }
 
   
@@ -75,6 +92,7 @@
   {
     if(getWS()) getWS().close();
   }
+
 
   function doSend()
   {
@@ -143,17 +161,9 @@
 
   var secureTag = document.createElement('img');
   secureTag.src="img/lock_icon.gif";
-  
   function getSecureTag()
   {
-    if (secureCb.checked)
-    {
-      return secureTag.cloneNode(true);
-    }
-    else
-    {
-      return null;
-    }
+    return (secureCb.checked? secureTag.cloneNode(true) : null)
   }
 
   window.addEventListener("load", echoHandlePageLoad, false);

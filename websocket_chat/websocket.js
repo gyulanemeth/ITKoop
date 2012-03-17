@@ -4,11 +4,16 @@
 
 var websocket = null;
 
+  /**
+    Ez rossz ötlet volt, használjuk csak a websocket változót.
+  */
   function getWS() {
     return websocket;
   }
 
-
+  /**
+    Elkészíti a websocket kapcsolatot.
+  */
   function doConnect()
   {
     if (window.MozWebSocket)
@@ -43,6 +48,7 @@ var websocket = null;
 
   function onClose(evt)
   {
+    ws=null;
     logToConsole("DISCONNECTED");
     setGuiConnected(false);
   }
@@ -71,17 +77,23 @@ var websocket = null;
     logToConsole('ERROR: ' + evt.data, 'error');
   }
 
+
+    /**
+        Üzenet küldése a websocketen keresztül.
+
+        @param  m a küldeni kívánt JSON objektum.
+    */
     function message(m) {
         if(!m) return false;
 
         m.sender=username.value;
 
-        if(!getWS()) {
+        if(!websocket) {
             logToConsole("I don't think we're connected, boss", "error");
             return false;
         }
 
-        getWS().send(JSON.stringify(m));
+        websocket.send(JSON.stringify(m));
 
         logToConsole("Sent message: "+JSON.stringify(m), "debug");
     }
