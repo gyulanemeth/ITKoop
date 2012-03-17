@@ -56,7 +56,7 @@ var websocket = null;
     }
     else if(message.type == '2' ) {
         logToConsole("Got message: "+evt.data, "debug");
-        moveObject(message.message.objId, message.message.x, message.message.y);
+        canv.moveObject(message.message.objId, message.message.x, message.message.y);
     }
     else if(message.type == '1000' && message.message) {
       onChatMessage(message);

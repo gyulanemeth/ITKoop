@@ -1,4 +1,54 @@
 /**
+	A mozgatott objektumaink reprezentációja. A Kinetic.Text altípusa.
+*/
+function ITKoobject(id, x, y, label, color) {
+	this.ITKoobjId=id;
+
+	var config = {
+		x: x,
+		y: y,
+		text: label,
+		fill: color,
+		padding: 5,
+		draggable: true,
+
+		align: "center",
+		verticalAlign: "middle",
+		fontFamily: "Arial",
+		fontSize: 12,
+		stroke: "black",
+		strokeWidth: 1,
+		textFill: "white"
+	};
+
+	Kinetic.Text.apply(this, [config]);		// a Kinetic.Text konstruktorának hívása
+}
+
+ITKoobject.prototype=new Kinetic.Text({
+	x: 0,
+	y: 0,
+	text: ">_>"
+});
+
+/**
+	Üzenet a szervernek az objektum mozgatásáról.
+*/
+ITKoobject.prototype.sendMovementMessage = function() {
+	var m={
+		type: '2',
+		message: {
+			objId: this.ITKoobjId,
+			x: this.x,
+			y: this.y,
+			savePos: true
+		}
+	}
+	message(m);
+};
+Kinetic.GlobalObject.extend(ITKoobject, Kinetic.Text);
+
+
+/**
 	Canvast kezelő objektum. Konstruktor.
 
 	@param canvas_container  az a html node, ahová a canvast be szeretnénk szúrni.
@@ -30,26 +80,9 @@ canvasing.prototype.colors=['#ff0000', '#00ff00', '#0000ff']; ///< ebből a list
 	Objektum lokális létrehozása a vásznon.
 */
 canvasing.prototype.createObject=function(id, x, y, label) {
-	this.objmap[id] = new Kinetic.Text({
-		x: x,
-		y: y,
-		text: label,
-		stroke: "black",
-		strokeWidth: 1,
-		fill: this.colors[id % this.colors.length],
-		fontSize: 12,
-		fontFamily: "Arial",
-		textFill: "white",
-		padding: 5,
-		align: "center",
-		verticalAlign: "middle",
-		draggable: true,
-		id: id,
-		sendMovementMessage: this.sendMovementMessage
-	});
+	this.objmap[id] = new ITKoobject(id, x, y, label, this.colors[id % this.colors.length] );
 
 	this.objmap[id].on("dragstart", this.objmap[id].moveToTop);
-
 
 	//notify server about movement
 	this.objmap[id].on("dragend", this.objmap[id].sendMovementMessage);
@@ -71,21 +104,3 @@ canvasing.prototype.moveObject=function(id, x, y) {
 
 	this.stage.draw();
 }
-
-/**
-	Üzenet a szervernek az objektum mozgatásáról.
-*/
-canvasing.prototype.sendMovementMessage = function(obj) {
-	if(!obj) obj = this;
-
-	var m={
-		type: '2',
-		message: {
-			objId: obj.id,
-			x: obj.x,
-			y: obj.y,
-			savePos: true
-		}
-	}
-	message(m);
-};
