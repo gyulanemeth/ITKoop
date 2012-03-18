@@ -14,6 +14,9 @@
   var sendBut;            // üzenet küldése gomb.
   var clearChatLogBut;    // chat log törlése gomb.
   var clearDebugLogBut;   // debug log törlése gomb.
+  var useDebug;           // "use debug log" checkbox.
+  var useDebugLabel;      // label a checkboxnak.
+  var doLogging = true;   // logoljunk-é?
 
   var secureTag = document.createElement('img'); // lakatocska
   secureTag.src="img/lock_icon.gif";
@@ -70,6 +73,12 @@
     clearDebugLogBut = document.getElementById("clearDebugLogBut");
     clearDebugLogBut.onclick=function() { clearLog(debugLog);}
 
+    // használjunk-e debugot
+    useDebug = document.getElementById("useDebug");
+    useDebug.checked = true;
+    useDebug.onclick = toggleDebugUse;
+    useDebugLabel = document.getElementById("useDebugLabel")
+
     // connection hinyában néhány input letiltása
     setGuiConnected(false);
   }
@@ -102,6 +111,15 @@
     else { x.setProtocol('ws'); x.setPort('8787'); }
 
     wsUri.value=x.toString();
+  }
+
+  /**
+    Logolás ki-be kapcsolása.
+  */
+  function toggleDebugUse()
+  {
+    if (useDebug.checked) { doLogging = true; debugLog.style.backgroundColor = "white"; }
+    else { doLogging = false; debugLog.style.backgroundColor = "LightGray"; }
   }
 
   /**
@@ -173,12 +191,18 @@
 
     if (type && type == 'got') { chatLog.appendChild(pre); chatLog.scrollTop = chatLog.scrollHeight; }
     else if (type == 'server') { chatLog.appendChild(pre); chatLog.scrollTop = chatLog.scrollHeight; }
-    else { debugLog.appendChild(pre); debugLog.scrollTop = debugLog.scrollHeight; }
+    else { if (doLogging) {debugLog.appendChild(pre); debugLog.scrollTop = debugLog.scrollHeight; }}
 
-    // while (chatLog.childNodes.length > 50)
-    // {
-    //   chatLog.removeChild(chatLog.firstChild);
-    // }
+    // hogy ne legyen túl nagy a DOM -> bár azért valahogy a chatüzeneteket legalább jó lenne megtartani...
+    while (chatLog.childNodes.length > 100)
+    {
+      chatLog.removeChild(chatLog.firstChild);
+    }
+
+    while (debugLog.childNodes.length > 60)
+    {
+      debugLog.removeChild(debugLog.firstChild);
+    }
   }
 
   /**
