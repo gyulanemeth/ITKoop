@@ -1,6 +1,8 @@
 package chatdesktop;
 
 import java.net.BindException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,14 +35,15 @@ public class ChatDesktop extends Application {
     private MenuItem fileDisconnect, fileExit;
     private ChatPane root=new ChatPane();
     private LoginPane login=new LoginPane();
-    private Canvas canvas=new Canvas();
+    private Canvas canvas=new Canvas();    
+    private JWSCHandler wsHandler = JWSCHandler.getInstance();
     private boolean isConnected=false;
     public static final int base_width=620,base_height=300;
     @Override
     public void start(Stage primaryStage) {          
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();               
-        final StackPane sp=new StackPane();
+        final StackPane spane=new StackPane();
         final MenuBar menubar=new MenuBar();
         Scene scene=new Scene(bpane); 
         //Setting containers****************************************************
@@ -80,30 +83,39 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        isConnected=true;
-                        root.setName(login.getName());
-                        login.clear();
-                        root.setVisible(isConnected);                  
-                        login.setVisible(!isConnected);
-                }}});
+                        if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
+                            Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
+                            System.err.println("Login Failed");
+                        }else{
+                            isConnected=true;
+                            root.setName(login.getName());
+                            login.clear();
+                            root.setVisible(isConnected);                  
+                            login.setVisible(!isConnected);
+                    }}}});
         login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ev) {
-                if(ev.getCode()==KeyCode.ENTER) if(login.isFilled()){
-                    isConnected=true;
-                    root.setName(login.getName());
-                    login.clear();
-                    root.setVisible(isConnected);                  
-                    login.setVisible(!isConnected);
-                }}});
+                    if(ev.getCode()==KeyCode.ENTER) if(login.isFilled()){
+
+                        if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
+                            Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
+                            System.err.println("Login Failed");
+                        }else{
+                            isConnected=true;
+                            root.setName(login.getName());
+                            login.clear();
+                            root.setVisible(isConnected);                  
+                            login.setVisible(!isConnected);
+                        }}}});
         menuFile.getItems().addAll(fileDisconnect, fileExit);
         menubar.getMenus().add(menuFile);
         //positioning***********************************************************
-        sp.getChildren().addAll(login, root);
+        spane.getChildren().addAll(login, root);
         root.setVisible(false);
         bpane.setTop(menubar);
-        bpane.setLeft(new Canvas());
-        bpane.setRight(sp);
+        bpane.setLeft(canvas);
+        bpane.setRight(spane);
         //other*****************************************************************
         primaryStage.setTitle("ChatProgram 1.013c");
         primaryStage.setScene(scene);

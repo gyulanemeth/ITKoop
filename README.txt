@@ -1,1 +1,1 @@
-Chatprogram desktop része CBA-tól, tök fölöslegesen, mivel beüzemelés elõtt továbbléptünk.
+Összeraktam Gomez jwebsocketjét a canvassal kibõvített chatprogrammal. Innentõl csak ezt írjátok át, a desktop_client_inprogress nem aktuális, lehet törölni, én nem tudok hogy kell.
