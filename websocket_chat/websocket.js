@@ -7,9 +7,7 @@ var websocket = null;
   /**
     Ez rossz ötlet volt, használjuk csak a websocket változót.
   */
-  function getWS() {
-    return websocket;
-  }
+  function getWS() { return websocket; }
 
   /**
     Elkészíti a websocket kapcsolatot.
@@ -18,12 +16,12 @@ var websocket = null;
   {
     if (window.MozWebSocket)
     {
-        logToConsole('<span style="color: red;"><strong>Info:</strong> This browser supports WebSocket using the MozWebSocket constructor</span>');
+        logToConsole('This browser supports WebSocket using the MozWebSocket constructor', 'info');
         window.WebSocket = window.MozWebSocket;
     }
     else if (!window.WebSocket)
     {
-        logToConsole('<span style="color: red;"><strong>Error:</strong> This browser does not have support for WebSocket</span>');
+        logToConsole('This browser does not have support for WebSocket', 'error');
         return;
     }
 
@@ -40,61 +38,60 @@ var websocket = null;
     websocket.onerror = function(evt) { onError(evt) };
   }
 
+  /**
+    Kapcsolat létrejöttekor...
+  */
   function onOpen(evt)
   {
-    logToConsole("CONNECTED");
+    logToConsole("CONNECTED", 'info');
     setGuiConnected(true);
   }
 
+  /**
+    Kapcsolat megszűnésekor...
+  */
   function onClose(evt)
   {
     ws=null;
-    logToConsole("DISCONNECTED");
+    logToConsole("DISCONNECTED", 'info');
     setGuiConnected(false);
   }
 
+  /**
+    Ha üzenet érkezik...
+  */
   function onMessage(evt)
   {
     var message=JSON.parse(evt.data);
 
-    if(message.type == 'welcome') {
-      logToConsole("The server welcomes you!");
+    if(message.type == 'welcome') { logToConsole("The server welcomes you!", 'server');}
+    else if(message.type == '2' ) // valaki mozgatott egy objektumot
+    {
+      logToConsole("Got message (moving object): " + evt.data, "debug");
+      canv.moveObject(message.message.objId, message.message.x, message.message.y);
     }
-    else if(message.type == '2' ) {
-        logToConsole("Got message: "+evt.data, "debug");
-        canv.moveObject(message.message.objId, message.message.x, message.message.y);
-    }
-    else if(message.type == '1000' && message.message) {
-      onChatMessage(message);
-    }
-    else if(message.message) {
-      logToConsole('Message of unknown type: ' + message.message + '<br /> FROM: ' + message.sender, 'error');
-    }
+    else if(message.type == '1000' && message.message) { onChatMessage(message); } // chat üzenet
+    else if(message.message) { logToConsole(message.sender + ' says: ' + message.message + ' (aka Message of unknown type:)', 'error'); }
   }
 
+  /**
+    Ha valami gebasz van...
+  */
   function onError(evt)
   {
     logToConsole('ERROR: ' + evt.data, 'error');
   }
 
+  /**
+    Üzenet küldése a websocketen keresztül.
+    @param  m a küldeni kívánt JSON objektum.
+  */
+  function message(m)
+  {
+    if(!m) return false;
 
-    /**
-        Üzenet küldése a websocketen keresztül.
-
-        @param  m a küldeni kívánt JSON objektum.
-    */
-    function message(m) {
-        if(!m) return false;
-
-        m.sender=username.value;
-
-        if(!websocket) {
-            logToConsole("I don't think we're connected, boss", "error");
-            return false;
-        }
-
-        websocket.send(JSON.stringify(m));
-
-        logToConsole("Sent message: "+JSON.stringify(m), "debug");
-    }
-
+    m.sender=username.value;
+    if(!websocket) { logToConsole("I don't think we're connected, boss", "error"); return false; }
+    websocket.send(JSON.stringify(m));
+    logToConsole("Sent message: "+JSON.stringify(m), "debug");
+  }
