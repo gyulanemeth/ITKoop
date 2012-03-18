@@ -1,14 +1,4 @@
 Websocketes javascript chat kliens.
-Kiaktam Herokura, hogy majd lehessen próbálgatni: lilchat.heroku.com
 
-Perpill nincs lefektetve, hogy milyen JSON-okat kellene fogadni, így csak csináltam valamit, amit ismer, az a { msg: "hello", sender: "valaki" }.
-
-Fájlok:
-img (mappa) - két kis kép a browser supporthoz
-browser_detect.js - ahogy a neve is mondja, platform/böngésződetekciós okosság
-chat.js - ez a lényeg, ez csinálja, amit kell (doSend, onMessage)
-lilchat.html, style.css - minimál csilivili gui
-server.rb - mini ruby websocket server, ezzel próbálgattam ki
-
----
-Zs, 2010/03/04
+users:
+http://users.itk.ppke.hu/~balzs1/websocket_chat/lilchat.html
