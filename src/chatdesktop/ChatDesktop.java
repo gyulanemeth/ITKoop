@@ -1,12 +1,10 @@
 package chatdesktop;
 
-import java.net.BindException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -38,18 +36,16 @@ public class ChatDesktop extends Application {
     private Canvas canvas=new Canvas();    
     private JWSCHandler wsHandler = JWSCHandler.getInstance();
     private boolean isConnected=false;
-    public static final int base_width=620,base_height=300;
+    public static final int base_width=600,base_height=320;
     @Override
     public void start(Stage primaryStage) {          
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();               
         final StackPane spane=new StackPane();
         final MenuBar menubar=new MenuBar();
-        Scene scene=new Scene(bpane); 
+        Scene scene=new Scene(bpane,base_width,base_height); 
         //Setting containers****************************************************
-        bpane.setPadding(Insets.EMPTY);
-        //bpane.setPrefSize(base_width, base_height);
-        primaryStage.setResizable(true);
+        primaryStage.setResizable(false);
         //Background************************************************************
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
@@ -71,6 +67,7 @@ public class ChatDesktop extends Application {
                     isConnected=false;
                     root.setVisible(isConnected);                  
                     login.setVisible(!isConnected);
+                    login.play(1.0f, 0.0f);
                 }
             }});
         fileExit=new MenuItem("Exit");
@@ -87,17 +84,17 @@ public class ChatDesktop extends Application {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
-                            isConnected=true;
-                            root.setName(login.getName());
-                            login.clear();
-                            root.setVisible(isConnected);                  
-                            login.setVisible(!isConnected);
-                    }}}});
+                              isConnected=true;
+                              root.setName(login.getName());
+                              login.clear();
+                              root.setVisible(isConnected);                  
+                              login.setVisible(!isConnected);
+        }}}});
         login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ev) {
-                    if(ev.getCode()==KeyCode.ENTER) if(login.isFilled()){
-
+                    if(ev.getCode()==KeyCode.ENTER) 
+                        if(login.isFilled()){
                         if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
@@ -105,9 +102,11 @@ public class ChatDesktop extends Application {
                             isConnected=true;
                             root.setName(login.getName());
                             login.clear();
-                            root.setVisible(isConnected);                  
                             login.setVisible(!isConnected);
-                        }}}});
+                            root.setVisible(isConnected);
+                            root.play(1.0f,0.0f);
+                            
+        }}}});
         menuFile.getItems().addAll(fileDisconnect, fileExit);
         menubar.getMenus().add(menuFile);
         //positioning***********************************************************

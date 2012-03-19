@@ -1,5 +1,8 @@
 package chatdesktop;
 
+import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,8 +16,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 /**
  *
@@ -24,6 +29,8 @@ public class LoginPane extends BorderPane{
     private TextField accountField=new TextField();
     private PasswordField pwField=new PasswordField();
     private Button submit=new Button("Submit");
+    private Rectangle rect=new Rectangle(320, 300, Color.WHITE);;
+    private FadeTransition fadeTransition;
     /**
      * Segédfüggvény
      * @return névmező szövege
@@ -59,8 +66,23 @@ public class LoginPane extends BorderPane{
         accountField.setText("");
         pwField.setText("");
     }
+        void play(float from, float to){
+        rect.setVisible(true);
+        fadeTransition = new FadeTransition(Duration.seconds(1), rect);
+        fadeTransition.setFromValue(from);
+        fadeTransition.setToValue(to);
+        fadeTransition.setCycleCount(1);
+        fadeTransition.play();
+        fadeTransition.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                rect.setVisible(false);
+            }
+        });
+    }
     public LoginPane() {
         super();
+        rect.setVisible(false);
         //TOP*******************************************************************
         final Text title=new Text("Login");   
         title.setFont(Font.font("Engravers MT", 18));
@@ -87,6 +109,7 @@ public class LoginPane extends BorderPane{
         gp.add(submit, 1,3);
         //positioning***********************************************************
         setTop(spane);
-        setCenter(gp);        
+        setCenter(gp); 
+        this.getChildren().add(rect);
     }   
 }
