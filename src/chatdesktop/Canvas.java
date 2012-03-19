@@ -5,12 +5,18 @@
 package chatdesktop;
 
 import java.util.Random;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Shadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 /**
  *
@@ -21,14 +27,22 @@ public final class Canvas extends Group{
     private Rectangle red, green, blue;
     private Point2D dragAnchor;
     private double initX, initY;
+    private ScaleTransition scale;
     public Canvas() {
         super();
         setBase();        
         initRectangle();
+        setBorder();
     }
     void setBase(){
         Rectangle rec=new Rectangle(width, height, Color.WHITESMOKE);
         this.getChildren().add(rec);
+    }
+    void setBorder(){
+        DropShadow shadow=new DropShadow();
+        shadow.setOffsetX(4);
+        shadow.setOffsetY(5);
+        this.setEffect(shadow);
     }
     void initRectangle(){
         Random random=new Random();
@@ -52,16 +66,16 @@ public final class Canvas extends Group{
                 double dragTransY=ev.getY()-dragAnchor.getY();
                 double newPositionX=initX+dragTransX;
                 double newPositionY=initY+dragTransY;
-                if(newPositionX<=270 && newPositionX>=0)
+                if(newPositionX<=width-rec.getWidth() && newPositionX>=0)
                     rec.setX(newPositionX);
-                else if(newPositionX>270)
-                    rec.setX(270);
+                else if(newPositionX>width-rec.getWidth())
+                    rec.setX(width-rec.getWidth());
                 else
                     rec.setX(0);
-                if(newPositionY<=270 && newPositionY>=0)
+                if(newPositionY<=height-rec.getHeight() && newPositionY>=0)
                     rec.setY(newPositionY);
-                else if(newPositionY>270)
-                    rec.setY(270);
+                else if(newPositionY>height-rec.getHeight())
+                    rec.setY(height-rec.getHeight());
                 else
                     rec.setY(0);
                 //Ide jöhetne egy üzenetküldés.
@@ -77,10 +91,23 @@ public final class Canvas extends Group{
             }
         });
         rec.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
             @Override
             public void handle(MouseEvent arg0) {
                 rec.toFront();
+                scale=new ScaleTransition(Duration.seconds(0.1), rec);
+                scale.setToX(0.8f);
+                scale.setToY(0.8f);
+                scale.play();
+            }
+        });
+        rec.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent arg0) {
+                scale=new ScaleTransition(Duration.seconds(0.1), rec);
+                scale.setToX(1.0f);
+                scale.setToY(1.0f);
+                scale.play();
             }
         });
     }

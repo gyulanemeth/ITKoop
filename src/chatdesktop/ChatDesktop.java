@@ -36,7 +36,7 @@ public class ChatDesktop extends Application {
     private Canvas canvas=new Canvas();    
     private JWSCHandler wsHandler = JWSCHandler.getInstance();
     private boolean isConnected=false;
-    public static final int base_width=600,base_height=320;
+    public static final int base_width=600,base_height=330;
     @Override
     public void start(Stage primaryStage) {          
         //Init containers*******************************************************
