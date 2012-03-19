@@ -27,3 +27,6 @@ local.properties
 
 CoopServer/bin/**
 CoopServer/console_build/*
+
+CoopServer/libs/**
+CoopServer/logs/**

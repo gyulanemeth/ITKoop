@@ -1,35 +1,74 @@
 #!/bin/bash
+
+JWSDIR="./CoopServer/libs"
+LOGDIR="./CoopServer/logs"
+LOGFIL="serverlog.txt"
+
 function setup(){
 	echo "Let me do the setup part for you ..."
-	echo "Deleting /tmp/badassdeps "
-	rm -rf /tmp/badassdeps
-	echo "Downloading jwebsocket to /tmp/"
-	wget http://jwebsocket.googlecode.com/files/jWebSocketServer-1.0-nb20105.zip -O /tmp/jwebsocket_server.zip
-	echo "Creating /tmp/badassdeps/ "
-	mkdir /tmp/badassdeps
+	echo "Deleting ${JWSDIR} "
+	rm -rf ${JWSDIR}
+	echo "Downloading jwebsocket to here"
+	wget http://jwebsocket.googlecode.com/files/jWebSocketServer-1.0-nb20105.zip -O ./jwebsocket_server.zip
+	echo "Creating ${JWSDIR} "
+	mkdir ${JWSDIR} -p
 	echo "Unpacking our libs"
-	unzip /tmp/jwebsocket_server.zip -d /tmp/badassdeps/
+	unzip ./jwebsocket_server.zip -d ${JWSDIR}
 	echo "Cleaning up ..."
-	rm /tmp/jwebsocket_server.zip
+	rm ./jwebsocket_server.zip
+	echo "Adding JWebSocketHome"
+	export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
 	echo "Done"
 }
 
 function build(){
+	stop
 	echo "Let's build our bad-ass server!"
-	export JWEBSOCKET_HOME="/tmp/badassdeps/jwebsocket-1.0"
+	export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
 	echo "Deleting old bins"
 	rm -rf CoopServer/console_build
 	echo "Creating console_build directory"
 	mkdir -p CoopServer/console_build
 	echo "running javac"
-	javac -classpath /tmp/badassdeps/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
+	javac -classpath ${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
 	echo "done"
 }
 
 function run(){
+	stop
 	echo "Starting server"
-	export JWEBSOCKET_HOME="/tmp/badassdeps/jWebSocket-1.0"
-	java -classpath CoopServer/console_build:/tmp/badassdeps/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml
+	export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
+	mkdir -p ${LOGDIR}
+	echo -e "$(date +"%Y-%m-%d %T") Server started \n" >> ${LOGDIR}/${LOGFIL}
+	OUT="| tee -a"
+	if [[ $1 == "silent" ]];
+	then
+		OUT=">>"
+	fi
+	eval java -classpath CoopServer/console_build:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml ${OUT} ${LOGDIR}/${LOGFIL} &
+}
+
+function update(){
+	stop
+	echo "Attempting to update from git origin, whatever that may be"
+	git pull origin serverside
+	echo "Done. run build to compile."
+}
+
+function stop(){
+	echo "Stopping anything listening on 8787..."
+	fuser -k 8787/tcp
+	mkdir -p ${LOGDIR}
+	echo -e "$(date +"%Y-%m-%d %T") Server stopped \n" >> ${LOGDIR}/${LOGFIL}
+	echo "done"
+}
+
+function check_logs(){
+	tail ${LOGDIR}/${LOGFIL}
+}
+
+function clear_logs(){
+	echo "" > ${LOGDIR}/${LOGFIL}
 }
 
 if [[ $1 == "setup" ]];
@@ -40,7 +79,19 @@ then
 	build
 elif [[ $1 == "run" ]];
 then
-	run
+	run $2
+elif [[ $1 == "stop" ]];
+then
+	stop
+elif [[ $1 == "update" ]];
+then
+	update
+elif [[ $1 == "check_logs" ]];
+then
+	check_logs
+elif [[ $1 == "clear_logs" ]];
+then
+	clear_logs
 else
 	echo "missing argument setup/build/run"
 fi
