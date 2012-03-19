@@ -1,0 +1,14 @@
+Hogy csinaljunk local mongodb adatbazist, amint probalkozhatunk?
+1, Install mongodb (csomagkezelo, make/compile, anyamkinja)
+2, mongo parancs begepeles (ezzel kapjuk meg a konzolt)
+3, Mongodb collection letrehozasa 
+db.createCollection("objects"); //felteve, ha igy akarjuk hivni :)
+4, teszt doc. letrehozasa a kovetkezo parancsokkal
+doc = { objId : '15', x : '1' , y : '2' , z : '0' , data : 'Test String' }
+doc2 = { objId : '12', x : '55', y : '222' , z : '0', data : 'Test String 2' }
+doc3 = { objId : '16', x : '2', y : '17' , z : '0', data : 'Test String 2' }
+5, Ezek inzerta'la'sa az adatba'zisunkba
+db.objects.insert(doc)
+db.objects.insert(doc2)
+db.objects.insert(doc3)
+6, orulni, mert ugyesek voltunk!

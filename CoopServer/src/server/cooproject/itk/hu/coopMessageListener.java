@@ -1,8 +1,10 @@
 package server.cooproject.itk.hu;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.bson.types.BasicBSONList;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.factory.JWebSocketFactory;
 import org.jwebsocket.kit.WebSocketServerEvent;
@@ -12,19 +14,37 @@ import org.jwebsocket.server.TokenServer;
 import org.jwebsocket.token.Token;
 import org.jwebsocket.token.TokenFactory;
 
+import com.mongodb.BasicDBList;
+import com.mongodb.Mongo;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.DBCursor;
+
 
 public class coopMessageListener implements WebSocketServerTokenListener{
 
 	private static TokenServer _tServer = (TokenServer) JWebSocketFactory.getServer("ts0");
 	private static Logger log = Logger.getLogger(coopMessageListener.class.getName());
 	private HashMap<String, String> _users;
+	DB _mongo;// A mongodb
 	
-
 	public coopMessageListener() {
 		super();
 		log.info("Coop Server listener successfully loaded");
 		_users = new HashMap<String, String>();
+		/* Kapcsolodjunk a mongodb-hez */
+		try{
+			Mongo m = new Mongo( "127.0.0.1");
+			_mongo = m.getDB("coproject");//Itt mar leteznie kell! use coproject
+			log.info("Successfully connected to MongoDB server!");
+		}catch(Exception e){
+			log.warn("Error while connectiong to mongoDB! Please check the server!");
+			
+		}
 	}
+	
 
 	@Override
 	public void processClosed(WebSocketServerEvent aEvent) {
@@ -43,11 +63,8 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 		* 2, Lesz egy join type, amire kesobb lehet szurni, es broadcastolni
 		* 3, Az csinaljuk, hogy ha ujkent kerul be hashmapbe akkor kuldunk rol
 		*/
-		//Token dResponse = new Token();
-		//_tServer.broadcastToken(aToken);
-		
 	}
-
+	
 	@Override
 	public void processPacket(WebSocketServerEvent aEvent, WebSocketPacket arg1) {
 		// TODO Auto-generated method stub
@@ -84,6 +101,15 @@ public class coopMessageListener implements WebSocketServerTokenListener{
 		boolean should_be_broadcasted = true;//mindent broadcastolunk, kiveve amit nem :(
 		// dolgozzuk fel type alapjan
 		switch(cType){
+			// Objektum mozgatasa
+			case 2: should_be_broadcasted = true;
+					//Lehamozzuk a savePosrol a tobbit
+					Map message = aToken.getMap("message");
+					if(message.get("savePos").toString().equals("true"))
+					{
+						saveToken("objects",aToken);//Mentsuk aToken-t, az objects collectionbe
+					}
+					break;
 			//Egy chat message. Egyelore csak broadcastoljuk
 			case 1000: should_be_broadcasted = true;
 					   break;
@@ -134,6 +160,7 @@ private void updateUsername(WebSocketServerTokenEvent aEvent, String username){
 		dResponse.setString("msg",username+" joined");//REMOVEME: csak a regi kliensek miatt
 		dResponse.setString("message",username+" joined");//chat message
 		_tServer.broadcastToken(dResponse);
+		sendHelloObjects(aEvent,"objects");//Szinten, handshake elott nem tudunk Token-t kuldeni!
 	}else{
 		if(_users.get(aEvent.getSessionId()) != username){
 			log.info("_users map updated with "+aEvent.getSessionId()+" - "+username);
@@ -142,6 +169,110 @@ private void updateUsername(WebSocketServerTokenEvent aEvent, String username){
 	}
 	
 }
+/**
+ * Elmenti az aTokenben talalhato informaciokat az adatbazisba
+ * @param _collection a collection neve, ahova menteni akarunk
+ * @param aToken a kapott token
+ */
+private void saveToken(String _collection,Token aToken){
+	DBCollection _c = _mongo.getCollection(_collection);//
+	//Hozzuk letre a db objektumot
+	 BasicDBObject d = new BasicDBObject();
+     Map message = aToken.getMap("message");
+	 log.info("Saving token message:"+message.toString());
+	 // Kesobb, ha letisztul az uzenetkuldes, hasznalhatjuk a JSON.parse 
+	 //parancsot is, es akkor nem kell ennyit bohockodni :(
+	 // Nyerjuk ki a nekunk kello infokat
+	 String objId = message.get("objId").toString(); //alkalmazkodva webclienthez. Ez eredetileg _id lenne!
+	 d.put("objId",objId);
+	 int x,y,z;
+	 String data = null;
+	 // Ezt nagy mertekben lehet majd refactoralni
+	 // Ha minden kliens belerakja ezeket a valtozokat a messabe
+	 // Ugyanis, ha valamelyik nincs benne, akkor a feldolgozas soran
+	 // Nullpointer exception fog keletkezni!
+	 if(message.get("x") != null){
+		 x = Integer.parseInt(message.get("x").toString());
+	 }else{
+		 x = 0;
+	 }
+	 if(message.get("y") != null){
+		 y = Integer.parseInt(message.get("y").toString());
+	 }else{
+		 y = 0;
+	 }
+	 if(message.get("z") != null){
+		 z = Integer.parseInt(message.get("z").toString());
+	 }else{
+		 z = 0;
+	 }
+	 if(message.get("data") != null){
+		 data = message.get("data").toString();
+	 };
+	 //rakjuk bele a docba
+     d.put("x",x);
+     d.put("y",y);
+     d.put("z",z);
+     //data
+	 d.put("data", data);
+	 //Nem biztos, hogy mongo dob exception, de azert hatha
+	 try{
+		 _c.insert(d);
+		 log.info("Token successfully saved: "+d.toString());
+	 }catch(Exception e){
+		 log.warn("Error while saving aToken: "+d.toString());
+	 }
+}
 	
-	
+/**
+ * Kikuldi a helloobjecteket!(az utolso 3 elmentett uzenetet a dbbol)
+ * @param aEvent A csatlakozasi event
+ * @param _collection a collection neve, ahonnan ki akarjuk kuldeni
+ */
+private void sendHelloObjects(WebSocketServerTokenEvent aEvent,String _collection){
+	//Szerezzuk meg a collectiont
+	DBCollection _c = _mongo.getCollection(_collection);
+	//Szerezzuk meg az utolso harmat
+	DBCursor cur = _c.find().sort(new BasicDBObject("_i", -1)).limit(3);
+	//gyartsunk responsokat, es kuldjuk ki!
+	log.info("Sending welcome packets");
+	while(cur.hasNext()) { 
+		Token dResponse = getTokenFromMongoDBObject(cur.next());
+		log.info(dResponse.toString());
+		//aEvent.sendToken(dResponse);
+	}
+}
+
+/**
+ * Mongodb objectbol Token-t csinalunk.
+ * Ez is deprecated lesz, amint letisztul a json forgalom, es hasznalhatjuk a beepitett konvertert!
+ * @param o Mongodb object
+ * @return Token amiben a message van
+ */
+private Token getTokenFromMongoDBObject(DBObject o){
+	Token r = TokenFactory.createToken("response");
+	r.setString("sender","CooProjectServer");
+	r.setString("type","2");
+	/* Vegulis egyszerusitettem db schemat, mert rohadt szarul van implementalva javaban mongodb driver
+	 * igy ahhoz hogy kiszedjek egy array elemet, ki
+	 * kell szednem az arrayt mint list, vegigiteralni rajta, azokbol kiszedni egy basicBsonobjectet,
+	 * majd azokban nezni hogy mi a kulcs, es az ertek
+	 */
+	//log.info("Mongodb row:"+o.toString());
+	Map<String,String> message = new HashMap<String,String>();
+	if(o.get("objId") != null)
+	message.put("objId",o.get("objId").toString());
+	if(o.get("x") != null)
+		message.put("x",o.get("x").toString());
+	if(o.get("y") != null)
+		message.put("y",o.get("y").toString());
+	if(o.get("z") != null)
+		message.put("z",o.get("z").toString());
+	if(o.get("data") != null)
+		message.put("data",o.get("data").toString());
+	r.setMap("message",message);
+	return r;
+			
+}
+
 }
