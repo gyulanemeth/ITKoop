@@ -31,6 +31,10 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	private HashMap<String, String> _users;
 	DB _mongo;// A mongodb
 
+	/**
+	 * Default constructor
+	 * Itt inicializaljuk a user map-et, valamint kapcsolodunk a mongodbhez
+	 */
 	public coopMessageListener() {
 		super();
 		log.info("Coop Server listener successfully loaded");
@@ -48,7 +52,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	}
 
 	/**
-	 * Beepitett, ha zarodik a kapcsolat akkor kuldunk broadcastot.
+	 * Beepitett fv, ha zarodik a kapcsolat akkor kuldunk broadcastot.
 	 */
 	public void processClosed(WebSocketServerEvent aEvent) {
 		// Broadcastolj, ha lelep valaki
@@ -62,6 +66,11 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 
 	}
 
+	/**
+	 * Ha megnyilik egy kapcsolat. 
+	 * Szamunkra kb useless, mivel ez meg handshake elott van, igy nem tudunk se
+	 * usernevet, se semmit :(
+	 */
 	@Override
 	public void processOpened(WebSocketServerEvent aEvent) {
 		// Broadcastolj, ha belep valaki
@@ -73,31 +82,17 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		 * hogy ha ujkent kerul be hashmapbe akkor kuldunk rol
 		 */
 	}
-
+/**
+ * Packet feldolgozas
+ */
 	@Override
 	public void processPacket(WebSocketServerEvent aEvent, WebSocketPacket arg1) {
-		// TODO Auto-generated method stub
-		// keressuk elo user mapbol
-		if (!_users.containsKey(aEvent.getSessionId())) {
-			String username = _users.get(aEvent.getSessionId());
-			_users.remove(aEvent.getSessionId());
-			log.info("Deleting record from _users map : "
-					+ aEvent.getSessionId() + " - " + username);
-			Token dResponse = TokenFactory.createToken("response");
-			// dResponse.setString("type","1000");//chat message
-			dResponse.setString("sender", "CooProjectServer");
-			dResponse.setString("msg", username + " left the server");// REMOVEME:
-																		// csak
-																		// a
-																		// regi
-																		// kliensek
-																		// miatt
-			dResponse.setString("message", username + " left the server");// chat
-																			// message
-			_tServer.broadcastToken(dResponse);
-		}
+
 	}
 
+	/**
+	 * A packetbol kinyert token feldolgozasa
+	 */
 	@Override
 	public void processToken(WebSocketServerTokenEvent aEvent, Token aToken) {
 		// Dolgozzuk fel a letezo fieldeket
