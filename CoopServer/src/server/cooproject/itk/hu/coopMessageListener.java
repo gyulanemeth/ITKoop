@@ -32,8 +32,8 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	DB _mongo;// A mongodb
 
 	/**
-	 * Default constructor
-	 * Itt inicializaljuk a user map-et, valamint kapcsolodunk a mongodbhez
+	 * Default constructor Itt inicializaljuk a user map-et, valamint
+	 * kapcsolodunk a mongodbhez
 	 */
 	public coopMessageListener() {
 		super();
@@ -61,15 +61,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		_users.remove(aEvent.getSessionId());
 		Token dResponse = TokenFactory.createToken("response");
 		dResponse.setString("sender", "CooProjectServer");
-		dResponse.setString("message", username + " left the server");// chat message
+		dResponse.setString("message", username + " left the server");// chat
+																		// message
 		_tServer.broadcastToken(dResponse);
 
 	}
 
 	/**
-	 * Ha megnyilik egy kapcsolat. 
-	 * Szamunkra kb useless, mivel ez meg handshake elott van, igy nem tudunk se
-	 * usernevet, se semmit :(
+	 * Ha megnyilik egy kapcsolat. Szamunkra kb useless, mivel ez meg handshake
+	 * elott van, igy nem tudunk se usernevet, se semmit :(
 	 */
 	@Override
 	public void processOpened(WebSocketServerEvent aEvent) {
@@ -82,9 +82,10 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		 * hogy ha ujkent kerul be hashmapbe akkor kuldunk rol
 		 */
 	}
-/**
- * Packet feldolgozas
- */
+
+	/**
+	 * Packet feldolgozas
+	 */
 	@Override
 	public void processPacket(WebSocketServerEvent aEvent, WebSocketPacket arg1) {
 
