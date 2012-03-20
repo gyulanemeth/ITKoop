@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.bson.types.BasicBSONList;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.factory.JWebSocketFactory;
 import org.jwebsocket.kit.WebSocketServerEvent;
@@ -14,13 +13,8 @@ import org.jwebsocket.server.TokenServer;
 import org.jwebsocket.token.Token;
 import org.jwebsocket.token.TokenFactory;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.Mongo;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
+import com.mongodb.*;
+import org.bson.types.*;
 
 public class coopMessageListener implements WebSocketServerTokenListener {
 
@@ -207,51 +201,34 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	private void saveToken(String _collection, Token aToken) {
 		DBCollection _c = _mongo.getCollection(_collection);//
 		// Hozzuk letre a db objektumot
-		BasicDBObject d = new BasicDBObject();
 		Map message = aToken.getMap("message");
 		log.info("Saving token message:" + message.toString());
 		// Kesobb, ha letisztul az uzenetkuldes, hasznalhatjuk a JSON.parse
 		// parancsot is, es akkor nem kell ennyit bohockodni :(
 		// Nyerjuk ki a nekunk kello infokat
-		String objId = message.get("objId").toString(); // alkalmazkodva
-														// webclienthez. Ez
-														// eredetileg _id lenne!
-		d.put("objId", objId);
-		int x, y, z;
-		String data = null;
-		// Ezt nagy mertekben lehet majd refactoralni
-		// Ha minden kliens belerakja ezeket a valtozokat a messabe
-		// Ugyanis, ha valamelyik nincs benne, akkor a feldolgozas soran
-		// Nullpointer exception fog keletkezni!
-		if (message.get("x") != null) {
-			x = Integer.parseInt(message.get("x").toString());
-		} else {
-			x = 0;
-		}
-		if (message.get("y") != null) {
-			y = Integer.parseInt(message.get("y").toString());
-		} else {
-			y = 0;
-		}
-		if (message.get("z") != null) {
-			z = Integer.parseInt(message.get("z").toString());
-		} else {
-			z = 0;
-		}
-		if (message.get("data") != null) {
-			data = message.get("data").toString();
-		}
-		;
-		// rakjuk bele a docba
-		d.put("x", x);
-		d.put("y", y);
-		d.put("z", z);
+		String objId = message.get("objId").toString();
+
+		BasicDBObject d = new BasicDBObject();
+
+		d.put("x", (message.get("x") == null? "0" : message.get("x").toString()));
+		d.put("y", (message.get("y") == null? "0" : message.get("y").toString()));
+		d.put("z", (message.get("z") == null? "0" : message.get("z").toString()));
 		// data
-		d.put("data", data);
+		if(message.get("data")!=null) {
+			d.put("data", message.get("data").toString());
+		}
+
 		// Nem biztos, hogy mongo dob exception, de azert hatha
 		try {
-			_c.insert(d);
-			log.info("Token successfully saved: " + d.toString());
+			//létezik-e már az adott id-jű dokumentum?
+			DBObject doc=_c.findOne(new BasicDBObject("_id", new ObjectId(objId)));
+			if(doc != null) {
+				_c.update(doc, new BasicDBObject().append("$set", d));
+				log.info("Old object successfully updated: "+d.toString());
+			} else {
+				_c.insert(d);
+				log.info("New object successfully inserted: " + d.toString());
+			}
 		} catch (Exception e) {
 			log.warn("Error while saving aToken: " + d.toString());
 		}
@@ -270,7 +247,9 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		// Szerezzuk meg a collectiont
 		DBCollection _c = _mongo.getCollection(_collection);
 		// Szerezzuk meg az utolso harmat
-		DBCursor cur = _c.find().sort(new BasicDBObject("_i", -1)).limit(3);
+		//DBCursor cur = _c.find().sort(new BasicDBObject("_id", -1)).limit(3);
+		//legyen inkább az összes:
+		DBCursor cur = _c.find().sort(new BasicDBObject("_id", -1));
 		// gyartsunk responsokat, es kuldjuk ki!
 		log.info("Sending welcome packets");
 		while (cur.hasNext()) {
@@ -302,8 +281,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		 */
 		// log.info("Mongodb row:"+o.toString());
 		Map<String, String> message = new HashMap<String, String>();
-		if (o.get("objId") != null)
-			message.put("objId", o.get("objId").toString());
+		message.put("objId", o.get("_id").toString());	//a doksi szerint objId-nek hívjuk az üzenetben, de a DBben az objectid-t kezeljük.
 		if (o.get("x") != null)
 			message.put("x", o.get("x").toString());
 		if (o.get("y") != null)

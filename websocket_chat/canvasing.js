@@ -89,14 +89,14 @@ function canvasing(canvas_container) {
 	this.stage.draw();
 }
 
-canvasing.prototype.colors=['#ff0000', '#00ff00', '#0000ff']; ///< ebből a listából választunk színt az objektumoknak: id % colors.length
+canvasing.prototype.colors=['#ff0000', '#00ff00', '#0000ff', "#ff00ff", "#00ffff", "#ffff00", "#000000"]; ///< ebből a listából választunk színt az objektumoknak: <sorszám> % colors.length
 
 
 /**
 	Objektum lokális létrehozása a vásznon.
 */
 canvasing.prototype.createObject=function(id, x, y, label) {
-	this.objmap[id] = new ITKoobject(id, x, y, label, this.colors[id % this.colors.length] );
+	this.objmap[id] = new ITKoobject(id, x, y, label, this.colors[ this.board.getChildren().length % this.colors.length ] );
 
 	// ha húzzni kezdjük, kerüljön legfelülre
 	this.objmap[id].on("dragstart", this.objmap[id].moveToTop);
