@@ -88,7 +88,6 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 */
 	@Override
 	public void processPacket(WebSocketServerEvent aEvent, WebSocketPacket arg1) {
-
 	}
 
 	/**
@@ -103,10 +102,6 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		}
 		String cSenderName = aToken.getString("sender");
 		String cMessage = aToken.getString("message");
-		// DEBUG, amig nem refactoraljak klienseket
-		if (cMessage == null) {
-			cMessage = aToken.getString("msg");
-		}
 		// Loggoljuk
 		log.info("New token received from " + cSenderName
 				+ " and the message is " + cMessage);
@@ -193,9 +188,6 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			Token dResponse = TokenFactory.createToken("response");
 			// dResponse.setString("type","1000");//chat message
 			dResponse.setString("sender", "CooProjectServer");
-			dResponse.setString("msg", username + " joined");// REMOVEME: csak a
-																// regi kliensek
-																// miatt
 			dResponse.setString("message", username + " joined");// chat message
 			_tServer.broadcastToken(dResponse);
 			sendHelloObjects(aEvent, "objects");// Szinten, handshake elott nem

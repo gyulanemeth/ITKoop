@@ -1,0 +1,98 @@
+<!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <title>Lil websocket chat</title>
+  <script type="text/javascript" src="websocket.js"></script>
+  <script type="text/javascript" src="chat.js"></script>
+  <script type="text/javascript" src="libs/jsuri-1.1.1.min.js"></script>
+  <script type="text/javascript" src="libs/kinetic-v3.8.3.min.js"></script>
+  <script type="text/javascript" src="canvasing.js"></script>
+  <script type="text/javascript">
+    function init() { canv=new canvasing(document.getElementById('canvas_cont')); }
+    if (window.attachEvent){ window.attachEvent("load", init);}
+    else { window.addEventListener("load", init, false); }
+  </script>
+</head>
+
+<body>
+  <div id="container">
+    <div id="main-container">
+      <div id="main">
+
+        <div id="webSocketSupp">
+          <div class="float-left">
+            <img src="img/check.png" width="36" height="36" align="absmiddle">
+          </div>
+          <div class="support-message">
+            This browser supports WebSocket.
+          </div>
+        </div>
+
+        <div id="noWebSocketSupp">
+          <div class="float-left">
+            <img src="img/cross.png" width="36" height="36" align="absmiddle">
+          </div>
+          <div class="support-message">
+            <p>The browser you're using doesn't have native support for WebSocket.
+              <br />
+               This means you probably can't use this little chat.
+            </p>
+          </div>
+        </div>
+
+        <div><br/></div>
+
+        <hr />
+
+        <div id="chat">
+          <div id="config" class="float-left">
+            <form id='connForm'>
+              <strong>Location:</strong><br>
+				      <input id="wsUri" size="35">
+				      <br>
+				      <input type="checkbox" id="secureCb" onClick="toggleTls();">
+				      <span id="secureCbLabel">Use secure WebSocket (TLS)</span><br>
+				      <input type='submit' id="connect" value='Connect' />
+            </form>
+            <button id="disconnect">Disconnect</button>
+            <br /><br />
+            <strong>Username:</strong><br>
+            <input id="username" size="35" value="Lilchat">
+		      	<br /><br />
+            <form id='msgForm' action='#'>
+              <strong>Message:</strong><br>
+				      <input id="sendMessage" size="35" value="O HAI">
+				      <br />
+				      <input type='submit' id="send" value='Send' class="wsButton" />
+            </form>
+          </div>
+
+          <div id="log"> <strong>Chat Log:</strong>
+            <div id="chatLog"></div>
+            <button id="clearChatLogBut">Clear log</button>
+          </div>
+
+          <br />
+
+          <div id="log">
+            <strong>Debug Log:</strong>
+            <div id="debugLog"></div>
+            <button id="clearDebugLogBut">Clear log</button>
+            <input type="checkbox" id="useDebug" onClick="toggleDebugUse();">
+            <span id="useDebugLabel">use debugger log</span><br>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id='canvas_cont' class="border">
+	<noscript>
+	    It seems Javascript is not enabled in your browser. The Lilchat NEEDS JS to function.
+	</noscript>
+    </div>
+  </div>
+</body>
+</html>
