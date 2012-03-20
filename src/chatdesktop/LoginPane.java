@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -19,7 +20,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextBoundsType;
 import javafx.util.Duration;
 
 /**
@@ -32,6 +32,7 @@ public class LoginPane extends BorderPane{
     private Button submit=new Button("Submit");
     private Rectangle rect=new Rectangle(320, 300, Color.WHITE);;
     private FadeTransition fadeTransition;
+    private CheckBox secure=new CheckBox("Wss");
     /**
      * Segédfüggvény
      * @return névmező szövege
@@ -107,6 +108,7 @@ public class LoginPane extends BorderPane{
         gp.add(accountField, 1, 1);
         gp.add(new Label("Password:"), 0, 2);
         gp.add(pwField, 1, 2);
+        gp.add(secure, 0, 3);
         gp.add(submit, 1,3);
         //positioning***********************************************************
         setTop(spane);

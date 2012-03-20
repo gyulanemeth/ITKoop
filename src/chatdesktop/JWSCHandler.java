@@ -37,12 +37,13 @@ public class JWSCHandler {
         try {
             System.out.println("Connecting");
             //tClient.open("ws://localhost:8787/jWebSocket");
-            tClient.open("ws://localhost:61130");
+            tClient.open("ws://nemgy.itk.ppke.hu:61150");
             System.out.println("Open");
-            tClient.login(name, pass);
-            System.out.println("connected?!");
+            //tClient.login(name, pass);
+            //System.out.println("connected?!");
             return true;
         } catch (WebSocketException ex) {
+            System.out.println(ex.getMessage());
             Logger.getLogger(JWSCHandler.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }

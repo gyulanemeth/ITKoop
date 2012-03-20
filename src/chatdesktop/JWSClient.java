@@ -47,7 +47,8 @@ public class JWSClient implements WebSocketClientTokenListener{
 
     @Override
     public void processClosed(WebSocketClientEvent wsce) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("Kiléptünk!");
     }
 
     @Override

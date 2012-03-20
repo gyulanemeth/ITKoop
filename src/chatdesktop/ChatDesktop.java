@@ -80,22 +80,23 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
+                        if(!wsHandler.login(login.getName(), login.getPwField().getText())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
-                              isConnected=true;
-                              root.setName(login.getName());
-                              login.clear();
-                              root.setVisible(isConnected);                  
-                              login.setVisible(!isConnected);
+                            isConnected=true;
+                            root.setName(login.getName());
+                            login.clear();
+                            login.setVisible(!isConnected);
+                            root.setVisible(isConnected);
+                            root.play(1.0f,0.0f);
         }}}});
         login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ev) {
                     if(ev.getCode()==KeyCode.ENTER) 
                         if(login.isFilled()){
-                        if(!wsHandler.login(login.getName(), login.getPwField().toString())) {
+                        if(!wsHandler.login(login.getName(), login.getPwField().getText())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
