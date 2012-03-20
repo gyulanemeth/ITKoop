@@ -130,3 +130,12 @@ canvasing.prototype.moveObject=function(id, x, y, label) {
 
 	this.stage.draw();
 }
+
+/**
+	Az összes objektum törlése.
+*/
+canvasing.prototype.clear=function() {
+	this.board.removeChildren();
+	this.objmap={};
+	this.stage.draw();
+}

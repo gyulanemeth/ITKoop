@@ -57,6 +57,7 @@ var websocket = null;
   {
     ws=null;
     logToConsole("DISCONNECTED", 'info');
+    canv.clear();
     setGuiConnected(false);
   }
 
