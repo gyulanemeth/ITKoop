@@ -106,6 +106,9 @@ then
 elif [[ $1 == "clear_logs" ]];
 then
 	clear_logs
+elif [[ $1 == "reset_db" ]];
+then
+	mongo localhost:27017/coproject setup/mongo_init.js
 else
 	echo -e "missing argument. Valid arguments are:
   setup        install the dependencies.
@@ -114,6 +117,7 @@ else
   stop         stop any running servers
   update       get fresh source from the master
   check_logs   get the latest log entries. Try tail -f ${LOGDIR}/${LOGFIL} for full tailing
-  clear_logs   clear all log entries."
+  clear_logs   clear all log entries.
+  reset_db     resets/creates default database"
 fi
 
