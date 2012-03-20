@@ -1,23 +1,37 @@
 #!/bin/bash
 
-JWSDIR="./CoopServer/libs"
+JWSDIR="./CoopServer/lib"
 LOGDIR="./CoopServer/logs"
 LOGFIL="serverlog.txt"
 
 function setup(){
 	echo "Let me do the setup part for you ..."
-	echo "Deleting ${JWSDIR} "
-	rm -rf ${JWSDIR}
-	echo "Downloading jwebsocket to here"
-	wget http://jwebsocket.googlecode.com/files/jWebSocketServer-1.0-nb20105.zip -O ./jwebsocket_server.zip
-	echo "Creating ${JWSDIR} "
-	mkdir ${JWSDIR} -p
-	echo "Unpacking our libs"
-	unzip ./jwebsocket_server.zip -d ${JWSDIR}
-	echo "Cleaning up ..."
-	rm ./jwebsocket_server.zip
-	echo "Adding JWebSocketHome"
-	export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
+
+	if [ ! -d ${JWSDIR}/jWebSocket-1.0 ]
+	then
+		echo "Deleting ${JWSDIR}/jWebSocket-1.0"
+		rm -rf ${JWSDIR}/jWebSocket-1.0
+		echo "Downloading jwebsocket to here"
+		wget http://jwebsocket.googlecode.com/files/jWebSocketServer-1.0-nb20105.zip -O ./jwebsocket_server.zip
+		echo "Creating ${JWSDIR} "
+		mkdir ${JWSDIR} -p
+		echo "Unpacking our libs"
+		unzip ./jwebsocket_server.zip -d ${JWSDIR}
+		echo "Cleaning up ..."
+		rm ./jwebsocket_server.zip
+		echo "Adding JWebSocketHome"
+		export JWEBSOCKET_HOME="${JWSDIR}/jWebSocket-1.0"
+	else
+		echo "jWebSocket stuff already there (delete to reinstall)";
+	fi
+
+	if [ ! -f ${JWSDIR}/mongo-2.7.3.jar ]
+	then
+		wget https://github.com/downloads/mongodb/mongo-java-driver/mongo-2.7.3.jar -O ${JWSDIR}/mongo-2.7.3.jar
+	else
+		echo "MongoDB driver already there";
+	fi
+
 	echo "Done"
 }
 
@@ -30,7 +44,7 @@ function build(){
 	echo "Creating console_build directory"
 	mkdir -p CoopServer/console_build
 	echo "running javac"
-	javac -classpath ${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
+	javac -classpath ${JWSDIR}/*.jar:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
 	echo "done"
 }
 
@@ -45,7 +59,7 @@ function run(){
 	then
 		OUT=">>"
 	fi
-	eval java -classpath CoopServer/console_build:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml ${OUT} ${LOGDIR}/${LOGFIL} &
+	eval java -classpath ${JWSDIR}/*.jar:CoopServer/console_build:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar org.jwebsocket.console.JWebSocketServer -config `pwd`/config/serverConfig.xml ${OUT} ${LOGDIR}/${LOGFIL} &
 }
 
 function update(){
