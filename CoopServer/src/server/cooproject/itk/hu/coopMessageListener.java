@@ -47,7 +47,8 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			log.info("Successfully connected to MongoDB server!");
 		} catch (Exception e) {
 			log.warn("Error while connectiong to mongoDB! Please check the server!");
-
+			// A Mongo konstruktor valójában akkor sem dob exceptiont, ha nem fut MongoDB a gépen,
+			// csak akkor dob kivételt, ha ki akarunk nyerni adatot.
 		}
 	}
 
@@ -153,14 +154,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			Token aToken, int cType) {
 		log.warn("Message with invalid type field " + cType);
 		Token dResponse = aEvent.createResponse(aToken);
-		// REMOVEME: transition phase miatt
 		dResponse.setString("sender", "CooProjectServer");
-		dResponse
-				.setString(
-						"msg",
-						"Ne haragudj, de elrontottad a type("
-								+ cType
-								+ ") mezo erteket! Es az msg fieldet sem kene feldolgoznod ...");
 		dResponse.setString("message", "Ne haragudj, de elrontottad a type("
 				+ cType + ") mezo erteket!");
 		aEvent.sendToken(dResponse);
@@ -281,8 +275,9 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		log.info("Sending welcome packets");
 		while (cur.hasNext()) {
 			Token dResponse = getTokenFromMongoDBObject(cur.next());
+			dResponse.setString("type", "2");
 			log.info(dResponse.toString());
-			// aEvent.sendToken(dResponse);
+			aEvent.sendToken(dResponse);
 		}
 	}
 

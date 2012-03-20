@@ -80,9 +80,11 @@ function canvasing(canvas_container) {
 
 	this.stage.add(this.board);
 
+	/*
 	this.createObject(0, 50, 50, "ITK");
 	this.createObject(1, 100, 100, "Kooperatív");
-	this.createObject(2, 200, 200, "Izé");	
+	this.createObject(2, 200, 200, "Izé");
+	*/
 
 	this.stage.draw();
 }
@@ -112,8 +114,15 @@ canvasing.prototype.createObject=function(id, x, y, label) {
 /**
 	Objektum lokális, programatikus mozgatása a vásznon.
 */
-canvasing.prototype.moveObject=function(id, x, y) {
-	if(!this.objmap[id]) throw ("Wanted to move object #" +id+", no such object.");
+canvasing.prototype.moveObject=function(id, x, y, label) {
+	if(!this.objmap[id]) {	// ha még nem létezik, készítsük el.
+		this.createObject(id, x, y, label);
+		this.stage.draw();
+		return true;
+	}
+	else if(label && this.objmap[id].getText() != label) {
+		this.objmap[id].setText(label);
+	}
 
 	if(this.objmap[id].x==x || this.objmap[id].y==y) return true;
 

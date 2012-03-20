@@ -44,6 +44,9 @@ var websocket = null;
   function onOpen(evt)
   {
     logToConsole("CONNECTED", 'info');
+	message({	
+		type: '1001'  //hello message: hack hogy megkapjuk a szervertől az inicializáló adatokat, mert különben cikis, hogy chatüzenetet kell küldeni, hogy adatokat kapjunk. Egy hibaüzenet a használhatóságért.
+	});
     setGuiConnected(true);
   }
 
@@ -67,11 +70,11 @@ var websocket = null;
     if(message.type == 'welcome') { logToConsole("The server welcomes you!", 'server');}
     else if(message.type == '2' ) // valaki mozgatott egy objektumot
     {
-      logToConsole("Got message (moving object): " + evt.data, "debug");
-      canv.moveObject(message.message.objId, message.message.x, message.message.y);
+      logToConsole("Got message (modifying/initializing object): " + evt.data, "debug");
+      canv.moveObject(message.message.objId, message.message.x, message.message.y, message.message.data);
     }
     else if(message.type == '1000' && message.message) { onChatMessage(message); } // chat üzenet
-    else if(message.message) { logToConsole(message.sender + ' says: ' + message.message + ' (aka Message of unknown type:)', 'error'); }
+    else if(message.message) { logToConsole(message.sender + ' says: ' + evt.data + ' (aka Message of unknown type:)', 'error'); }
   }
 
   /**
