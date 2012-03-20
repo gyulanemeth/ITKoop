@@ -57,7 +57,12 @@
 
     // üzenetküldés
     sendBut = document.getElementById("send");
-    document.getElementById('msgForm').onsubmit=function() { doChatSend(); return false;}
+    document.getElementById('msgForm').onsubmit =
+      function() {
+        doChatSend(); // üzenetküldés
+        sendMessage.value = ""; // chat-input-textbox törlése
+        return false;
+      }
 
     // log a chatüzeneteknek
     chatLog = document.getElementById("chatLog");
