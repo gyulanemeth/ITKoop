@@ -5,10 +5,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.Reflection;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -27,33 +27,12 @@ import javafx.util.Duration;
  * @author Chuckie
  */
 public class LoginPane extends BorderPane{
-    private TextField accountField=new TextField();
-    private PasswordField pwField=new PasswordField();
-    private Button submit=new Button("Submit");
+    TextField accountField=new TextField();
+    PasswordField pwField=new PasswordField();
+    Button submit=new Button("Submit");
     private Rectangle rect=new Rectangle(320, 300, Color.WHITE);;
     private FadeTransition fadeTransition;
-    private CheckBox secure=new CheckBox("Wss");
-    /**
-     * Segédfüggvény
-     * @return névmező szövege
-     */
-    String getName(){
-        return accountField.getText();
-    }
-    /**
-     * Segédfüggvény
-     * @return pwmezőre mutató pointer
-     */
-    PasswordField getPwField(){
-        return pwField;
-    }
-    /**
-     * Segédfüggvény
-     * @return submit gombra mutató pointer
-     */
-    Button getSubmit(){
-        return submit;
-    }
+    ToggleButton secure=new ToggleButton("Secure");
     /**
      * Segédfüggvény
      * @return igaz, ha a szövegmezők ki vannak töltve, egyébként hamis

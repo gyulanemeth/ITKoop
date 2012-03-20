@@ -11,7 +11,7 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="ChatDesktop.jar" size="80763" download="eager" />
+    <jar href="ChatDesktop.jar" size="81085" download="eager" />
     <jar href="lib/jWebSocketClientAPI-1.0.jar" size="7311" download="eager" />
     <jar href="lib/jWebSocketCommon-1.0.jar" size="74033" download="eager" />
     <jar href="lib/jWebSocketJavaSEClient-1.0.jar" size="38439" download="eager" />

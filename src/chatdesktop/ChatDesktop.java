@@ -76,32 +76,32 @@ public class ChatDesktop extends Application {
             public void handle(ActionEvent arg0) {
                     System.exit(1);
             }});
-        login.getSubmit().setOnAction(new EventHandler<ActionEvent>() {
+        login.submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        if(!wsHandler.login(login.getName(), login.getPwField().getText())) {
+                        if(!wsHandler.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
                             isConnected=true;
-                            root.setName(login.getName());
+                            root.setName(login.accountField.getText());
                             login.clear();
                             login.setVisible(!isConnected);
                             root.setVisible(isConnected);
                             root.play(1.0f,0.0f);
         }}}});
-        login.getPwField().setOnKeyPressed(new EventHandler<KeyEvent>() {
+        login.pwField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ev) {
                     if(ev.getCode()==KeyCode.ENTER) 
                         if(login.isFilled()){
-                        if(!wsHandler.login(login.getName(), login.getPwField().getText())) {
+                        if(!wsHandler.login(login.accountField.getText(), login.pwField.getText(), login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
                             isConnected=true;
-                            root.setName(login.getName());
+                            root.setName(login.accountField.getText());
                             login.clear();
                             login.setVisible(!isConnected);
                             root.setVisible(isConnected);
@@ -130,8 +130,8 @@ public class ChatDesktop extends Application {
     public JSONObject sendAuth() throws JSONException, Exception{
         JSONObject object=new JSONObject();
         if(login.isFilled()){                    
-        object.append("name", login.getName());
-        object.append("pw", login.getPwField().getText());}
+        object.append("name", login.accountField.getText());
+        object.append("pw", login.pwField.getText());}
         else throw new Exception("Error: Empty acc/pw field!");
         return object;
     }

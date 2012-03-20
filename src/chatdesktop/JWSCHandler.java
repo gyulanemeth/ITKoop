@@ -33,17 +33,18 @@ public class JWSCHandler {
         return _instance;
     }
 
-    public boolean login(String name, String pass) {
+    public boolean login(String name, String pass, boolean secure) {
         try {
             System.out.println("Connecting");
-            //tClient.open("ws://localhost:8787/jWebSocket");
-            tClient.open("ws://nemgy.itk.ppke.hu:61150");
+            if(secure)
+                tClient.open("wss://nemgy.itk.ppke.hu:61159");
+            else{
+                tClient.open("ws://nemgy.itk.ppke.hu:61150");}
             System.out.println("Open");
+            //Itt van egy kis hiba
             //tClient.login(name, pass);
-            //System.out.println("connected?!");
             return true;
         } catch (WebSocketException ex) {
-            System.out.println(ex.getMessage());
             Logger.getLogger(JWSCHandler.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
