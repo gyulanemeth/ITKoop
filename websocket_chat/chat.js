@@ -17,6 +17,7 @@
   var useDebug;           // "use debug log" checkbox.
   var useDebugLabel;      // label a checkboxnak.
   var doLogging = true;   // logoljunk-é?
+  var serverSelect;       // sever választó combobox
 
   var secureTag = document.createElement('img'); // lakatocska
   secureTag.src="img/lock_icon.gif";
@@ -38,7 +39,11 @@
 
     // input field a kapcsolódáshoz
     wsUri = document.getElementById("wsUri");
-    toggleTls();
+    //toggleTls();
+
+    // server selection
+    serverSelect = document.getElementById("serverSelect");
+    serverSelect.onchange=function() { wsUri.value = serverSelect.options[serverSelect.selectedIndex].value; serverSelect.value = "";}
 
     // gomb a csatlakozáshoz
     connectBut = document.getElementById("connect");
@@ -47,7 +52,6 @@
     // gomb a kijelentkezéshez
     disconnectBut = document.getElementById("disconnect");
     disconnectBut.onclick = doDisconnect;
-    document.getElementById("disconnect").onclick = doDisconnect;
 
     // input a felhasználónévnek
     username=document.getElementById('username');
