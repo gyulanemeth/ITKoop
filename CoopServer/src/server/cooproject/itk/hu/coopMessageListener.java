@@ -55,6 +55,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		String username = _users.get(aEvent.getSessionId());
 		_users.remove(aEvent.getSessionId());
 		Token dResponse = TokenFactory.createToken("response");
+		dResponse.setString("type","1000");
 		dResponse.setString("sender", "CooProjectServer");
 		dResponse.setString("message", username + " left the server");// chat
 																		// message
@@ -76,6 +77,19 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		 * type, amire kesobb lehet szurni, es broadcastolni 3, Az csinaljuk,
 		 * hogy ha ujkent kerul be hashmapbe akkor kuldunk rol
 		 */
+
+		// ha valaki csatlakozik, küldjüki ki neki a welcome objecteket unicast üzenetben
+		DBCollection coll = _mongo.getCollection("objects");
+		DBCursor cur = coll.find().sort(new BasicDBObject("_id", -1));
+		log.info("Sending welcome packets");
+		while (cur.hasNext()) {
+			Token dResponse = getTokenFromMongoDBObject(cur.next());
+			dResponse.setString("type", "2");
+			log.info(dResponse.toString());
+			_tServer.sendToken(aEvent.getConnector(), dResponse);
+		}
+		// majd ha lesz rendesebb autentikáció meg ilyesmi, akkor majd átírjuk, de addig csak szebb így.
+		// meg persze jó lenne egy arrayben átküldeni az objektumokat.
 	}
 
 	/**
@@ -174,11 +188,11 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			log.info("New record in _users map : " + aEvent.getSessionId()
 					+ " - " + username);
 			Token dResponse = TokenFactory.createToken("response");
-			// dResponse.setString("type","1000");//chat message
+			dResponse.setString("type","1000");//chat message
 			dResponse.setString("sender", "CooProjectServer");
 			dResponse.setString("message", username + " joined");// chat message
 			_tServer.broadcastToken(dResponse);
-			sendHelloObjects(aEvent, "objects");// Szinten, handshake elott nem
+			//sendHelloObjects(aEvent, "objects");// Szinten, handshake elott nem
 												// tudunk Token-t kuldeni!
 		} else {
 			if (_users.get(aEvent.getSessionId()) != username) {

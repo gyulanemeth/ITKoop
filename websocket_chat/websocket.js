@@ -44,9 +44,6 @@ var websocket = null;
   function onOpen(evt)
   {
     logToConsole("CONNECTED", 'info');
-	message({	
-		type: '1001'  //hello message: hack hogy megkapjuk a szervertől az inicializáló adatokat, mert különben cikis, hogy chatüzenetet kell küldeni, hogy adatokat kapjunk. Egy hibaüzenet a használhatóságért.
-	});
     setGuiConnected(true);
   }
 
