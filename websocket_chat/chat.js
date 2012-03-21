@@ -1,6 +1,7 @@
 /**
     A GUIra és a chatre vonatkozó globális függvények.
 */
+  var canv;               // a használt canvasing objektum.
 
   var secureCb;           // a "Use secure WebSocket" checkbox.
   var secureCbLabel;      // a checkboxhoz tartozó label.
@@ -31,19 +32,63 @@
     if (window.WebSocket){ document.getElementById("webSocketSupp").style.display = "block";}
     else { document.getElementById("noWebSocketSupp").style.display = "block"; }
 
+	// supportolt a canvas element?
+	if("HTMLCanvasElement" in window) {
+		canv=new canvasing(document.getElementById('canvas_cont'));
+	} else {
+		document.getElementById('canvas_cont').innerHTML="Your browser doesn't support the HTML5 Canvas element. Unfortunately this means you can't use this thing.";
+	}
+
     // secure connection checkbox
     secureCb = document.getElementById("secureCb");
     secureCb.checked = false;
     secureCb.onclick = toggleTls;
-    secureCbLabel = document.getElementById("secureCbLabel")
-
-    // input field a kapcsolódáshoz
-    wsUri = document.getElementById("wsUri");
-    //toggleTls();
+    secureCbLabel=document.getElementById("secureCbLabel");
 
     // server selection
-    serverSelect = document.getElementById("serverSelect");
-    serverSelect.onchange=function() { wsUri.value = serverSelect.options[serverSelect.selectedIndex].value; serverSelect.value = "";}
+    wsUri = document.getElementById("wsUri");
+
+	if(servers instanceof Array && servers.length > 0) {	//ha vannak előre definiált szerverek
+		serverSelect=document.createElement('SELECT');
+		var opt;
+		opt=document.createElement('OPTION');
+			opt.setAttribute('value', -1 );
+			opt.appendChild(document.createTextNode("<other>"));
+			opt.server=null;
+		serverSelect.appendChild(opt);
+
+		for(i in servers) {
+			opt=document.createElement('OPTION');
+				if(i == 0) opt.setAttribute('selected', 'true');
+				opt.setAttribute('value', i);
+				opt.server=servers[i];
+				opt.appendChild(document.createTextNode(servers[i].host));
+			serverSelect.appendChild(opt);
+		}
+
+		wsUri.parentNode.insertBefore(serverSelect, wsUri);
+		wsUri.style.display='none';
+		serverSelect.onchange=function() {
+			if(serverSelect.options[serverSelect.selectedIndex].value == -1) {
+				var uri=new Uri().setProtocol( secureCb.checked? 'wss' : 'ws' );
+				wsUri.value=uri;
+				serverSelect.style.display='block';
+				wsUri.style.display='inline';
+				wsUri.focus();
+			} else {
+				serverSelect.style.display='inline';
+				wsUri.style.display='none'
+				var server=serverSelect.options[serverSelect.selectedIndex].server;
+				var uri=new Uri()
+					.setHost(server.host)
+					.setPort( secureCb.checked? server.sport : server.port )
+					.setProtocol( secureCb.checked? 'wss' : 'ws' );
+				wsUri.value=uri.toString();
+			}
+		};
+		serverSelect.onchange();
+	} else serverSelect = null;
+	toggleTls();
 
     // gomb a csatlakozáshoz
     connectBut = document.getElementById("connect");
@@ -97,6 +142,7 @@
   */
   function setGuiConnected(isConnected)
   {
+    if(serverSelect) serverSelect.disabled=isConnected;
     wsUri.disabled = isConnected;
     connectBut.disabled = isConnected;
     disconnectBut.disabled = !isConnected;
@@ -113,11 +159,16 @@
   */
   function toggleTls()
   {
-    var x = (wsUri.value.length < 1? x="ws://localhost:8787" : wsUri.value);
+    if(serverSelect && serverSelect.options[serverSelect.selectedIndex].value != -1) {
+      serverSelect.onchange();
+      return;
+    }
+
+    var x = (wsUri.value.length < 1? x="ws://" : wsUri.value);
     x=new Uri(x);
 
-    if (secureCb.checked) { x.setProtocol('wss'); x.setPort('9797'); }
-    else { x.setProtocol('ws'); x.setPort('8787'); }
+    if (secureCb.checked) x.setProtocol('wss');
+    else x.setProtocol('ws');
 
     wsUri.value=x.toString();
   }
@@ -222,4 +273,6 @@
     while (log.childNodes.length > 0){log.removeChild(log.firstChild);}
   }
 
-  window.addEventListener("load", LilchatInit, false);
+
+if (window.attachEvent) window.attachEvent("load", LilchatInit);
+else window.addEventListener("load", LilchatInit, false);

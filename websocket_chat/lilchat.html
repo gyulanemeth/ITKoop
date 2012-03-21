@@ -5,15 +5,11 @@
   <link rel="stylesheet" href="style.css">
   <title>Lil websocket chat</title>
   <script type="text/javascript" src="websocket.js"></script>
+  <script type="text/javascript" src="servers.js"></script>
   <script type="text/javascript" src="chat.js"></script>
   <script type="text/javascript" src="libs/jsuri-1.1.1.min.js"></script>
   <script type="text/javascript" src="libs/kinetic-v3.8.3.min.js"></script>
   <script type="text/javascript" src="canvasing.js"></script>
-  <script type="text/javascript">
-    function init() { canv=new canvasing(document.getElementById('canvas_cont')); }
-    if (window.attachEvent){ window.attachEvent("load", init);}
-    else { window.addEventListener("load", init, false); }
-  </script>
 </head>
 
 <body>
@@ -50,26 +46,10 @@
           <div id="config" class="float-left">
             <form id='connForm'>
               <strong>Location:</strong><br>
-
-              <div>
                 <input id="wsUri" size="35">
                 <br />
-                <select id="serverSelect" size="1" >
-                  <option value=" " selected="selected"></option>
-                  <option value="ws://nemgy.itk.ppke.hu:61150">ws://nemgy.itk.ppke.hu:61150</option>
-                  <option value="wss://nemgy.itk.ppke.hu:61159">wss://nemgy.itk.ppke.hu:61159</option>
-                  <option value="ws://localhost:8787">ws://localhost:8787</option>
-                  <option value="wss://localhost:9797">wss://localhost:9797</option>
-                </select>
-				      </div>
-
-
-
-
-
-              <br>
-				      <input type="checkbox" id="secureCb" onClick="toggleTls();">
-				      <span id="secureCbLabel">Use secure WebSocket (TLS)</span><br>
+				      <input type="checkbox" id="secureCb">
+				      <label for="secureCb", id="secureCbLabel">Use secure WebSocket (TLS)</label><br>
 				      <input type='submit' id="connect" value='Connect' />
             </form>
             <button id="disconnect">Disconnect</button>
@@ -85,20 +65,22 @@
             </form>
           </div>
 
-          <div id="log"> <strong>Chat Log:</strong>
+		<div id='log'>
+          <div> <strong>Chat Log:</strong>
             <div id="chatLog"></div>
             <button id="clearChatLogBut">Clear log</button>
           </div>
 
           <br />
 
-          <div id="log">
+          <div>
             <strong>Debug Log:</strong>
             <div id="debugLog"></div>
             <button id="clearDebugLogBut">Clear log</button>
             <input type="checkbox" id="useDebug" onClick="toggleDebugUse();">
             <span id="useDebugLabel">use debugger log</span><br>
           </div>
+         </div>
 
         </div>
       </div>
