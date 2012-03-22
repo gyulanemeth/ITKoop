@@ -34,10 +34,12 @@ public final class ChatPane extends BorderPane{
     private Button submit=new Button("Submit");
     //felhasználó neve
     private String name;
+    private final JWSCHandler wsHandler;
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
     private Rectangle rect=new Rectangle(400, 400, Color.WHITE);
     private FadeTransition fadeTransition;
+    
     /***
      * messages szövegmezőbe lehet írni, átírásra szorul, hiszen ezzel csak
      * teszteltem
@@ -108,8 +110,9 @@ public final class ChatPane extends BorderPane{
             }
         });
     }
-    ChatPane(){
+    ChatPane(final JWSCHandler wsHandler){
         super();
+        this.wsHandler=wsHandler;
         this.setMaxSize(300, 310);
         this.setMinSize(300, 310);
         this.setPrefSize(300, 310);
@@ -156,7 +159,8 @@ public final class ChatPane extends BorderPane{
         submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent ev) {
-                sendMsg();
+                wsHandler.sendText(name, sendMsg());
+                //sendMsg();
             }});
         chatPanel.getChildren().addAll(mytext, submit);
         //positioning***********************************************************

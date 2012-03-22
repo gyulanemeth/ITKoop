@@ -11,12 +11,13 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="ChatDesktop.jar" size="80744" download="eager" />
+    <jar href="ChatDesktop.jar" size="82397" download="eager" />
     <jar href="lib/jWebSocketClientAPI-1.0.jar" size="7311" download="eager" />
     <jar href="lib/jWebSocketCommon-1.0.jar" size="74033" download="eager" />
     <jar href="lib/jWebSocketJavaSEClient-1.0.jar" size="38439" download="eager" />
     <jar href="lib/jWebSocketServer-1.0.jar" size="239694" download="eager" />
     <jar href="lib/jWebSocketServerAPI-1.0.jar" size="77840" download="eager" />
+    <jar href="lib/jackson-all-1.9.5.jar" size="1120836" download="eager" />
     <jar href="lib/javolution-5.5.1.jar" size="395195" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="ChatDesktop" />

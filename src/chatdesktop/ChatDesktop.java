@@ -31,9 +31,9 @@ import org.json.JSONObject;
 public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
-    private ChatPane chat=new ChatPane();
-    private LoginPane login=new LoginPane(); 
     private JWSCHandler wsHandler = JWSCHandler.getInstance();
+    private ChatPane chat=new ChatPane(wsHandler);
+    private LoginPane login=new LoginPane(); 
     private Canvas canvas=new Canvas(wsHandler);   
     private boolean isConnected=false;
     public static final int base_width=600,base_height=330;
