@@ -18,8 +18,10 @@ public class JWSCHandler {
     private BaseTokenClient tClient;
     
     private static JWSCHandler _instance = null;
+    private ChatDesktop chatdesktop;
     private JWSCHandler() {
         clientListener = JWSClient.getInstance();
+        
         //tClient = new CGITokenClient();
         tClient = new BaseTokenClient();
         //tClient.addListener(clientListener);
@@ -149,5 +151,10 @@ public class JWSCHandler {
             Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+    }
+
+    void setDesktop(ChatDesktop chatdesktop) {
+        this.chatdesktop=chatdesktop;
+        clientListener.setDesktop(chatdesktop);
     }
 }

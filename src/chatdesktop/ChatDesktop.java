@@ -21,8 +21,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
@@ -31,14 +29,15 @@ import org.json.JSONObject;
 public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
-    private JWSCHandler wsHandler = JWSCHandler.getInstance();
-    private ChatPane chat=new ChatPane(wsHandler);
-    private LoginPane login=new LoginPane(); 
-    private Canvas canvas=new Canvas(wsHandler);   
+    ChatPane chat=new ChatPane();
+    LoginPane login=new LoginPane(); 
+    Canvas canvas=new Canvas();   
     private boolean isConnected=false;
-    public static final int base_width=600,base_height=330;
+    public static int base_width=600,base_height=330;
+    private JWSCHandler wsHandler = JWSCHandler.getInstance();
     @Override
     public void start(Stage primaryStage) {          
+        wsHandler.setDesktop(this);
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();               
         final StackPane spane=new StackPane();
@@ -124,54 +123,6 @@ public class ChatDesktop extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    
-        /**
-     * csatolófüggvény, megírásra szorul, mert nem értek a websocketekhez
-     * @return JSONObjecttel tér vissza, benne a felhasználó login és pw-jével
-     * @throws JSONException
-     * @throws Exception ha, üresek a mezők
-     */
- /*   public JSONObject sendAuth() throws JSONException, Exception{
-        JSONObject object=new JSONObject();
-        if(login.isFilled()){                    
-        object.append("name", login.accountField.getText());
-        object.append("pw", login.pwField.getText());}
-        else throw new Exception("Error: Empty acc/pw field!");
-        return object;
-    }*/
-    /**
-     * csatolófüggvény
-     * @param obj JSONObject, benne a szerverhez csatlakozott felhasználók
-     *          neveivel
-     * @throws JSONException 
-     */
- /*   public void addMembers(JSONObject obj) throws JSONException{       
-            while(obj.has("name"))
-            chat.addMembers(obj.getString("name"));
-    }*/
-    /**
-     * csatolófüggvény
-     * @param obj JSONObject, benne a szerverről lecsatlakozott felhasználók
-     *          neveivel
-     * @throws JSONException 
-     */
-  /*  public void removeMember(JSONObject obj) throws JSONException{
-        while(obj.has("name"))
-        chat.removeMembers(obj.getString("name"));
-    }*/
-    /**
-     * csatolófüggvény, ChatPane szövegmezőjébe küldi egy felhasználó üzenetét
-     * @param obj JSONObject, benne a felhasználó nevével és üzenetével
-     * @throws JSONException 
-     */
- /*   public void addMessage(JSONObject obj) throws JSONException{
-        String name=obj.getString("name");
-        StringBuilder sb=new StringBuilder();
-        while(obj.has("msg")){
-            sb.append(obj.getString("msg"));
-        }
-            chat.addText(name, sb.toString());
-    }*/
         public static void main(String[] args) {
         launch(args);
     }

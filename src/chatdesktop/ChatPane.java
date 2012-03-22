@@ -29,12 +29,11 @@ import javafx.util.Duration;
  */
 public final class ChatPane extends BorderPane{
     //messages: az üzenetek mutatására;  mytext: a saját üzenet szerkeztésére.
-    private TextArea messages=new TextArea(), mytext=new TextArea();
+    TextArea messages=new TextArea(), mytext=new TextArea();
     //submit: ezzel a gombbal is el lehet küldeni a saját üzenetünket
-    private Button submit=new Button("Submit");
+    Button submit=new Button("Submit");
     //felhasználó neve
-    private String name;
-    private final JWSCHandler wsHandler;
+    String name;
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
     private Rectangle rect=new Rectangle(400, 400, Color.WHITE);
@@ -48,7 +47,6 @@ public final class ChatPane extends BorderPane{
     String sendMsg(){
         String msg=mytext.getText();
         mytext.setText("");
-        addText(name, msg);
         return msg;
     }
     /**
@@ -110,9 +108,8 @@ public final class ChatPane extends BorderPane{
             }
         });
     }
-    ChatPane(final JWSCHandler wsHandler){
+    ChatPane(){
         super();
-        this.wsHandler=wsHandler;
         this.setMaxSize(300, 310);
         this.setMinSize(300, 310);
         this.setPrefSize(300, 310);
@@ -159,7 +156,6 @@ public final class ChatPane extends BorderPane{
         submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent ev) {
-                wsHandler.sendText(name, sendMsg());
                 //sendMsg();
             }});
         chatPanel.getChildren().addAll(mytext, submit);

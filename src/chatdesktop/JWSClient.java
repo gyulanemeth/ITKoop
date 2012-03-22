@@ -12,6 +12,7 @@ import org.jwebsocket.token.Token;
 public class JWSClient implements WebSocketClientTokenListener{
     
     private static JWSClient _instance = null;
+    private ChatDesktop chatdesktop;
     private JWSClient() {   }
     public static synchronized JWSClient getInstance() {
         if (_instance == null) {
@@ -25,6 +26,31 @@ public class JWSClient implements WebSocketClientTokenListener{
     public void processToken(WebSocketClientEvent wsce, Token token) {
         //throw new UnsupportedOperationException("Not supported yet.");
         System.out.println("processToken");
+        System.out.println(token.toString());
+        String ID =token.getString("type");   
+        try{
+            String userName=token.getString("sender") == null? "noname" : token.getString("sender").toString();
+            String message=token.getString("message") == null? " " : token.getString("message").toString();
+            System.out.println(ID+" "+userName+" "+message);
+            switch(Integer.parseInt(ID)){ 
+                case 1000:
+                   
+                    chatdesktop.chat.addText(userName, message);
+                    break;
+                case 2:
+                    //mozgat
+                    break;
+                case 3:
+                    //letrehoz
+                    break;
+                default:
+                    System.out.println(token.toString());
+                    break;
+            }
+            }
+        catch(Exception e){
+            e.printStackTrace();
+        }
         
     }
 
@@ -42,7 +68,7 @@ public class JWSClient implements WebSocketClientTokenListener{
 
     @Override
     public void processPacket(WebSocketClientEvent wsce, WebSocketPacket wsp) {
-        System.out.println(wsp.getString());
+        
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -55,6 +81,11 @@ public class JWSClient implements WebSocketClientTokenListener{
     @Override
     public void processReconnecting(WebSocketClientEvent wsce) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    void setDesktop(ChatDesktop chatdesktop) {
+        this.chatdesktop=chatdesktop;
+        this.chatdesktop.chat.addText("asd", "asddd");
     }
 
     

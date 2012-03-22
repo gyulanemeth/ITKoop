@@ -25,10 +25,8 @@ public final class Canvas extends Group{
     private Point2D dragAnchor;
     private double initX, initY;
     private ScaleTransition scale;
-    private JWSCHandler wsHandler;
-    public Canvas(JWSCHandler wsHandler) {
+    public Canvas() {
         super();
-        this.wsHandler=wsHandler;
         setBase();        
         initRectangle();
         setBorder();
