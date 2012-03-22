@@ -1,10 +1,17 @@
 package chatdesktop;
 
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import org.jwebsocket.api.WebSocketClientEvent;
 import org.jwebsocket.api.WebSocketClientTokenListener;
 import org.jwebsocket.api.WebSocketPacket;
+import org.jwebsocket.client.token.BaseTokenClient;
+import org.jwebsocket.kit.WebSocketException;
 import org.jwebsocket.token.Token;
-
+import org.jwebsocket.token.TokenFactory;
 /**
  *
  * @author Sallai Gergely
@@ -12,8 +19,13 @@ import org.jwebsocket.token.Token;
 public class JWSClient implements WebSocketClientTokenListener{
     
     private static JWSClient _instance = null;
-    private ChatDesktop chatdesktop;
-    private JWSClient() {   }
+    private ChatDesktop chatDesktop;
+    private BaseTokenClient tClient;
+    
+    private JWSClient() {
+        tClient = new BaseTokenClient();
+        tClient.addTokenClientListener(this);
+    }
     public static synchronized JWSClient getInstance() {
         if (_instance == null) {
             _instance = new JWSClient();
@@ -21,6 +33,125 @@ public class JWSClient implements WebSocketClientTokenListener{
         return _instance;
     }
     
+    public boolean login(String name, String pass, boolean secure) {
+        try {
+            System.out.println("Connecting");
+            if(secure)
+                tClient.open("wss://nemgy.itk.ppke.hu:61155");
+            else
+                tClient.open("ws://nemgy.itk.ppke.hu:61150");
+            System.out.println("Open");
+            //Itt van egy kis hiba
+            //tClient.login(name, pass);
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public boolean sendText(String userName, String text) {
+        try {
+            Token message = TokenFactory.createToken();
+            message.setString("userName", userName);
+            message.setString("msg", text);
+            message.setString("timeStamp", "time");
+            
+            Token token = TokenFactory.createToken();
+            //token.setInteger("type", 1000);
+            token.setString("type", "1000");
+            token.setString("sender", tClient.getClientId());
+            token.setToken("message", message);
+            
+            tClient.sendToken(token);
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public boolean sendMoveObject(String userName, String objId, int x, int y, boolean savepos){
+        try {
+            Token message = TokenFactory.createToken();
+            message.setString("userName", userName);
+            message.setString("objId", objId);
+            message.setInteger("x", x);
+            message.setInteger("y", y);
+            message.setBoolean("savePos", savepos);
+            message.setString("timeStamp", "time");
+            
+            Token token = TokenFactory.createToken();
+            token.setInteger("type", 2);
+            token.setString("sender", tClient.getClientId());
+            token.setToken("message", message);
+            
+            tClient.sendToken(token);
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public boolean sendCreateObject(String exampleString, int x,int y,int z){
+        try {
+            Token message = TokenFactory.createToken();
+            message.setString("exampleString", exampleString);
+            message.setInteger("x", x);
+            message.setInteger("y", y);
+            message.setInteger("z", z);
+            
+            Token token = TokenFactory.createToken();
+            token.setInteger("type", 3);
+            token.setString("sender", tClient.getClientId());
+            token.setToken("message", message);
+            
+            tClient.sendToken(token);
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public boolean sendDeleteObject(int objectId){
+        try {
+            Token message = TokenFactory.createToken();
+            message.setInteger("objId", objectId);
+            
+            Token token = TokenFactory.createToken();
+            token.setInteger("type", 4);
+            token.setString("sender", tClient.getClientId());
+            token.setToken("message", message);
+            
+            tClient.sendToken(token);
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public boolean sendModifyObject(int objId, String exampleString){
+        //try {
+            Token message = TokenFactory.createToken();
+            message.setInteger("objId", objId);
+            message.setString("exampleString", exampleString);
+            
+            Token token = TokenFactory.createToken();
+            token.setInteger("type", 5);
+            token.setString("sender", tClient.getClientId());
+            token.setToken("message", message);
+            
+            //tClient.sendToken(token);
+            System.out.println(token.toString());
+            return true;
+       /* } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }*/
+    }
     
     @Override
     public void processToken(WebSocketClientEvent wsce, Token token) {
@@ -30,18 +161,36 @@ public class JWSClient implements WebSocketClientTokenListener{
         String ID =token.getString("type");   
         try{
             String userName=token.getString("sender") == null? "noname" : token.getString("sender").toString();
-            String message=token.getString("message") == null? " " : token.getString("message").toString();
-            System.out.println(ID+" "+userName+" "+message);
             switch(Integer.parseInt(ID)){ 
                 case 1000:
-                   
-                    chatdesktop.chat.addText(userName, message);
+                    String textMessage=token.getString("message") == null? " " : token.getString("message").toString();
+                    chatDesktop.chat.addText(userName, textMessage);
                     break;
                 case 2:
-                    //mozgat
+                    Map message=token.getMap("message");
+                    final String objId = message.get("objId").toString();
+                    final String data=message.get("data")==null? " ":message.get("data").toString();
+                    final int x=Integer.parseInt(message.get("x") == null? "0" : message.get("x").toString());
+                    final int y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
+                    int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
+                    if(chatDesktop.canvas.objects.containsKey(objId)){
+                        chatdesktop.Rectangle rec=((chatdesktop.Rectangle)chatDesktop.canvas.objects.get(objId));
+                        rec.setX(x);
+                        rec.setY(y);
+                    }else{
+                        System.out.println("itt vagyunk");
+                        final javafx.scene.shape.Rectangle rec=new javafx.scene.shape.Rectangle(x,y, 5,10);
+                        rec.setFill(Color.RED);
+                        Platform.runLater(new Runnable() { 
+                            @Override
+                            public void run() {
+                                chatDesktop.canvas.initRectangle(_instance, objId, x, y, 40, 30, data);
+                            }
+                        });
+                    }
                     break;
                 case 3:
-                    //letrehoz
+                    //létrehoz
                     break;
                 default:
                     System.out.println(token.toString());
@@ -84,160 +233,8 @@ public class JWSClient implements WebSocketClientTokenListener{
     }
 
     void setDesktop(ChatDesktop chatdesktop) {
-        this.chatdesktop=chatdesktop;
-        this.chatdesktop.chat.addText("asd", "asddd");
+        this.chatDesktop=chatdesktop;
     }
 
     
 }
-/*public class JWSClient implements WebSocketClientListener{
-    
-    private static JWSClient _instance = null;
-    private JWSClient() {   }
-    public static synchronized JWSClient getInstance() {
-        if (_instance == null) {
-            _instance = new JWSClient();
-           }
-        return _instance;
-    }
-    
-    public boolean sendText(BaseTokenClient client, String userName, String text) {
-        try {
-            JSONObject message = new JSONObject();
-            message.append("userName", userName);
-            message.append("msg", text);
-            message.append("timeStamp", "time");
-            
-            JSONObject json = new JSONObject();
-            json.append("type", 1000);
-            json.append("sender", client.getClientId());
-            json.append("message", message);
-            
-            client.broadcastText(json.toString());
-            //client.sendToken(json);
-            return true;
-        } catch (JSONException | WebSocketException ex) {
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-    
-    public boolean sendMoveObject(BaseTokenClient client, String userName, int objId, int x, int y, boolean savepos){
-        try {
-            JSONObject message = new JSONObject();
-            message.append("userName", userName);
-            message.append("objId", objId);
-            message.append("x", x);
-            message.append("y", y);
-            message.append("savePos", savepos);
-            message.append("timeStamp", "time");
-            
-            JSONObject json = new JSONObject();
-            json.append("type", 2);
-            json.append("sender", client.getClientId());
-            json.append("message", message);
-            
-            client.broadcastText(json.toString());
-            return true;
-        } catch (WebSocketException | JSONException ex) {
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-    
-    public boolean sendCreateObject(BaseTokenClient client, String exampleString, int x,int y,int z){
-        try {
-            JSONObject message = new JSONObject();
-            message.append("exampleString", exampleString);
-            message.append("x", x);
-            message.append("y", y);
-            message.append("z", z);
-            
-            JSONObject json = new JSONObject();
-            json.append("type", 3);
-            json.append("sender", client.getClientId());
-            json.append("message", message);
-            
-            client.broadcastText(json.toString());
-            //client.sendToken(json);
-            return true;
-        } catch (JSONException | WebSocketException ex) {
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        
-    }
-    
-    public boolean sendDeleteObject(BaseTokenClient client, int objectId){
-        try {
-            JSONObject message = new JSONObject();
-            message.append("objId", objectId);
-            
-            JSONObject json = new JSONObject();
-            json.append("type", 4);
-            json.append("sender", client.getClientId());
-            json.append("message", message);
-            
-            client.broadcastText(json.toString());
-            //client.sendToken(json);
-            return true;
-        } catch (JSONException | WebSocketException ex) {
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-            
-    public boolean sendModifyObject(BaseTokenClient client, int objId, String exampleString){
-        try {
-            JSONObject message = new JSONObject();
-            message.append("objId", objId);
-            message.append("exampleString", exampleString);
-            
-            JSONObject json = new JSONObject();
-            json.append("type", 5);
-            json.append("sender", client.getClientId());
-            json.append("message", message);
-            
-            client.broadcastText(json.toString());
-            //client.sendToken(json);
-            return true;
-        } catch (JSONException | WebSocketException ex) {
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-            
-    @Override
-    public void processOpening(WebSocketClientEvent wsce) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void processOpened(WebSocketClientEvent wsce) {
-        System.out.println("ProcessOpened");
-    }
-
-    @Override
-    public void processPacket(WebSocketClientEvent wsce, WebSocketPacket wsp) {
-        wsp.getString();
-        
-        
-    }
-
-    @Override
-    public void processClosed(WebSocketClientEvent wsce) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void processReconnecting(WebSocketClientEvent wsce) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    void login(BaseTokenClient cc, String name, String passw) throws WebSocketException {
-        //cc.open("ws://nemgy.itk.ppke.hu:8787/jWebSocket");
-        cc.open("ws://localhost:8787/jWebSocket");
-        //cc.login(name, passw);
-    }
-    
-}*/

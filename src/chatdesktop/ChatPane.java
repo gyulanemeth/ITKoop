@@ -12,8 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -55,7 +53,7 @@ public final class ChatPane extends BorderPane{
      * @param text egyik felhasználó üzenete
      */
     void addText(String member, String text){
-        messages.appendText("@"+member+": "+text+"\n");
+        messages.appendText(member+" says: "+text+"\n");
     }
     /**
      * Név változó értékének beállítása
@@ -138,26 +136,6 @@ public final class ChatPane extends BorderPane{
         chatPanel.setSpacing(10);
         chatPanel.setPadding(new Insets(15, 12, 15, 12));
         mytext.setPrefHeight(20);
-        mytext.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent arg0) {
-                mytext.requestFocus();
-            }
-        });
-        mytext.setOnKeyPressed(new javafx.event.EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ev) {
-                if(ev.isShiftDown() && ev.getCode()==KeyCode.ENTER)
-                    sendMsg();
-            }});
-        submit.setMinSize(100, 20);
-        submit.setPrefSize(100, 20);
-        submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent ev) {
-                //sendMsg();
-            }});
         chatPanel.getChildren().addAll(mytext, submit);
         //positioning***********************************************************
         setBottom(chatPanel);

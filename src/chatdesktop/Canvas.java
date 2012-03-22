@@ -4,7 +4,8 @@
  */
 package chatdesktop;
 
-import java.util.Random;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import javafx.animation.ScaleTransition;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -13,6 +14,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 /**
@@ -21,14 +23,16 @@ import javafx.util.Duration;
  */
 public final class Canvas extends Group{
     private int height=300, width=300;
+    Hashtable objects=new Hashtable();
     Rectangle red, green, blue;
+    JWSClient wsHandler;
     private Point2D dragAnchor;
     private double initX, initY;
     private ScaleTransition scale;
-    public Canvas() {
+    public Canvas(JWSClient wsHandler) {
         super();
-        setBase();        
-        initRectangle();
+        this.wsHandler=wsHandler;
+        setBase();
         setBorder();
     }
     void setBase(){
@@ -41,22 +45,19 @@ public final class Canvas extends Group{
         shadow.setOffsetY(5);
         this.setEffect(shadow);
     }
-    void initRectangle(){
-        Random random=new Random();
-        int randMaxWidth=width-30;
-        red=new Rectangle((double)random.nextInt(width-30),(double)random.nextInt(height-30),30.0, 30.0);
-        red.setFill(Color.RED);
-        green=new Rectangle((double)random.nextInt(width-30),(double)random.nextInt(height-30),30.0, 30.0);
-        green.setFill(Color.GREEN);
-        blue=new Rectangle((double)random.nextInt(width-30),(double)random.nextInt(height-30),30.0, 30.0);
-        blue.setFill(Color.BLUE);
-        this.getChildren().addAll(red,green, blue);
-        actionRectangle(red);
-        actionRectangle(green);
-        actionRectangle(blue);
+    void initRectangle(final JWSClient handler, String id, int x, int y, int width, int height, String text){
+       Text realtext=new Text(x, y+20, text);
+       realtext.setFill(Color.WHITE);
+       chatdesktop.Rectangle rec=new chatdesktop.Rectangle(x, y, width, height, realtext, id);
+       rec.setColor();
+       rec.setVisible(true);       
+       this.getChildren().add(rec); 
+       this.getChildren().add(realtext);
+       objects.put(id, rec);
+       actionRectangle(rec, handler);    
     }
     
-    void actionRectangle(final Rectangle rec){
+    void actionRectangle(final chatdesktop.Rectangle rec,final JWSClient handler){
         rec.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent ev) {
@@ -76,10 +77,17 @@ public final class Canvas extends Group{
                     rec.setY(height-rec.getHeight());
                 else
                     rec.setY(0);
-                //Ide jöhetne egy üzenetküldés.
-            }
-            
+                rec.moveText();
+               // handler.sendMoveObject("hiba", rec.id, (int)newPositionX, (int)newPositionY, false);
+            }            
         });
+        rec.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent ev) {
+                handler.sendMoveObject("hiba", rec.id, (int)rec.getX(), (int)rec.getY(), true);
+            }
+        });
+                
         rec.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent ev) {
@@ -99,7 +107,6 @@ public final class Canvas extends Group{
             }
         });
         rec.setOnMouseExited(new EventHandler<MouseEvent>() {
-
             @Override
             public void handle(MouseEvent arg0) {
                 scale=new ScaleTransition(Duration.seconds(0.1), rec);
@@ -113,8 +120,8 @@ public final class Canvas extends Group{
         this.getChildren().clear();
     }
     void setConnected(boolean isConnected){
-        red.setVisible(isConnected);
-        green.setVisible(isConnected);
-        blue.setVisible(isConnected);
+        for(Enumeration<chatdesktop.Rectangle> rects=objects.elements();rects.hasMoreElements();){
+            rects.nextElement().setVisible(isConnected);
+        }
     }
 }

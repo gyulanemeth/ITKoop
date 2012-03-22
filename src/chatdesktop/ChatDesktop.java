@@ -12,6 +12,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -29,15 +30,16 @@ import javafx.stage.Stage;
 public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
+    private JWSClient wsClient = JWSClient.getInstance();
     ChatPane chat=new ChatPane();
     LoginPane login=new LoginPane(); 
-    Canvas canvas=new Canvas();   
+    Canvas canvas=new Canvas(wsClient);   
     private boolean isConnected=false;
-    public static int base_width=600,base_height=330;
-    private JWSCHandler wsHandler = JWSCHandler.getInstance();
+    public static int base_width=600,base_height=330;    
+    
     @Override
     public void start(Stage primaryStage) {          
-        wsHandler.setDesktop(this);
+        wsClient.setDesktop(this);
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();               
         final StackPane spane=new StackPane();
@@ -57,7 +59,26 @@ public class ChatDesktop extends Application {
         bpane.getChildren().add(colors);
         //Menu with eventhandler*********************************************
         Menu menuFile=new Menu("File");
-        fileDisconnect=new MenuItem("Disconnect");
+        fileDisconnect=new MenuItem("Disconnect");        
+        fileExit=new MenuItem("Exit");
+        menuFile.getItems().addAll(fileDisconnect, fileExit);
+        menubar.getMenus().add(menuFile);
+        //positioning***********************************************************
+        spane.getChildren().addAll(login, chat);
+        chat.setVisible(false);
+        canvas.setConnected(isConnected);
+        bpane.setTop(menubar);
+        bpane.setLeft(canvas);
+        bpane.setRight(spane);
+        //Events****************************************************************
+        loginEvent();
+        chatEvent();
+        //other*****************************************************************
+        primaryStage.setTitle("ChatProgram 1.013c");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    void menuEvent(){
         fileDisconnect.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
@@ -70,17 +91,18 @@ public class ChatDesktop extends Application {
                     login.play(1.0f, 0.0f);
                 }
             }});
-        fileExit=new MenuItem("Exit");
         fileExit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
                     System.exit(1);
             }});
+    }
+    void loginEvent(){
         login.submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        if(!wsHandler.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
+                        if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
@@ -97,7 +119,7 @@ public class ChatDesktop extends Application {
             public void handle(KeyEvent ev) {
                     if(ev.getCode()==KeyCode.ENTER) 
                         if(login.isFilled()){
-                        if(!wsHandler.login(login.accountField.getText(), login.pwField.getText(), login.secure.selectedProperty().getValue())) {
+                        if(!wsClient.login(login.accountField.getText(), login.pwField.getText(), login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
@@ -109,21 +131,31 @@ public class ChatDesktop extends Application {
                             canvas.setConnected(isConnected);
                             chat.play(1.0f,0.0f);                            
         }}}});
-        menuFile.getItems().addAll(fileDisconnect, fileExit);
-        menubar.getMenus().add(menuFile);
-        //positioning***********************************************************
-        spane.getChildren().addAll(login, chat);
-        chat.setVisible(false);
-        canvas.setConnected(isConnected);
-        bpane.setTop(menubar);
-        bpane.setLeft(canvas);
-        bpane.setRight(spane);
-        //other*****************************************************************
-        primaryStage.setTitle("ChatProgram 1.013c");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
-        public static void main(String[] args) {
+    void chatEvent(){
+        chat.mytext.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent arg0) {
+                chat.mytext.requestFocus();
+            }
+        });
+        chat.mytext.setOnKeyPressed(new javafx.event.EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ev) {
+                if(ev.isShiftDown() && ev.getCode()==KeyCode.ENTER)
+                    wsClient.sendText(chat.name, chat.sendMsg());
+            }});
+        chat.submit.setMinSize(100, 20);
+        chat.submit.setPrefSize(100, 20);
+        chat.submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent ev) {
+                wsClient.sendText(chat.name, chat.sendMsg());
+            }});
+    }   
+    
+    public static void main(String[] args) {
         launch(args);
     }
         
