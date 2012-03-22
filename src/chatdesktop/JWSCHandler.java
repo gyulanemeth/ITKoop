@@ -37,9 +37,9 @@ public class JWSCHandler {
         try {
             System.out.println("Connecting");
             if(secure)
-                tClient.open("wss://nemgy.itk.ppke.hu:61159");
-            else{
-                tClient.open("ws://nemgy.itk.ppke.hu:61150");}
+                tClient.open("wss://nemgy.itk.ppke.hu:61155");
+            else
+                tClient.open("ws://nemgy.itk.ppke.hu:61150");
             System.out.println("Open");
             //Itt van egy kis hiba
             //tClient.login(name, pass);

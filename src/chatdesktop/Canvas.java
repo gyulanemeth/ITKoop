@@ -5,14 +5,11 @@
 package chatdesktop;
 
 import java.util.Random;
-import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Shadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -24,12 +21,14 @@ import javafx.util.Duration;
  */
 public final class Canvas extends Group{
     private int height=300, width=300;
-    private Rectangle red, green, blue;
+    Rectangle red, green, blue;
     private Point2D dragAnchor;
     private double initX, initY;
     private ScaleTransition scale;
-    public Canvas() {
+    private JWSCHandler wsHandler;
+    public Canvas(JWSCHandler wsHandler) {
         super();
+        this.wsHandler=wsHandler;
         setBase();        
         initRectangle();
         setBorder();
@@ -58,6 +57,7 @@ public final class Canvas extends Group{
         actionRectangle(green);
         actionRectangle(blue);
     }
+    
     void actionRectangle(final Rectangle rec){
         rec.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
@@ -114,5 +114,9 @@ public final class Canvas extends Group{
     void clearCanvas(){
         this.getChildren().clear();
     }
-    
+    void setConnected(boolean isConnected){
+        red.setVisible(isConnected);
+        green.setVisible(isConnected);
+        blue.setVisible(isConnected);
+    }
 }
