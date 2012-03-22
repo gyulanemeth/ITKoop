@@ -1,1 +1,2 @@
-Összeraktam Gomez jwebsocketjét a canvassal kibõvített chatprogrammal. Innentõl csak ezt írjátok át, a desktop_client_inprogress nem aktuális, lehet törölni, én nem tudok hogy kell.
+Félig mûködõ desktop kliens. Szerverrõl érkezõ szöveg és objektumok, illetve azok mozgatása implementálva van.
+Kifelé nem mûködik a beszélgetés, sem az objektumok mozgatása, üzenetküldési kompatibilitási probléma miatt. GOMEZ, I CHOOSE YOU!
