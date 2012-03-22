@@ -1,38 +1,46 @@
 JSON üzenetek formátuma
 
+[
  {
         "type":
         "sender":
+        "timestamp": <unix timestamp>
         "message": {
                 //ez type függő
         }
  }
+]
 
- type == 2 -> objektum mozgatása
+
+====
+
+ type == 2 -> objektum mozgatása. Vagy inkább általános módosítása. Az oobjId-n és talán a savePos-on kívül minden attribútum opcionálisa.
  message: {
         "objId":
         "x":
         "y":
+        "z":
+        "data":
         "savePos":
  }
 
- type == 3 -> objektum létrehozása
+ type == 3 -> objektum létrehozása      //kizárólag kliens->szerver irányban. A szerver válasza egy type=2.
  message: {
-        exampleString
+        data
         x
         y
         z
  }
 
- type == 4 -> objektum törlése
+ type == 4 -> objektum törlése          // ha a kliens küldi, valami visszaigazolás kellhet.
  message: {
-        objectId
+        "objId": 
  }
 
- type == 5 -> objektum módosítása
+ type == 5 -> objektum módosítása               // kétes. szerintem a type=2 megcsinálja
  message: {
-        objectId
-        exampleString
+        "objId"
+        "data"
  }
 
 
@@ -47,11 +55,9 @@ JSON üzenetek formátuma
  Az adatbázisban lévő objektumok:
  objektum: {
         _id
-        pos: {
-                x
-                y
-                z
-        },
+        x
+        y
+        z
         data: {
                 exampleString
         }
