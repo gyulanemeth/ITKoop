@@ -1,5 +1,6 @@
 package chatdesktop;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +22,7 @@ public class JWSClient implements WebSocketClientTokenListener{
     private static JWSClient _instance = null;
     private ChatDesktop chatDesktop;
     private BaseTokenClient tClient;
+    private Canvas canvas;
     
     private JWSClient() {
         tClient = new BaseTokenClient();
@@ -31,6 +33,9 @@ public class JWSClient implements WebSocketClientTokenListener{
             _instance = new JWSClient();
            }
         return _instance;
+    }
+    public void setCanvas(Canvas canvas){
+        this.canvas=canvas;
     }
     
     public boolean login(String name, String pass, boolean secure) {
@@ -55,14 +60,17 @@ public class JWSClient implements WebSocketClientTokenListener{
             Token message = TokenFactory.createToken();
             message.setString("userName", userName);
             message.setString("msg", text);
-            message.setString("timeStamp", "time");
+            //message.setString("timeStamp", "time");
             
             Token token = TokenFactory.createToken();
             //token.setInteger("type", 1000);
             token.setString("type", "1000");
             token.setString("sender", tClient.getClientId());
+            token.setString("timeStamp", "time");
             token.setToken("message", message);
+            //token.setString("message", message.toString());
             
+            System.out.println("OUT: "+token.toString());
             tClient.sendToken(token);
             return true;
         } catch (WebSocketException ex) {
@@ -79,13 +87,16 @@ public class JWSClient implements WebSocketClientTokenListener{
             message.setInteger("x", x);
             message.setInteger("y", y);
             message.setBoolean("savePos", savepos);
-            message.setString("timeStamp", "time");
+            //message.setString("timeStamp", "time");
             
             Token token = TokenFactory.createToken();
-            token.setInteger("type", 2);
+            //token.setInteger("type", 2);
+            token.setString("type","2");
             token.setString("sender", tClient.getClientId());
+            token.setString("timeStamp", "time");
             token.setToken("message", message);
             
+            System.out.println("OUT: "+token.toString());
             tClient.sendToken(token);
             return true;
         } catch (WebSocketException ex) {
@@ -97,14 +108,16 @@ public class JWSClient implements WebSocketClientTokenListener{
     public boolean sendCreateObject(String exampleString, int x,int y,int z){
         try {
             Token message = TokenFactory.createToken();
-            message.setString("exampleString", exampleString);
+            message.setString("data", exampleString);
             message.setInteger("x", x);
             message.setInteger("y", y);
             message.setInteger("z", z);
             
             Token token = TokenFactory.createToken();
-            token.setInteger("type", 3);
+            //token.setInteger("type", 3);
+            token.setString("type","3");
             token.setString("sender", tClient.getClientId());
+            token.setString("timeStamp", "time");
             token.setToken("message", message);
             
             tClient.sendToken(token);
@@ -121,8 +134,10 @@ public class JWSClient implements WebSocketClientTokenListener{
             message.setInteger("objId", objectId);
             
             Token token = TokenFactory.createToken();
-            token.setInteger("type", 4);
+            //token.setInteger("type", 4);
+            token.setString("type","4");
             token.setString("sender", tClient.getClientId());
+            token.setString("timeStamp", "time");
             token.setToken("message", message);
             
             tClient.sendToken(token);
@@ -134,71 +149,119 @@ public class JWSClient implements WebSocketClientTokenListener{
     }
     
     public boolean sendModifyObject(int objId, String exampleString){
-        //try {
+        try {
             Token message = TokenFactory.createToken();
             message.setInteger("objId", objId);
             message.setString("exampleString", exampleString);
             
             Token token = TokenFactory.createToken();
-            token.setInteger("type", 5);
+            //token.setInteger("type", 5);
+            token.setString("type","5");
             token.setString("sender", tClient.getClientId());
+            token.setString("timeStamp", "time");
             token.setToken("message", message);
             
-            //tClient.sendToken(token);
+            tClient.sendToken(token);
             System.out.println(token.toString());
             return true;
-       /* } catch (WebSocketException ex) {
+        } catch (WebSocketException ex) {
             Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
             return false;
-        }*/
+        }
     }
     
     @Override
     public void processToken(WebSocketClientEvent wsce, Token token) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-        System.out.println("processToken");
         System.out.println(token.toString());
-        String ID =token.getString("type");   
+        String type =token.getString("type");
+        Map message;
+        final String objId;
+        final String data;
+        final int x,y,z;
+        String userName;
         try{
-            String userName=token.getString("sender") == null? "noname" : token.getString("sender").toString();
-            switch(Integer.parseInt(ID)){ 
-                case 1000:
+            if(type.equals("welcome")) return;
+            String sender=token.getString("sender") == null? "unkown host" : token.getString("sender").toString();
+            switch(Integer.parseInt(type)){ 
+                case 1000://CHAT
+                    message = token.getMap("message");
+                    userName = message.get("userName") == null? "*noname*" : message.get("userName").toString();
+                    String textMessage = message.get("msg") == null? "_-_" : message.get("msg").toString();
+                    chatDesktop.newMessage(userName, textMessage);
+                    /*OLD
                     String textMessage=token.getString("message") == null? " " : token.getString("message").toString();
-                    chatDesktop.chat.addText(userName, textMessage);
+                    chatDesktop.chat.addText(sender, textMessage);*/
                     break;
-                case 2:
-                    Map message=token.getMap("message");
-                    final String objId = message.get("objId").toString();
-                    final String data=message.get("data")==null? " ":message.get("data").toString();
-                    final int x=Integer.parseInt(message.get("x") == null? "0" : message.get("x").toString());
-                    final int y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
-                    int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
-                    if(chatDesktop.canvas.objects.containsKey(objId)){
-                        chatdesktop.Rectangle rec=((chatdesktop.Rectangle)chatDesktop.canvas.objects.get(objId));
+                case 2://MOVE
+                    message=token.getMap("message");
+                    objId = message.get("objId").toString();
+                    data=message.get("data")==null? " ":message.get("data").toString();
+                    x=Integer.parseInt(message.get("x") == null? "0" : message.get("x").toString());
+                    y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
+                    z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
+                    
+                    if(canvas.containsObject(objId)){
+                        RectangleNode rec = canvas.getObject(objId);
                         rec.setX(x);
                         rec.setY(y);
                     }else{
-                        System.out.println("itt vagyunk");
-                        final javafx.scene.shape.Rectangle rec=new javafx.scene.shape.Rectangle(x,y, 5,10);
-                        rec.setFill(Color.RED);
                         Platform.runLater(new Runnable() { 
                             @Override
                             public void run() {
-                                chatDesktop.canvas.initRectangle(_instance, objId, x, y, 40, 30, data);
+                                canvas.initRectangleNode(_instance, objId, x, y, z, data);
                             }
                         });
                     }
                     break;
-                case 3:
-                    //létrehoz
+                case 3://CREATE
+                    message = token.getMap("message");
+                    objId = message.get("objId").toString();
+                    data = message.get("data")==null? " ":message.get("data").toString();
+                    x=Integer.parseInt(message.get("x")==null? "0": message.get("x").toString());
+                    y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
+                    z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
+                    if(canvas.containsObject(objId)){
+                        RectangleNode rec = canvas.getObject(objId);
+                        rec.setX(x);
+                        rec.setY(y);
+                        rec.setData(data);
+                    }else{
+                        Platform.runLater(new Runnable() { 
+                            @Override
+                            public void run() {
+                                canvas.initRectangleNode(_instance, objId, x, y, z, data);
+                            }
+                        }); 
+                    }
+                    break;
+                case 4://DELETE
+                    message = token.getMap("message");
+                    objId = message.get("objId").toString();
+                    if(canvas.containsObject(objId)){
+                        Platform.runLater(new Runnable() { 
+                            @Override
+                            public void run() {
+                                canvas.deleteObject(objId);
+                            }
+                        }); 
+                    }
+                    break;
+                case 5://MODIFY
+                    message = token.getMap("message");
+                    objId = message.get("objId").toString();
+                    data = message.get("data")==null? " ":message.get("data").toString();
+                    //z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
+                    if(canvas.containsObject(objId)){
+                        RectangleNode rec = canvas.getObject(objId);
+                        rec.setData(data);
+                    }
                     break;
                 default:
                     System.out.println(token.toString());
                     break;
             }
-            }
-        catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, e);
         }
         
     }

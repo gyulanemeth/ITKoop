@@ -3,6 +3,7 @@ package chatdesktop;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
@@ -31,15 +32,16 @@ public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
     private JWSClient wsClient = JWSClient.getInstance();
-    ChatPane chat=new ChatPane();
+    private Canvas canvas=new Canvas(wsClient);
+    private ChatPane chat=new ChatPane();
     LoginPane login=new LoginPane(); 
-    Canvas canvas=new Canvas(wsClient);   
     private boolean isConnected=false;
     public static int base_width=600,base_height=330;    
     
     @Override
     public void start(Stage primaryStage) {          
         wsClient.setDesktop(this);
+        wsClient.setCanvas(canvas);
         //Init containers*******************************************************
         final BorderPane bpane=new BorderPane();               
         final StackPane spane=new StackPane();
@@ -141,6 +143,7 @@ public class ChatDesktop extends Application {
             }
         });
         chat.mytext.setOnKeyPressed(new javafx.event.EventHandler<KeyEvent>() {
+            ///TODO ezt megkéne forditani, hogy inkább shift enterre legyen ujsor, enterre meg kuldje.
             @Override
             public void handle(KeyEvent ev) {
                 if(ev.isShiftDown() && ev.getCode()==KeyCode.ENTER)
@@ -153,7 +156,11 @@ public class ChatDesktop extends Application {
             public void handle(ActionEvent ev) {
                 wsClient.sendText(chat.name, chat.sendMsg());
             }});
-    }   
+    }
+    
+    public void newMessage(String userName, String message){
+        chat.addText(userName, message);
+    }
     
     public static void main(String[] args) {
         launch(args);
