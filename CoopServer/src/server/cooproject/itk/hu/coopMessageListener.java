@@ -258,12 +258,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		DBCursor cur = _c.find().sort(new BasicDBObject("_id", -1));
 		// gyartsunk responsokat, es kuldjuk ki!
 		log.info("Sending welcome packets");
+		Token helloObjects = TokenFactory.createToken();
+		LinkedList<Token> objectList = new LinkedList<Token>();
 		while (cur.hasNext()) {
 			Token dResponse = getTokenFromMongoDBObject(cur.next());
-			dResponse.setString("type", "2");
 			log.info(dResponse.toString());
-			_tServer.sendToken(aEvent.getConnector(), dResponse);
+			objectList.add(dResponse);
 		}
+		helloObjects.setList("messages",objectList);
+		_tServer.sendToken(aEvent.getConnector(), helloObjects);
 	}
 
 	/**
@@ -275,9 +278,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 * @return Token amiben a message van
 	 */
 	private Token getTokenFromMongoDBObject(DBObject o) {
-		Token r = TokenFactory.createToken("response");
-		r.setString("sender", "CooProjectServer");
-		r.setString("type", "2");
+		Token r = getMessageBone(2);
 		/*
 		 * Vegulis egyszerusitettem db schemat, mert rohadt szarul van
 		 * implementalva javaban mongodb driver igy ahhoz hogy kiszedjek egy
