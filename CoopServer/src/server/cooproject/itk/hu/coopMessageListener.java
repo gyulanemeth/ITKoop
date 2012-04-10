@@ -57,13 +57,13 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		log.info(aEvent.getSessionId().toString() + " left the server");
 		String username = _users.get(aEvent.getSessionId());
 		_users.remove(aEvent.getSessionId());
-		Token dResponse = TokenFactory.createToken("response");
-		dResponse.setString("type","1000");
-		dResponse.setString("sender", "CooProjectServer");
+		Token broadcastMessage = TokenFactory.createToken();
+		LinkedList<Token> messageList = new LinkedList<Token>();
+		Token dResponse = getMessageBone(1000);
 		dResponse.setString("message", username + " left the server");// chat
-																		// message
-		_tServer.broadcastToken(dResponse);
-
+		messageList.add(dResponse);
+		broadcastMessage.setList("messages",messageList);
+		_tServer.broadcastToken(broadcastMessage);																		// message
 	}
 
 	/**
@@ -99,6 +99,17 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 */
 	@Override
 	public void processToken(WebSocketServerTokenEvent aEvent, Token aToken) {
+		//Mivel arrayben gyunnek majd a uzenetek...
+		//Nyilvan a kod ezen resze nem tesztelt, mivel nincs mivel
+		@SuppressWarnings("unchecked")
+		List<Token> messageList = (aToken.getList("messages") == null? new LinkedList<Token>() : aToken.getList("messages")); 
+		Iterator<Token> it = messageList.iterator();
+		while(it.hasNext())
+			processMessage(aEvent,it.next());
+	}
+
+	
+	private void processMessage(WebSocketServerTokenEvent aEvent,Token aToken){
 		// Dolgozzuk fel a letezo fieldeket
 		int cType = 0;
 		if (aToken.getString("type") != null) {
@@ -138,11 +149,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		}
 		// Ha broadcastolni kell
 		if (should_be_broadcasted) {
-			_tServer.broadcastToken(aToken);
+			Token broadcastMessage = TokenFactory.createToken();
+			LinkedList<Token> messageList = new LinkedList<Token>();
+			messageList.add(aToken);
+			broadcastMessage.setList("messages",messageList);
+			_tServer.broadcastToken(broadcastMessage);
 		}
-
+		
 	}
-
+	
 	/**
 	 * Ismeretlen type field a jsonben valaszoljuk a feladonak.
 	 * 
