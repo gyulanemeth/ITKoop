@@ -262,7 +262,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		LinkedList<Token> objectList = new LinkedList<Token>();
 		while (cur.hasNext()) {
 			Token dResponse = getTokenFromMongoDBObject(cur.next());
-			log.info(dResponse.toString());
+			//log.info(dResponse.toString());
 			objectList.add(dResponse);
 		}
 		helloObjects.setList("messages",objectList);
@@ -342,7 +342,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		// Fogj 1 message-t
 		Token simpleMessage = TokenFactory.createToken();
 		// Rakj bele typeot
-		simpleMessage.setString("type","1001");
+		simpleMessage.setInteger("type",type);
 		// Sendert
 		simpleMessage.setString("sender", "CooProjectServer");
 		// Timestampet
