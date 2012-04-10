@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.jwebsocket.api.WebSocketPacket;
@@ -130,11 +131,16 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		case 2:
 			should_be_broadcasted = true;
 			// Lehamozzuk a savePosrol a tobbit
-			Map message = aToken.getMap("message");
+			@SuppressWarnings("unchecked")
+			Map<String, String> message = aToken.getMap("message");
 			if (message.get("savePos").toString().equals("true")) {
 				saveToken("objects", aToken);// Mentsuk aToken-t, az objects
 												// collectionbe
 			}
+			break;
+		case 3:
+				Token createMessage = createObject(aToken);
+				_tServer.broadcastToken(createMessage);
 			break;
 		// Egy chat message. Egyelore csak broadcastoljuk
 		case 1000:
@@ -228,11 +234,13 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 *            a collection neve, ahova menteni akarunk
 	 * @param aToken
 	 *            a kapott token
+	 * @return objectID
 	 */
-	private void saveToken(String _collection, Token aToken) {
+	private String saveToken(String _collection, Token aToken) {
 		DBCollection _c = _mongo.getCollection(_collection);//
 		// Hozzuk letre a db objektumot
-		Map message = aToken.getMap("message");
+		@SuppressWarnings("unchecked")
+		Map<String, String> message = (aToken.getMap("message") == null? new HashMap<String,String>() : aToken.getMap("message"));
 		log.info("Saving token message:" + message.toString());
 		// Kesobb, ha letisztul az uzenetkuldes, hasznalhatjuk a JSON.parse
 		// parancsot is, es akkor nem kell ennyit bohockodni :(
@@ -256,15 +264,40 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			if(doc != null) {
 				_c.update(doc, new BasicDBObject().append("$set", d));
 				log.info("Old object successfully updated: "+d.toString());
+				return ((ObjectId)doc.get( "_id" )).toString();
 			} else {
 				_c.insert(d);
 				log.info("New object successfully inserted: " + d.toString());
+				return ((ObjectId)d.get( "_id" )).toString();
 			}
 		} catch (Exception e) {
 			log.warn("Error while saving aToken: " + d.toString());
+			return null;
 		}
 	}
+	/**
+	 * Letrehozzuk az objectumot, es legyartjuk a valaszuzenetet
+	 * @param aToken a letrehozando objectet tartalmazo message
+	 * @return a valasz Token
+	 */
 
+	private Token createObject(Token aToken){
+		Token response = getMessageBone(2);
+		String createdAt = aToken.getString("timestamp");
+		@SuppressWarnings("unchecked")
+		Map<String, String> message = aToken.getMap("message");
+		message.put("createdAt",createdAt);
+		message.put("savePos","false");
+		String objId = saveToken("objects",aToken);
+		message.put("objId",objId);
+		response.setMap("message",message);
+		Token createMessage = TokenFactory.createToken();
+		LinkedList<Token> messageList = new LinkedList<Token>();
+		messageList.add(response);
+		createMessage.setList("message",messageList);
+		return createMessage;
+		
+	}
 	/**
 	 * Kikuldi a helloobjecteket!(az utolso 3 elmentett uzenetet a dbbol)
 	 * 
@@ -337,16 +370,17 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 * Kikuldjuk az aktualis user listet
 	 * @param aEvent a csatlakozo event
 	 */
+	@SuppressWarnings("unchecked")
 	private void sendUserList(WebSocketServerEvent aEvent){
 		log.info("Sending out user list");
 		Token usersMessage = TokenFactory.createToken();
-		Iterator it = _users.entrySet().iterator();
+		Iterator<?> it = _users.entrySet().iterator();
 		LinkedList<Token> userList = new LinkedList<Token>();
 		while (it.hasNext()) {
-	    	Map.Entry pairs = (Map.Entry)it.next();
+			Map.Entry<String,String> pairs = (Entry<String, String>)it.next();
 			HashMap<String,String> u = new HashMap<String,String>();
 			Token userMessage = getMessageBone(1001);
-			u.put("user",(String) pairs.getValue());
+			u.put("user",pairs.getValue());
 			userMessage.setMap("message",u);
 			userList.add(userMessage);
 	    }
