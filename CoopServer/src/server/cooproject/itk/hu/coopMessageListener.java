@@ -1,6 +1,9 @@
 package server.cooproject.itk.hu;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -79,15 +82,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		 */
 
 		// ha valaki csatlakozik, küldjüki ki neki a welcome objecteket unicast üzenetben
-		DBCollection coll = _mongo.getCollection("objects");
-		DBCursor cur = coll.find().sort(new BasicDBObject("_id", -1));
-		log.info("Sending welcome packets");
-		while (cur.hasNext()) {
-			Token dResponse = getTokenFromMongoDBObject(cur.next());
-			dResponse.setString("type", "2");
-			log.info(dResponse.toString());
-			_tServer.sendToken(aEvent.getConnector(), dResponse);
-		}
+		userJoined(aEvent);
 		// majd ha lesz rendesebb autentikáció meg ilyesmi, akkor majd átírjuk, de addig csak szebb így.
 		// meg persze jó lenne egy arrayben átküldeni az objektumokat.
 	}
@@ -192,8 +187,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			dResponse.setString("sender", "CooProjectServer");
 			dResponse.setString("message", username + " joined");// chat message
 			_tServer.broadcastToken(dResponse);
-			//sendHelloObjects(aEvent, "objects");// Szinten, handshake elott nem
-												// tudunk Token-t kuldeni!
+			sendUserList(aEvent);//Amig nem regisztral be, addig nincs ertelme user listet kuldeni.
 		} else {
 			if (_users.get(aEvent.getSessionId()) != username) {
 				log.info("_users map updated with " + aEvent.getSessionId()
@@ -256,12 +250,10 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	 * @param _collection
 	 *            a collection neve, ahonnan ki akarjuk kuldeni
 	 */
-	private void sendHelloObjects(WebSocketServerTokenEvent aEvent,
+	private void sendHelloObjects(WebSocketServerEvent aEvent,
 			String _collection) {
 		// Szerezzuk meg a collectiont
 		DBCollection _c = _mongo.getCollection(_collection);
-		// Szerezzuk meg az utolso harmat
-		//DBCursor cur = _c.find().sort(new BasicDBObject("_id", -1)).limit(3);
 		//legyen inkább az összes:
 		DBCursor cur = _c.find().sort(new BasicDBObject("_id", -1));
 		// gyartsunk responsokat, es kuldjuk ki!
@@ -270,7 +262,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			Token dResponse = getTokenFromMongoDBObject(cur.next());
 			dResponse.setString("type", "2");
 			log.info(dResponse.toString());
-			aEvent.sendToken(dResponse);
+			_tServer.sendToken(aEvent.getConnector(), dResponse);
 		}
 	}
 
@@ -308,5 +300,56 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		return r;
 
 	}
+	
+	/**
+	 * Join event
+	 * @param aEvent A csatlakozo user TokenEventje
+	 */
+	private void userJoined(WebSocketServerEvent aEvent){
+		sendHelloObjects(aEvent, "objects");	
+	}
+	
+	/**
+	 * Kikuldjuk az aktualis user listet
+	 * @param aEvent a csatlakozo event
+	 */
+	private void sendUserList(WebSocketServerEvent aEvent){
+		log.info("Sending out user list");
+		Token usersMessage = TokenFactory.createToken();
+		Iterator it = _users.entrySet().iterator();
+		LinkedList<Token> userList = new LinkedList<Token>();
+		while (it.hasNext()) {
+	    	Map.Entry pairs = (Map.Entry)it.next();
+			HashMap<String,String> u = new HashMap<String,String>();
+			Token userMessage = getMessageBone(1001);
+			u.put("user",(String) pairs.getValue());
+			userMessage.setMap("message",u);
+			userList.add(userMessage);
+	    }
+		System.out.println(userList.toString());
+		usersMessage.setList("messages",userList);//mert emptystring nevu array kicsit odabaszna....
+		_tServer.sendToken(aEvent.getConnector(), usersMessage);
+	}
+	/**
+	 * 
+	 *Megcsinalja a szofisztikalt uzenetunk vazat
+	 * @param type az uzenet tipusa
+	 * @return TOKEN a default json uzenetformatum alapjan
+	 */
+	private Token getMessageBone(int type){
+		// A recept
+		// Fogj 1 message-t
+		Token simpleMessage = TokenFactory.createToken();
+		// Rakj bele typeot
+		simpleMessage.setString("type","1001");
+		// Sendert
+		simpleMessage.setString("sender", "CooProjectServer");
+		// Timestampet
+		double timestamp = System.currentTimeMillis()/1000;
+		simpleMessage.setDouble("timestamp",timestamp);
+		return simpleMessage;
+		
+	}
+	
 
 }
