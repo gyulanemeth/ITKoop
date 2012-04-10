@@ -156,11 +156,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	private void handleUnknowTypeField(WebSocketServerTokenEvent aEvent,
 			Token aToken, int cType) {
 		log.warn("Message with invalid type field " + cType);
+		Token wrongMessageTypeMessage = TokenFactory.createToken();
+		LinkedList<Token> messageList = new LinkedList<Token>();
 		Token dResponse = aEvent.createResponse(aToken);
 		dResponse.setString("sender", "CooProjectServer");
 		dResponse.setString("message", "Ne haragudj, de elrontottad a type("
 				+ cType + ") mezo erteket!");
-		aEvent.sendToken(dResponse);
+		messageList.add(dResponse);
+		wrongMessageTypeMessage.setList("messages",messageList);
+		aEvent.sendToken(wrongMessageTypeMessage);
 	}
 
 	/**
@@ -182,11 +186,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			_users.put(aEvent.getSessionId(), username);
 			log.info("New record in _users map : " + aEvent.getSessionId()
 					+ " - " + username);
-			Token dResponse = TokenFactory.createToken("response");
+			Token usernameUpdatedMessage = TokenFactory.createToken();
+			LinkedList<Token> messageList = new LinkedList<Token>();
+			Token dResponse = getMessageBone(1000);
 			dResponse.setString("type","1000");//chat message
 			dResponse.setString("sender", "CooProjectServer");
 			dResponse.setString("message", username + " joined");// chat message
-			_tServer.broadcastToken(dResponse);
+			messageList.add(dResponse);
+			usernameUpdatedMessage.setList("messages",messageList);
+			_tServer.broadcastToken(usernameUpdatedMessage);
 			sendUserList(aEvent);//Amig nem regisztral be, addig nincs ertelme user listet kuldeni.
 		} else {
 			if (_users.get(aEvent.getSessionId()) != username) {
