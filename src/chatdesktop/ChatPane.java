@@ -34,7 +34,7 @@ public final class ChatPane extends BorderPane{
     String name;
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
-    private Rectangle rect=new Rectangle(400, 400, Color.WHITE);
+    private Rectangle rect=new Rectangle(300, 630, Color.WHITE);
     private FadeTransition fadeTransition;
     
     /***

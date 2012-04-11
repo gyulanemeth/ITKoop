@@ -26,7 +26,7 @@ public class LoginPane extends BorderPane{
     TextField accountField=new TextField();
     PasswordField pwField=new PasswordField();
     Button submit=new Button("Submit");
-    private Rectangle rect=new Rectangle(320, 300, Color.WHITE);;
+    private Rectangle rect=new Rectangle(300, 630, Color.WHITE);;
     private FadeTransition fadeTransition;
     ToggleButton secure=new ToggleButton("Secure");
     /**
