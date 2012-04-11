@@ -22,9 +22,8 @@ import javafx.util.Duration;
  * @author Chuckie
  */
 public final class Canvas extends Group{
-    private int height=300, width=300;
+    private int width=800, height=600;
     Hashtable objects=new Hashtable();
-    Rectangle red, green, blue;
     JWSClient wsHandler;
     private Point2D dragAnchor;
     private double initX, initY;

@@ -22,6 +22,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -35,7 +36,7 @@ public class ChatDesktop extends Application {
     LoginPane login=new LoginPane(); 
     Canvas canvas=new Canvas(wsClient);   
     private boolean isConnected=false;
-    public static int base_width=600,base_height=330;    
+    public static int base_width=1110,base_height=630;    
     
     @Override
     public void start(Stage primaryStage) {          
@@ -46,7 +47,7 @@ public class ChatDesktop extends Application {
         final MenuBar menubar=new MenuBar();
         Scene scene=new Scene(bpane,base_width,base_height); 
         //Setting containers****************************************************
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
         //Background************************************************************
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
@@ -64,13 +65,21 @@ public class ChatDesktop extends Application {
         menuFile.getItems().addAll(fileDisconnect, fileExit);
         menubar.getMenus().add(menuFile);
         //positioning***********************************************************
-        spane.getChildren().addAll(login, chat);
+        spane.getChildren().addAll(chat,login);
         chat.setVisible(false);
         canvas.setConnected(isConnected);
         bpane.setTop(menubar);
         bpane.setLeft(canvas);
         bpane.setRight(spane);
         //Events****************************************************************
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent arg0) {
+                wsClient.disconnect();
+                System.exit(1);
+            }
+        });
+        menuEvent();
         loginEvent();
         chatEvent();
         //other*****************************************************************
@@ -84,16 +93,19 @@ public class ChatDesktop extends Application {
             public void handle(ActionEvent arg0) {
                 if(isConnected){
                     chat.clear();
+                    wsClient.disconnect();
                     isConnected=false;
                     chat.setVisible(isConnected);                  
                     login.setVisible(!isConnected);
                     canvas.setConnected(isConnected);
                     login.play(1.0f, 0.0f);
+                    
                 }
             }});
         fileExit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
+                if(!isConnected)
                     System.exit(1);
             }});
     }

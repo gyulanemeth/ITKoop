@@ -49,6 +49,16 @@ public class JWSClient implements WebSocketClientTokenListener{
             return false;
         }
     }
+    public boolean disconnect(){
+        try {
+            tClient.disconnect();
+            tClient.close();
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        return true;
+    }
     
     public boolean sendText(String userName, String text) {
         try {

@@ -108,9 +108,7 @@ public final class ChatPane extends BorderPane{
     }
     ChatPane(){
         super();
-        this.setMaxSize(300, 310);
-        this.setMinSize(300, 310);
-        this.setPrefSize(300, 310);
+        this.setMaxWidth(300);
         //Center****************************************************************
         messages.setEditable(false);
         messages.autosize();
