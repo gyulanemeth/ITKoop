@@ -12,10 +12,10 @@ import javafx.scene.text.Text;
  *
  * @author Chuckie
  */
-public class Rectangle extends javafx.scene.shape.Rectangle{
+public class RectangleNode extends javafx.scene.shape.Rectangle{
     String id;
     Text text;
-    public Rectangle(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
+    public RectangleNode(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
         super(arg0, arg1, arg2, arg3);
         this.text=text;
         this.id=id;
@@ -32,5 +32,9 @@ public class Rectangle extends javafx.scene.shape.Rectangle{
     public void toFront(){
         super.toFront();
         text.toFront();        
+    }
+
+    void setData(String data) {
+        text=new Text(data);
     }
 }

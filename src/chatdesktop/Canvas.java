@@ -44,19 +44,21 @@ public final class Canvas extends Group{
         shadow.setOffsetY(5);
         this.setEffect(shadow);
     }
-    void initRectangle(final JWSClient handler, String id, int x, int y, int width, int height, String text){
+    void initRectangleNode(final JWSClient handler, String id, int x, int y, int zOrder, String text){
+       ///TODO szélességét magasságát találja ki!!
+       int nodeWidth=50; int nodeHeight=30; 
        Text realtext=new Text(x, y+20, text);
        realtext.setFill(Color.WHITE);
-       chatdesktop.Rectangle rec=new chatdesktop.Rectangle(x, y, width, height, realtext, id);
+       RectangleNode rec=new RectangleNode(x, y, nodeWidth, nodeHeight, realtext, id);
        rec.setColor();
        rec.setVisible(true);       
        this.getChildren().add(rec); 
        this.getChildren().add(realtext);
        objects.put(id, rec);
-       actionRectangle(rec, handler);    
+       actionRectangleNode(rec, handler);    
     }
     
-    void actionRectangle(final chatdesktop.Rectangle rec,final JWSClient handler){
+    void actionRectangleNode(final chatdesktop.RectangleNode rec,final JWSClient handler){
         rec.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent ev) {
@@ -77,7 +79,7 @@ public final class Canvas extends Group{
                 else
                     rec.setY(0);
                 rec.moveText();
-               // handler.sendMoveObject("hiba", rec.id, (int)newPositionX, (int)newPositionY, false);
+                handler.sendMoveObject("hiba", rec.id, (int)newPositionX, (int)newPositionY, false);
             }            
         });
         rec.setOnMouseReleased(new EventHandler<MouseEvent>() {
@@ -115,12 +117,25 @@ public final class Canvas extends Group{
             }
         });
     }
+    
+    public boolean containsObject(String objId){
+        return objects.containsKey(objId);
+    }
+    
     void clearCanvas(){
         this.getChildren().clear();
     }
     void setConnected(boolean isConnected){
-        for(Enumeration<chatdesktop.Rectangle> rects=objects.elements();rects.hasMoreElements();){
+        for(Enumeration<RectangleNode> rects=objects.elements();rects.hasMoreElements();){
             rects.nextElement().setVisible(isConnected);
         }
+    }
+
+    RectangleNode getObject(String objId) {
+        return (RectangleNode)objects.get(objId);
+    }
+
+    void deleteObject(String objId) {
+        objects.remove(objId);
     }
 }
