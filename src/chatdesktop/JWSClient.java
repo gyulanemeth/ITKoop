@@ -211,7 +211,7 @@ public class JWSClient implements WebSocketClientTokenListener{
                     z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
                     
                     if(canvas.containsObject(objId)){
-                        RectangleNode rec = canvas.getObject(objId);
+                        GraphRectangle rec = canvas.getObject(objId);
                         rec.setX(x);
                         rec.setY(y);
                     }else{
@@ -231,7 +231,7 @@ public class JWSClient implements WebSocketClientTokenListener{
                     y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
                     z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
                     if(canvas.containsObject(objId)){
-                        RectangleNode rec = canvas.getObject(objId);
+                        GraphRectangle rec = canvas.getObject(objId);
                         rec.setX(x);
                         rec.setY(y);
                         rec.setData(data);
@@ -262,7 +262,7 @@ public class JWSClient implements WebSocketClientTokenListener{
                     data = message.get("data")==null? " ":message.get("data").toString();
                     //z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
                     if(canvas.containsObject(objId)){
-                        RectangleNode rec = canvas.getObject(objId);
+                        GraphRectangle rec = canvas.getObject(objId);
                         rec.setData(data);
                     }
                     break;

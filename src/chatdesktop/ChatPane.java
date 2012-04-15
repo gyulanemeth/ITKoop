@@ -8,10 +8,12 @@ import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -108,6 +110,7 @@ public final class ChatPane extends BorderPane{
     }
     ChatPane(){
         super();
+        this.setMinWidth(300);
         this.setMaxWidth(300);
         //Center****************************************************************
         messages.setEditable(false);
@@ -121,20 +124,26 @@ public final class ChatPane extends BorderPane{
         });
         //Right*****************************************************************
         memberPanel.setPadding(new Insets(0, 0, 0, 5));
-        memberPanel.setMinWidth(80);
+        memberPanel.setPrefWidth(120);
         Label memberheader=new Label("Members: ");
         memberheader.setFont(Font.font("Berlin Sans FB", 14));
         memberPanel.getChildren().add(memberheader);
-        addMembers("Csák Bálint Attila");
+        /*addMembers("Csák Bálint Attila");
         addMembers("Szidor János");
         addMembers("Réti Dániel");
-        addMembers("Stefanovics Richanovárd");
+        addMembers("Stefanovics Richanovárd");*/
         //Bottom****************************************************************
         HBox chatPanel=new HBox();
         chatPanel.setSpacing(10);
         chatPanel.setPadding(new Insets(15, 12, 15, 12));
         mytext.setPrefHeight(20);
+        DropShadow shadow=new DropShadow();
+        shadow.setOffsetX(4);
+        shadow.setOffsetY(5);
+        mytext.setEffect(shadow);
+        messages.setEffect(shadow);
         chatPanel.getChildren().addAll(mytext, submit);
+        chatPanel.setAlignment(Pos.BOTTOM_LEFT);
         //positioning***********************************************************
         setBottom(chatPanel);
         setRight(memberPanel);

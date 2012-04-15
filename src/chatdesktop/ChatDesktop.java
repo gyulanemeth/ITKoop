@@ -3,16 +3,19 @@ package chatdesktop;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -33,11 +36,11 @@ public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
     private JWSClient wsClient = JWSClient.getInstance();
-    private Canvas canvas=new Canvas(wsClient);
+    private Canvas canvas=new Canvas();
     private ChatPane chat=new ChatPane();
-    LoginPane login=new LoginPane(); 
+    private LoginPane login=new LoginPane(); 
     private boolean isConnected=false;
-    public static int base_width=1110,base_height=630;    
+    public static final int WIDTH=1110,HEIGHT=630;    
     
     @Override
     public void start(Stage primaryStage) {          
@@ -47,7 +50,7 @@ public class ChatDesktop extends Application {
         final BorderPane bpane=new BorderPane();               
         final StackPane spane=new StackPane();
         final MenuBar menubar=new MenuBar();
-        Scene scene=new Scene(bpane,base_width,base_height); 
+        Scene scene=new Scene(bpane,WIDTH,HEIGHT); 
         //Setting containers****************************************************
         primaryStage.setResizable(true);
         //Background************************************************************
@@ -81,13 +84,35 @@ public class ChatDesktop extends Application {
                 System.exit(1);
             }
         });
+        windowEvent(scene);
         menuEvent();
         loginEvent();
         chatEvent();
+        canvasEvent();
         //other*****************************************************************
         primaryStage.setTitle("ChatProgram 1.013c");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+    void windowEvent(final Scene scene){
+        scene.widthProperty().addListener( 
+            new ChangeListener() {
+            @Override
+                public void changed(ObservableValue observable, 
+                                    Object oldValue, Object newValue) {
+                    Canvas.WIDTH=((Double)newValue).intValue()-310;
+                    canvas.rec.setWidth(Canvas.WIDTH);
+                }
+            });
+        scene.heightProperty().addListener( 
+            new ChangeListener() {
+            @Override
+                public void changed(ObservableValue observable, 
+                                    Object oldValue, Object newValue) {
+                    Canvas.HEIGHT=((Double)newValue).intValue()-30;
+                    canvas.rec.setHeight(Canvas.HEIGHT);
+                }
+            });
     }
     void menuEvent(){
         fileDisconnect.setOnAction(new EventHandler<ActionEvent>() {
@@ -116,10 +141,10 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
+                        /*if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
-                        }else{
+                        }else{*/
                             isConnected=true;
                             chat.setName(login.accountField.getText());
                             login.clear();
@@ -127,7 +152,10 @@ public class ChatDesktop extends Application {
                             chat.setVisible(isConnected);
                             canvas.setConnected(isConnected);
                             chat.play(1.0f,0.0f);
-        }}}});
+                            canvas.initRectangleNode(wsClient, "111", 40, 20, 0, "111");
+                            canvas.initRectangleNode(wsClient, "222", 100, 60, 0, "222");
+        //}
+            }}});
         login.pwField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ev) {
@@ -158,7 +186,7 @@ public class ChatDesktop extends Application {
             ///TODO ezt megkéne forditani, hogy inkább shift enterre legyen ujsor, enterre meg kuldje.
             @Override
             public void handle(KeyEvent ev) {
-                if(ev.isShiftDown() && ev.getCode()==KeyCode.ENTER)
+                if(ev.getCode()==KeyCode.ENTER)
                     wsClient.sendText(chat.name, chat.sendMsg());
             }});
         chat.submit.setMinSize(100, 20);
@@ -170,12 +198,31 @@ public class ChatDesktop extends Application {
             }});
     }
     
+    public void canvasEvent(){
+        canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(final MouseEvent ev) {
+                if(isConnected)
+                if(ev.getButton()==MouseButton.SECONDARY){
+                    ContextMenu contextMenu=new ContextMenu();
+                    MenuItem newRect=new MenuItem("Add new Rectangle");
+                    newRect.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent arg0) {
+                            canvas.initRectangleNode(wsClient, "333", (int)ev.getX(), (int)ev.getY(), 0, "newRectangle");
+                        }
+                    });
+                    contextMenu.getItems().add(newRect);
+                    contextMenu.show(canvas, ev.getScreenX(), ev.getScreenY());
+                }
+            }
+        });
+    }
     public void newMessage(String userName, String message){
         chat.addText(userName, message);
     }
     
     public static void main(String[] args) {
         launch(args);
-    }
-        
+    }        
 }
