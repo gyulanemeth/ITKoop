@@ -6,14 +6,8 @@ package chatdesktop;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -26,17 +20,19 @@ import javafx.scene.text.Text;
 public final class Canvas extends Group{
     public static int WIDTH=800, HEIGHT=600;
     private Hashtable objects=new Hashtable();
-    Rectangle rec;
+    Rectangle backgroundrec;
     public Canvas() {
         super();
         //BackGround
-        rec=new Rectangle(WIDTH, HEIGHT, Color.WHITESMOKE);
-        this.getChildren().add(rec);
+        backgroundrec=new Rectangle(WIDTH, HEIGHT, Color.WHITESMOKE);
+        this.getChildren().add(backgroundrec);
         //Border
         DropShadow shadow=new DropShadow();
         shadow.setOffsetX(4);
         shadow.setOffsetY(5);
         this.setEffect(shadow);
+        //base attributes*******************************************************
+        setConnected(false);
     }
 
     public void initRectangleNode(final JWSClient handler, String id, int x, int y, int zOrder, String userData){

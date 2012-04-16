@@ -4,8 +4,6 @@
  */
 package chatdesktop;
 
-import javafx.animation.FadeTransition;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,10 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
  
 /**
  *
@@ -36,8 +31,6 @@ public final class ChatPane extends BorderPane{
     String name;
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
-    private Rectangle rect=new Rectangle(300, 630, Color.WHITE);
-    private FadeTransition fadeTransition;
     
     /***
      * messages szövegmezőbe lehet írni, átírásra szorul, hiszen ezzel csak
@@ -93,21 +86,7 @@ public final class ChatPane extends BorderPane{
                 memberPanel.getChildren().remove(i);
         }
     }
-    
-    void play(float from, float to){
-        rect.setVisible(true);
-        fadeTransition = new FadeTransition(Duration.seconds(1), rect);
-        fadeTransition.setFromValue(from);
-        fadeTransition.setToValue(to);
-        fadeTransition.setCycleCount(1);
-        fadeTransition.play();
-        fadeTransition.setOnFinished(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                rect.setVisible(false);
-            }
-        });
-    }
+
     ChatPane(){
         super();
         this.setMinWidth(300);
@@ -148,6 +127,7 @@ public final class ChatPane extends BorderPane{
         setBottom(chatPanel);
         setRight(memberPanel);
         setCenter(messages);
-        this.getChildren().add(rect);
+        //base attributes*******************************************************
+        setVisible(false);
     }
 }

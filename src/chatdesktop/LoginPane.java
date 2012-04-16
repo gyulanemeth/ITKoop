@@ -1,8 +1,5 @@
 package chatdesktop;
 
-import javafx.animation.FadeTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.effect.Reflection;
@@ -13,10 +10,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 /**
  *
@@ -26,8 +21,6 @@ public class LoginPane extends BorderPane{
     TextField accountField=new TextField();
     PasswordField pwField=new PasswordField();
     Button submit=new Button("Submit");
-    private Rectangle rect=new Rectangle(300, 630, Color.WHITE);;
-    private FadeTransition fadeTransition;
     ToggleButton secure=new ToggleButton("Secure");
     /**
      * Segédfüggvény
@@ -43,23 +36,9 @@ public class LoginPane extends BorderPane{
         accountField.setText("");
         pwField.setText("");
     }
-        void play(float from, float to){
-        rect.setVisible(true);
-        fadeTransition = new FadeTransition(Duration.seconds(1), rect);
-        fadeTransition.setFromValue(from);
-        fadeTransition.setToValue(to);
-        fadeTransition.setCycleCount(1);
-        fadeTransition.play();
-        fadeTransition.setOnFinished(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent arg0) {
-                rect.setVisible(false);
-            }
-        });
-    }
+
     public LoginPane() {
         super();
-        rect.setVisible(false);
         //TOP*******************************************************************
         final Text title=new Text("Login");   
         title.setFont(Font.font("Engravers MT", 18));
@@ -88,6 +67,5 @@ public class LoginPane extends BorderPane{
         //positioning***********************************************************
         setTop(spane);
         setCenter(gp); 
-        this.getChildren().add(rect);
     }   
 }

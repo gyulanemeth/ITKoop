@@ -1,7 +1,10 @@
 package chatdesktop;
 
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,6 +30,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 
 /**
  *
@@ -35,11 +39,13 @@ import javafx.stage.WindowEvent;
 public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
+    private final MenuItem newRect=new MenuItem("Add new Rectangle");
     private JWSClient wsClient = JWSClient.getInstance();
     private Canvas canvas=new Canvas();
     private ChatPane chat=new ChatPane();
     private LoginPane login=new LoginPane(); 
     private boolean isConnected=false;
+    private ContextMenu contextMenu;
     public static final int WIDTH=1110,HEIGHT=630;    
     
     @Override
@@ -51,6 +57,9 @@ public class ChatDesktop extends Application {
         final StackPane spane=new StackPane();
         final MenuBar menubar=new MenuBar();
         Scene scene=new Scene(bpane,WIDTH,HEIGHT); 
+        //Init popup menu*******************************************************
+        contextMenu=new ContextMenu();
+        contextMenu.getItems().add(newRect);
         //Setting containers****************************************************
         primaryStage.setResizable(true);
         //Background************************************************************
@@ -71,20 +80,11 @@ public class ChatDesktop extends Application {
         menubar.getMenus().add(menuFile);
         //positioning***********************************************************
         spane.getChildren().addAll(chat,login);
-        chat.setVisible(false);
-        canvas.setConnected(isConnected);
         bpane.setTop(menubar);
         bpane.setLeft(canvas);
         bpane.setRight(spane);
         //Events****************************************************************
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent arg0) {
-                wsClient.disconnect();
-                System.exit(1);
-            }
-        });
-        windowEvent(scene);
+        windowEvent(primaryStage, scene);
         menuEvent();
         loginEvent();
         chatEvent();
@@ -94,14 +94,21 @@ public class ChatDesktop extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    void windowEvent(final Scene scene){
+    void windowEvent(final Stage stage, final Scene scene){
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent arg0) {
+                wsClient.disconnect();
+                System.exit(1);
+            }
+        });
         scene.widthProperty().addListener( 
             new ChangeListener() {
             @Override
                 public void changed(ObservableValue observable, 
                                     Object oldValue, Object newValue) {
                     Canvas.WIDTH=((Double)newValue).intValue()-310;
-                    canvas.rec.setWidth(Canvas.WIDTH);
+                    canvas.backgroundrec.setWidth(Canvas.WIDTH);
                 }
             });
         scene.heightProperty().addListener( 
@@ -110,7 +117,7 @@ public class ChatDesktop extends Application {
                 public void changed(ObservableValue observable, 
                                     Object oldValue, Object newValue) {
                     Canvas.HEIGHT=((Double)newValue).intValue()-30;
-                    canvas.rec.setHeight(Canvas.HEIGHT);
+                    canvas.backgroundrec.setHeight(Canvas.HEIGHT);
                 }
             });
     }
@@ -119,14 +126,11 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                 if(isConnected){
+                    changeAnimation();
                     chat.clear();
                     wsClient.disconnect();
                     isConnected=false;
-                    chat.setVisible(isConnected);                  
-                    login.setVisible(!isConnected);
-                    canvas.setConnected(isConnected);
-                    login.play(1.0f, 0.0f);
-                    
+                    canvas.setConnected(isConnected);                   
                 }
             }});
         fileExit.setOnAction(new EventHandler<ActionEvent>() {
@@ -135,7 +139,7 @@ public class ChatDesktop extends Application {
                 if(!isConnected)
                     System.exit(1);
             }});
-    }
+    }    
     void loginEvent(){
         login.submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -145,16 +149,13 @@ public class ChatDesktop extends Application {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{*/
+                            changeAnimation();
                             isConnected=true;
                             chat.setName(login.accountField.getText());
                             login.clear();
-                            login.setVisible(!isConnected);
-                            chat.setVisible(isConnected);
                             canvas.setConnected(isConnected);
-                            chat.play(1.0f,0.0f);
-                            canvas.initRectangleNode(wsClient, "111", 40, 20, 0, "111");
-                            canvas.initRectangleNode(wsClient, "222", 100, 60, 0, "222");
-        //}
+                            
+                    //}
             }}});
         login.pwField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -165,29 +166,28 @@ public class ChatDesktop extends Application {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
                         }else{
+                            changeAnimation();
                             isConnected=true;
                             chat.setName(login.accountField.getText());
                             login.clear();
-                            login.setVisible(!isConnected);
-                            chat.setVisible(isConnected);
-                            canvas.setConnected(isConnected);
-                            chat.play(1.0f,0.0f);                            
+                            canvas.setConnected(isConnected);                        
         }}}});
     }
     void chatEvent(){
         chat.mytext.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
             @Override
             public void handle(MouseEvent arg0) {
                 chat.mytext.requestFocus();
             }
         });
         chat.mytext.setOnKeyPressed(new javafx.event.EventHandler<KeyEvent>() {
-            ///TODO ezt megkéne forditani, hogy inkább shift enterre legyen ujsor, enterre meg kuldje.
             @Override
             public void handle(KeyEvent ev) {
                 if(ev.getCode()==KeyCode.ENTER)
-                    wsClient.sendText(chat.name, chat.sendMsg());
+                    if(ev.isShiftDown())
+                        chat.mytext.appendText("\n");
+                    else
+                        wsClient.sendText(chat.name, chat.sendMsg());
             }});
         chat.submit.setMinSize(100, 20);
         chat.submit.setPrefSize(100, 20);
@@ -204,19 +204,59 @@ public class ChatDesktop extends Application {
             public void handle(final MouseEvent ev) {
                 if(isConnected)
                 if(ev.getButton()==MouseButton.SECONDARY){
-                    ContextMenu contextMenu=new ContextMenu();
-                    MenuItem newRect=new MenuItem("Add new Rectangle");
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
+
                         @Override
                         public void handle(ActionEvent arg0) {
-                            canvas.initRectangleNode(wsClient, "333", (int)ev.getX(), (int)ev.getY(), 0, "newRectangle");
+                            canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)ev.getX(), (int)ev.getY(), 0, "newRectangle");
+                            //wsClient.sendCreateObject("newRectangle", (int)ev.getX(), (int)ev.getY(), 0);
                         }
                     });
-                    contextMenu.getItems().add(newRect);
                     contextMenu.show(canvas, ev.getScreenX(), ev.getScreenY());
+                }else{
+                    contextMenu.hide();
                 }
             }
         });
+    }
+    void changeAnimation(){
+        final FadeTransition fadelogin=new FadeTransition(new Duration(500), login);
+        final FadeTransition fadechat=new FadeTransition(new Duration(500), chat);
+        if(!isConnected){
+        chat.setOpacity(0.0);
+        fadechat.setFromValue(0.0);
+        fadechat.setToValue(1.0);
+        fadechat.setCycleCount(1);
+        fadelogin.setFromValue(1.0);
+        fadelogin.setToValue(0.0);
+        fadelogin.setCycleCount(1);
+        fadelogin.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                login.setVisible(false);
+                chat.setVisible(true);
+                fadechat.play();
+            }
+        });
+        fadelogin.play();
+        }else{
+            login.setOpacity(0.0);
+            fadelogin.setFromValue(0.0);
+            fadelogin.setToValue(1.0);
+            fadelogin.setCycleCount(1);
+            fadechat.setFromValue(1.0);
+            fadechat.setToValue(0.0);
+            fadechat.setCycleCount(1);
+            fadechat.setOnFinished(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent arg0) {
+                    login.setVisible(true);
+                    chat.setVisible(false);
+                    fadelogin.play();
+                }
+            });
+            fadechat.play();
+        }
     }
     public void newMessage(String userName, String message){
         chat.addText(userName, message);

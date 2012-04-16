@@ -6,13 +6,9 @@ package chatdesktop;
 
 import java.util.Random;
 import javafx.animation.ScaleTransition;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -37,6 +33,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         scale=new ScaleTransition(Duration.seconds(0.1),this);
         setColor();
         setVisible(true); 
+        setAlpha(0.8);
     }
     
     private void setColor(){
@@ -91,7 +88,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         });
         this.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent arg0) {
+            public void handle(MouseEvent ev) {
             }
         });
         this.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -106,13 +103,13 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
             @Override
             public void handle(MouseEvent ev) {
                 toFront();
-                setAlpha(0.8);
+                setAlpha(1.0);
             }
         });
         this.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent arg0) {
-                setAlpha(1.0);
+                setAlpha(0.8);
             }
         });
     }
