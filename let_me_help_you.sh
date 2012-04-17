@@ -44,7 +44,7 @@ function build(){
 	echo "Creating console_build directory"
 	mkdir -p CoopServer/console_build
 	echo "running javac"
-	javac -classpath ${JWSDIR}/*.jar:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/server/cooproject/itk/hu/*.java
+	javac -classpath ${JWSDIR}/*.jar:${JWSDIR}/jWebSocket-1.0/libs/jWebSocketServer-1.0.jar:CoopServer/src -d CoopServer/console_build CoopServer/src/*/cooproject/itk/hu/*.java
 	echo "done"
 }
 
