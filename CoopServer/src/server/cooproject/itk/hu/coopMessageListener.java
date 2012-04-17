@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+import org.jwebsocket.api.WebSocketConnector;
 import org.jwebsocket.api.WebSocketPacket;
 import org.jwebsocket.factory.JWebSocketFactory;
 import org.jwebsocket.kit.WebSocketServerEvent;
@@ -28,9 +29,8 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 			.getServer("ts0");
 	private static Logger log = Logger.getLogger(coopMessageListener.class
 			.getName());
-	private HashMap<String, String> _users;
 	private messenger _messageHandler;// ez kezeli az uzeneteket
-
+	private userManager _users;
 	/**
 	 * Default constructor Itt inicializaljuk a user map-et, valamint
 	 * kapcsolodunk a mongodbhez
@@ -38,9 +38,9 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	public coopMessageListener() {
 		super();
 		log.info("Coop Server listener successfully loaded");
-		_users = new HashMap<String, String>();
+		_users = new userManager();
 		this._messageHandler = new messenger(_tServer, "CoopProjectServer",
-				"127.0.0.1", "coproject", "objects");
+				"127.0.0.1", "coproject", "objects", this);
 	}
 
 	/**
@@ -49,8 +49,8 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	public void processClosed(WebSocketServerEvent aEvent) {
 		// Broadcastolj, ha lelep valaki
 		log.info(aEvent.getSessionId().toString() + " left the server");
-		_messageHandler.userLeft(_users.get(aEvent.getSessionId()));
-		_users.remove(aEvent.getSessionId());
+		_messageHandler.userLeft(_users.getUsername(aEvent.getConnector()));
+		_users.userLeft(aEvent.getSessionId());
 	}
 
 	/**
@@ -81,6 +81,30 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		// updateUsername(aEvent, cSenderName);// updateljuk a sessionId - nev
 		// parost
 		this._messageHandler.processMessage(aEvent.getConnector(), aToken);
+	}
+
+	/**
+	 * Adott connectorhoz tartozo user beloggolt-e mar?
+	 * @param c A kuldo connector
+	 * @return true ha beloggolt, false ha nem
+	 */
+	public boolean isLoggedIn(WebSocketConnector c, Token aToken) {
+		//return this._users.isLoggedIn(c);
+		//TODO:removeme
+		//only for testing
+		log.info("Isloggedin  "+this._users.getUsername(c)+":"+this._users.isLoggedIn(c,aToken));
+		return true;
+	}
+
+	/**
+	 * Adott connector tartozo login event kezelese
+	 * @param c A
+	 * @param username
+	 */
+	public void handleLogin(WebSocketConnector c, String username) {
+		log.info("Login message from  "+this._users.getUsername(c));
+		this._users.handleLogin(c,username);
+		
 	}
 
 }

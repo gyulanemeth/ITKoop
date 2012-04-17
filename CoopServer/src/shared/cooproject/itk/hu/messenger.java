@@ -28,6 +28,8 @@ public class messenger {
 	private String _collection;// az a mongodb collection ahol az objectumaink
 								// vannak
 	private String _sender;
+	private coopMessageListener _coopMessageListener;
+	private boolean _authImplemented = false;
 
 	/**
 	 * Messenger constructor mongodb nelkul
@@ -41,6 +43,7 @@ public class messenger {
 		this._tServer = tServer;
 		this._sender = sender;
 		this._use_mongodb = false;
+		this._coopMessageListener = null;
 	}
 
 	/**
@@ -56,11 +59,16 @@ public class messenger {
 	 *            Mongodb database name
 	 * @param mongodbCollection
 	 *            Mongodb collection name
+	 * @param parent
+	 *            A szulo messagelistener
 	 */
 	public messenger(TokenServer tServer, String sender, String mongodbHost,
-			String mongodbDB, String mongodbCollection) {
+			String mongodbDB, String mongodbCollection,
+			coopMessageListener parent) {
 		this._tServer = tServer;
 		this._sender = sender;
+		this._authImplemented = true;
+		this._coopMessageListener = parent;
 		/* Kapcsolodjunk a mongodb-hez */
 		try {
 			Mongo m = new Mongo(mongodbHost);
@@ -86,50 +94,51 @@ public class messenger {
 	 *            A kuldott token
 	 */
 	public void processMessage(WebSocketConnector c, Token aToken) {
-		// Dolgozzuk fel a letezo fieldeket
-		int cType = 0;
-		if (aToken.getString("type") != null) {
-			cType = Integer.parseInt(aToken.getString("type"));
-		}
-		String cSenderName = aToken.getString("sender");
-		String cMessage = aToken.getString("message");
-		// Loggoljuk
-		log.info("New token received from " + cSenderName
-				+ " and the message is " + cMessage);
-		boolean should_be_broadcasted = true;// mindent broadcastolunk, kiveve
-		// amit nem :(
-		// dolgozzuk fel type alapjan
-		switch (cType) {
-		//loginEvent
-		case 0:
-			//handleLogin()
-			break;
-		// ModidifyObject (NINCS WIKIN, csak emailben)
-		case 1:
-			handleModify(c,aToken);
-			break;
-		// MoveObject + mentes
-		case 2:
-			handleMoveWithSave(c,aToken);
-			break;
-		//Create Object!
-		case 3:
-			handleCreate(c,aToken);
-			break;
-		// MoveObject mentes nelkul!
-		case 4: 
-			handleMoveWithoutSave(c,aToken);
-			break;
-		// Egy chat message. Egyelore csak broadcastoljuk
-		//
-		case 1000:
-			handleChatMessage(c,aToken);
-			break;
-		// Nem jot kuldott, biztos elnezte. Hat adjuk a tudtara asszertiv
-		// kommunikacioval
-		default:
-			handleUnknowTypeField(c, aToken, cType);
-			break;
+		if (handleAuth(c, aToken)) {
+			log.debug("Auth ok"+c.toString()+" message:"+aToken);
+			// Dolgozzuk fel a letezo fieldeket
+			int cType = 0;
+			if (aToken.getString("type") != null) {
+				cType = Integer.parseInt(aToken.getString("type"));
+			}
+			String cSenderName = aToken.getString("sender");
+			String cMessage = aToken.getString("message");
+			// Loggoljuk
+			log.info("New token received from " + cSenderName
+					+ " and the message is " + cMessage);
+			// dolgozzuk fel type alapjan
+			switch (cType) {
+			// loginEvent
+			case 0:
+				if(this._authImplemented)handleLogin(c, aToken);
+				break;
+			// ModidifyObject (NINCS WIKIN, csak emailben)
+			case 1:
+				handleModify(c, aToken);
+				break;
+			// MoveObject + mentes
+			case 2:
+				handleMoveWithSave(c, aToken);
+				break;
+			// Create Object!
+			case 3:
+				handleCreate(c, aToken);
+				break;
+			// MoveObject mentes nelkul!
+			case 4:
+				handleMoveWithoutSave(c, aToken);
+				break;
+			// Egy chat message. Egyelore csak broadcastoljuk
+			//
+			case 1000:
+				handleChatMessage(c, aToken);
+				break;
+			// Nem jot kuldott, biztos elnezte. Hat adjuk a tudtara asszertiv
+			// kommunikacioval
+			default:
+				handleUnknowTypeField(c, aToken);
+				break;
+			}
 		}
 	}
 
@@ -175,11 +184,21 @@ public class messenger {
 		log.info("Sending welcome packets");
 		while (cur.hasNext()) {
 			Token dResponse = getTokenFromMongoDBObject(cur.next());
-			_tServer.sendToken(c,dResponse);
+			_tServer.sendToken(c, dResponse);
+		}
+	}
+
+	/* Handlerek */
+	private boolean handleAuth(WebSocketConnector c, Token aToken){
+		log.debug("handleAuth " + c.toString() + " - " + aToken);
+		if(this._authImplemented){
+			return this._coopMessageListener.isLoggedIn(c,aToken);
+		}else{
+			// ha nincs implementalva auth!
+			return true;
 		}
 	}
 	
-	/* Handlerek */
 	/**
 	 * Ismeretlen type field a jsonben valaszoljuk a feladonak.
 	 * 
@@ -190,91 +209,139 @@ public class messenger {
 	 * @param cType
 	 *            A hibasnak/ismeretlennek itelt type mezo tartalma
 	 */
-	private void handleUnknowTypeField(WebSocketConnector c,
-			Token aToken, int cType) {
+	private void handleUnknowTypeField(WebSocketConnector c, Token aToken) {
+		int cType = 0;
+		if (aToken.getString("type") != null) {
+			cType = Integer.parseInt(aToken.getString("type"));
+		}
 		log.warn("Message with invalid type field " + cType);
 		Token dResponse = getMessageBone(1000);
 		dResponse.setString("message", "Ne haragudj, de elrontottad a type("
 				+ cType + ") mezo erteket!");
-		this._tServer.sendToken(c,dResponse);
+		this._tServer.sendToken(c, dResponse);
 	}
 
 	/**
 	 * Chat message kezelese
-	 * @param c A kuldo connectorja
-	 * @param aToken A kuldott uzenet Token alakban
+	 * 
+	 * @param c
+	 *            A kuldo connectorja
+	 * @param aToken
+	 *            A kuldott uzenet Token alakban
 	 */
-	private void handleChatMessage(WebSocketConnector c, Token aToken){
-		log.debug("handleChatMessage "+c.toString()+" - "+aToken);
-		this._tServer.broadcastToken(c,aToken);//az elso parameter megmondja, hogy kinek NE broadcastolja, a masodik maga a Token
+	private void handleChatMessage(WebSocketConnector c, Token aToken) {
+		log.debug("handleChatMessage " + c.toString() + " - " + aToken);
+		this._tServer.broadcastToken(c, aToken);// az elso parameter megmondja,
+												// hogy kinek NE broadcastolja,
+												// a masodik maga a Token
 	}
-	
+
 	/**
 	 * Az object move, mentes nelkul handlerje
-	 * @param c A kuldo connectorja
-	 * @param aToken A kuldott uzenet
+	 * 
+	 * @param c
+	 *            A kuldo connectorja
+	 * @param aToken
+	 *            A kuldott uzenet
 	 */
-	private void handleMoveWithoutSave(WebSocketConnector c, Token aToken){
-		log.debug("handleMoveWithoutSave "+c.toString()+" - "+aToken);
-		this._tServer.broadcastToken(c,aToken);//az elso parameter megmondja, hogy kinek NE broadcastolja, a masodik maga a Token
+	private void handleMoveWithoutSave(WebSocketConnector c, Token aToken) {
+		log.debug("handleMoveWithoutSave " + c.toString() + " - " + aToken);
+		this._tServer.broadcastToken(c, aToken);// az elso parameter megmondja,
+												// hogy kinek NE broadcastolja,
+												// a masodik maga a Token
 	}
+
 	/**
 	 * Move mentessel event handlerje
-	 * @param c A kuldo connectorja
-	 * @param aToken A kuldott uzenet Token alakban
+	 * 
+	 * @param c
+	 *            A kuldo connectorja
+	 * @param aToken
+	 *            A kuldott uzenet Token alakban
 	 */
-	private void handleMoveWithSave(WebSocketConnector c, Token aToken){
-		log.debug("handleMoveWithSave "+c.toString()+" - "+aToken);
+	private void handleMoveWithSave(WebSocketConnector c, Token aToken) {
+		log.debug("handleMoveWithSave " + c.toString() + " - " + aToken);
 		this.saveToken(aToken);
-		this._tServer.broadcastToken(c,aToken);//az elso parameter megmondja, hogy kinek NE broadcastolja, a masodik maga a Token
+		this._tServer.broadcastToken(c, aToken);// az elso parameter megmondja,
+												// hogy kinek NE broadcastolja,
+												// a masodik maga a Token
 	}
+
 	/**
 	 * Modify uzenet handlerje
-	 * @param c A kuldo connectorja
-	 * @param aToken A kuldo uzenet Token alakban
+	 * 
+	 * @param c
+	 *            A kuldo connectorja
+	 * @param aToken
+	 *            A kuldo uzenet Token alakban
 	 */
-	private void handleModify(WebSocketConnector c, Token aToken){
-		log.debug("handleModify "+c.toString()+" - "+aToken);
-		this.saveToken(aToken);//Ha modosult, akkor mindenkeppen elmentjuk
-		this._tServer.broadcastToken(c,aToken);//az elso parameter megmondja, hogy kinek NE broadcastolja, a masodik maga a Token
+	private void handleModify(WebSocketConnector c, Token aToken) {
+		log.debug("handleModify " + c.toString() + " - " + aToken);
+		this.saveToken(aToken);// Ha modosult, akkor mindenkeppen elmentjuk
+		this._tServer.broadcastToken(c, aToken);// az elso parameter megmondja,
+												// hogy kinek NE broadcastolja,
+												// a masodik maga a Token
 	}
-	
+
 	/**
 	 * A create uzenet handlerje
-	 * @param c A kuldo connectorja
-	 * @param aToken A kuldott uzenet
+	 * 
+	 * @param c
+	 *            A kuldo connectorja
+	 * @param aToken
+	 *            A kuldott uzenet
 	 */
-	private void handleCreate(WebSocketConnector c, Token aToken){
+	private void handleCreate(WebSocketConnector c, Token aToken) {
 		// Generaljuk valasz uzenetet, es kozben mentjuk az eredetit
-		log.debug("handleCreate "+c.toString()+" - "+aToken);
+		log.debug("handleCreate " + c.toString() + " - " + aToken);
 		Token response = createObject(aToken);
-		this._tServer.broadcastToken(c,response);//az elso parameter megmondja, hogy kinek NE broadcastolja, a masodik maga a Token
+		this._tServer.broadcastToken(c, response);// az elso parameter
+													// megmondja, hogy kinek NE
+													// broadcastolja, a masodik
+													// maga a Token
 	}
-	
+
+	/**
+	 * A login eventet kezeli le
+	 * 
+	 * @param c
+	 *            A connector
+	 * @param aToken
+	 *            A token
+	 */
+	private void handleLogin(WebSocketConnector c, Token aToken) {
+		log.debug("handleLogin " + c.toString() + " - " + aToken);
+		String username = aToken.getString("sender");
+		this._coopMessageListener.handleLogin(c, username);
+		
+	}
+
 	/* Kuldessel kapcsolatos dolgok */
-	/**TODO: FIXME
-	 * Kikuldjuk az aktualis user listet
-	 * @param aEvent a csatlakozo event
+	/**
+	 * TODO: FIXME Kikuldjuk az aktualis user listet
+	 * 
+	 * @param aEvent
+	 *            a csatlakozo event
 	 */
 	@SuppressWarnings("unchecked")
-	public void sendUserList(WebSocketConnector c){
+	public void sendUserList(WebSocketConnector c) {
 		log.info("Sending out user list");
 		Token usersMessage = TokenFactory.createToken();
-		//Iterator<?> it = _users.entrySet().iterator();
+		// Iterator<?> it = _users.entrySet().iterator();
 		LinkedList<Token> userList = new LinkedList<Token>();
-		/*while (it.hasNext()) {
-			Map.Entry<String,String> pairs = (Entry<String, String>)it.next();
-			HashMap<String,String> u = new HashMap<String,String>();
-			Token userMessage = getMessageBone(1001);
-			u.put("user",pairs.getValue());
-			userMessage.setMap("message",u);
-			userList.add(userMessage);
-	    }*/
+		/*
+		 * while (it.hasNext()) { Map.Entry<String,String> pairs =
+		 * (Entry<String, String>)it.next(); HashMap<String,String> u = new
+		 * HashMap<String,String>(); Token userMessage = getMessageBone(1001);
+		 * u.put("user",pairs.getValue()); userMessage.setMap("message",u);
+		 * userList.add(userMessage); }
+		 */
 		System.out.println(userList.toString());
-		usersMessage.setList("messages",userList);//mert emptystring nevu array kicsit odabaszna....
+		usersMessage.setList("messages", userList);// mert emptystring nevu
+													// array kicsit
+													// odabaszna....
 		_tServer.sendToken(c, usersMessage);
 	}
-	
 
 	/* Private dolgok */
 	/**
@@ -376,12 +443,9 @@ public class messenger {
 		String objId = message.get("objId").toString();
 
 		BasicDBObject d = new BasicDBObject();
-		d.put("x", (message.get("x") == null ? 0 : message.get("x")
-				.toString()));
-		d.put("y", (message.get("y") == null ? 0 : message.get("y")
-				.toString()));
-		d.put("z", (message.get("z") == null ? 0 : message.get("z")
-				.toString()));
+		d.put("x", (message.get("x") == null ? 0 : message.get("x").toString()));
+		d.put("y", (message.get("y") == null ? 0 : message.get("y").toString()));
+		d.put("z", (message.get("z") == null ? 0 : message.get("z").toString()));
 		// data
 		if (message.get("data") != null) {
 			d.put("data", message.get("data").toString());
@@ -403,7 +467,8 @@ public class messenger {
 				return ((ObjectId) d.get("_id")).toString();
 			}
 		} catch (Exception e) {
-			log.warn("Error while saving aToken: " + d.toString()+" Error:"+e.getMessage());
+			log.warn("Error while saving aToken: " + d.toString() + " Error:"
+					+ e.getMessage());
 			return null;
 		}
 	}
