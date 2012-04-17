@@ -4,6 +4,12 @@
  */
 package chatdesktop;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +23,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
  
 /**
  *
@@ -107,10 +114,6 @@ public final class ChatPane extends BorderPane{
         Label memberheader=new Label("Members: ");
         memberheader.setFont(Font.font("Berlin Sans FB", 14));
         memberPanel.getChildren().add(memberheader);
-        /*addMembers("Csák Bálint Attila");
-        addMembers("Szidor János");
-        addMembers("Réti Dániel");
-        addMembers("Stefanovics Richanovárd");*/
         //Bottom****************************************************************
         HBox chatPanel=new HBox();
         chatPanel.setSpacing(10);
@@ -125,7 +128,7 @@ public final class ChatPane extends BorderPane{
         chatPanel.setAlignment(Pos.BOTTOM_LEFT);
         //positioning***********************************************************
         setBottom(chatPanel);
-        setRight(memberPanel);
+        //setRight(memberPanel);
         setCenter(messages);
         //base attributes*******************************************************
         setVisible(false);

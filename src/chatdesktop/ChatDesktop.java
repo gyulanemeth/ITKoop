@@ -3,7 +3,6 @@ package chatdesktop;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -39,12 +38,14 @@ import javafx.util.Duration;
 public class ChatDesktop extends Application {
     
     private MenuItem fileDisconnect, fileExit;
-    private final MenuItem newRect=new MenuItem("Add new Rectangle");
+    private final MenuItem newRect=new MenuItem("Add new rectangle"),
+            remRect=new MenuItem("Remove old rectangle"), 
+            editRect=new MenuItem("Edit selected rectangle");
     private JWSClient wsClient = JWSClient.getInstance();
     private Canvas canvas=new Canvas();
     private ChatPane chat=new ChatPane();
     private LoginPane login=new LoginPane(); 
-    private boolean isConnected=false;
+    static boolean isConnected=false;
     private ContextMenu contextMenu;
     public static final int WIDTH=1110,HEIGHT=630;    
     
@@ -59,7 +60,7 @@ public class ChatDesktop extends Application {
         Scene scene=new Scene(bpane,WIDTH,HEIGHT); 
         //Init popup menu*******************************************************
         contextMenu=new ContextMenu();
-        contextMenu.getItems().add(newRect);
+        contextMenu.getItems().addAll(newRect,editRect,remRect);
         //Setting containers****************************************************
         primaryStage.setResizable(true);
         //Background************************************************************
@@ -68,9 +69,16 @@ public class ChatDesktop extends Application {
         Rectangle colors = new Rectangle(bounds.getWidth(), bounds.getHeight(),
              new LinearGradient(0f, 1f, 1f, 0f, true, CycleMethod.NO_CYCLE, new 
          Stop[]{
-            new Stop(0, Color.CADETBLUE),
-            new Stop(0.5, Color.AZURE),
-            new Stop(1, Color.CADETBLUE)}));
+            /*new Stop(0, Color.web("336699")),
+            new Stop(0.25, Color.web("003366")),
+            new Stop(0.5, Color.web("FFFFFF")),
+            new Stop(0.75, Color.web("FFCC66"))*/
+           new Stop(0, Color.web("FFFFFF")),     
+            new Stop(0.2, Color.web("C9A798")),
+            new Stop(0.4, Color.web("7F5417")),
+            new Stop(0.6, Color.web("D8F3C9")),
+            new Stop(0.8, Color.web("99CC00"))
+             }));
         bpane.getChildren().add(colors);
         //Menu with eventhandler*********************************************
         Menu menuFile=new Menu("File");
@@ -89,6 +97,7 @@ public class ChatDesktop extends Application {
         loginEvent();
         chatEvent();
         canvasEvent();
+        login.accountField.requestFocus();
         //other*****************************************************************
         primaryStage.setTitle("ChatProgram 1.013c");
         primaryStage.setScene(scene);
@@ -130,7 +139,7 @@ public class ChatDesktop extends Application {
                     chat.clear();
                     wsClient.disconnect();
                     isConnected=false;
-                    canvas.setConnected(isConnected);                   
+                    canvas.setConnected(isConnected);
                 }
             }});
         fileExit.setOnAction(new EventHandler<ActionEvent>() {
@@ -202,14 +211,34 @@ public class ChatDesktop extends Application {
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(final MouseEvent ev) {
-                if(isConnected)
-                if(ev.getButton()==MouseButton.SECONDARY){
+                if(isConnected && ev.getButton()==MouseButton.SECONDARY) {
+                    final GraphRectangle rect=canvas.clickIn(ev.getX(), ev.getY());
+                    if(rect==null){
+                        newRect.setDisable(false);
+                        remRect.setDisable(true);
+                        editRect.setDisable(true);
+                    } else {
+                        newRect.setDisable(true);
+                        remRect.setDisable(false);
+                        editRect.setDisable(false);
+                    }
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
-
                         @Override
                         public void handle(ActionEvent arg0) {
                             canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)ev.getX(), (int)ev.getY(), 0, "newRectangle");
                             //wsClient.sendCreateObject("newRectangle", (int)ev.getX(), (int)ev.getY(), 0);
+                        }
+                    });
+                    remRect.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent arg0) {
+                            canvas.remove(rect);
+                            //Ide kellene a delete object
+                        }
+                    });
+                    editRect.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent arg0) {
                         }
                     });
                     contextMenu.show(canvas, ev.getScreenX(), ev.getScreenY());

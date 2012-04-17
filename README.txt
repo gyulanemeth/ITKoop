@@ -1,2 +1,1 @@
-Félig mûködõ desktop kliens. Szerverrõl érkezõ szöveg és objektumok, illetve azok mozgatása implementálva van.
-Kifelé nem mûködik a beszélgetés, sem az objektumok mozgatása, üzenetküldési kompatibilitási probléma miatt. GOMEZ, I CHOOSE YOU!
+CREATE, DELETE, grafika megvan, mûködõ program a dist mappában a ChatDesktop.jnlp fájl.

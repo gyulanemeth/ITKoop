@@ -44,14 +44,35 @@ public final class Canvas extends Group{
        text.setDisable(true);
        
        final GraphRectangle rec=new GraphRectangle(x, y, nodeWidth, nodeHeight, text, id);      
-       this.getChildren().add(rec); 
-       this.getChildren().add(text);
-       objects.put(id, rec);
+       add(rec);
        rec.actionRectangleNode(handler);
+    }
+    
+    public void add(GraphRectangle rec){
+       this.getChildren().add(rec); 
+       this.getChildren().add(rec.text);
+       objects.put(rec.id, rec);
+    }
+    
+    public void remove(GraphRectangle rec){
+        if(containsObject(rec.id)){
+            this.getChildren().remove(rec);
+            this.getChildren().remove(rec.text);
+            objects.remove(rec.id);
+        }
     }
     
     public boolean containsObject(String objId){
         return objects.containsKey(objId);
+    }
+    
+    public GraphRectangle clickIn(double x, double y){
+        for(Enumeration<GraphRectangle> rects=objects.elements();rects.hasMoreElements();){
+            GraphRectangle rect=rects.nextElement();
+            if(rect.contains(x, y))
+                return rect;                
+        }
+        return null;
     }
     
     public void clearCanvas(){
@@ -60,7 +81,7 @@ public final class Canvas extends Group{
     
     public void setConnected(boolean isConnected){
         for(Enumeration<GraphRectangle> rects=objects.elements();rects.hasMoreElements();){
-            rects.nextElement().setVisible(isConnected);
+            rects.nextElement().setEnabled(isConnected);
         }
     }
 

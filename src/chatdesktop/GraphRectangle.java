@@ -5,12 +5,15 @@
 package chatdesktop;
 
 import java.util.Random;
+import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -19,8 +22,8 @@ import javafx.util.Duration;
  * @author Chuckie
  */
 public class GraphRectangle extends javafx.scene.shape.Rectangle{
-    private final String id;
-    private Text text;
+    final String id;
+    Text text;
     private Point2D dragAnchor;
     private double initX, initY;
     private ScaleTransition scale;
@@ -32,7 +35,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         this.id=id;
         scale=new ScaleTransition(Duration.seconds(0.1),this);
         setColor();
-        setVisible(true); 
+        setEnabled(true);
         setAlpha(0.8);
     }
     
@@ -47,6 +50,40 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         text.setX(super.getX()+30);
         text.setY(super.getY()+30);
     }
+    
+    public final void setEnabled(final boolean visible){
+        final FadeTransition recfade=new FadeTransition(new Duration(300),this);
+        final FadeTransition textfade=new FadeTransition(new Duration(300), text);
+        final Rectangle rec=this;
+        rec.setVisible(true);
+        text.setVisible(true);
+        if(visible){
+            recfade.setFromValue(0.0);
+            recfade.setToValue(1.0);
+            textfade.setFromValue(0.0);
+            textfade.setToValue(1.0);
+        }else{
+
+            recfade.setFromValue(1.0);
+            recfade.setToValue(0.0);
+            textfade.setFromValue(1.0);
+            textfade.setToValue(0.0);
+        }
+        recfade.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                        rec.setVisible(visible);
+            }
+        });
+        textfade.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {                
+                        text.setVisible(visible);
+            }
+        });
+        recfade.play();
+        textfade.play();
+    }
     @Override
     public void toFront(){
         super.toFront();
@@ -56,6 +93,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
     void setData(String data) {
         text=new Text(data);
     }
+    
     void actionRectangleNode(final JWSClient handler){
         this.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override

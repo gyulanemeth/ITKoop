@@ -66,6 +66,6 @@ public class LoginPane extends BorderPane{
         gp.add(submit, 1,3);
         //positioning***********************************************************
         setTop(spane);
-        setCenter(gp); 
-    }   
+        setCenter(gp);
+    }
 }
