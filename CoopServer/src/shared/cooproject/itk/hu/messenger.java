@@ -144,12 +144,17 @@ public class messenger {
 
 	/**
 	 * User join eventnel kuldjunk ki uzenetet
-	 * 
+	 * @param c Az uj user connectorja
 	 * @param username
 	 *            A csatlakozott user neve
 	 */
-	public void userJoined(String username) {
-
+	public void userJoined(WebSocketConnector c,String username) {
+		Token dResponse = getMessageBone(1000);
+		dResponse.setString("message", username + " joined");// chat message
+		_tServer.broadcastToken(c,dResponse);
+		dResponse = getMessageBone(1000);
+		dResponse.setString("message", "Welcome "+username);// chat message
+		_tServer.sendToken(c,dResponse);
 	}
 
 	/**
@@ -159,16 +164,33 @@ public class messenger {
 	 *            A kilepo user neve
 	 */
 	public void userLeft(String username) {
-		Token broadcastMessage = TokenFactory.createToken();
-		LinkedList<Token> messageList = new LinkedList<Token>();
 		Token dResponse = getMessageBone(1000);
 		dResponse.setString("message", username + " left the server");// chat
-		messageList.add(dResponse);
-		broadcastMessage.setList("messages", messageList);
-		_tServer.broadcastToken(broadcastMessage); // message
-
+		_tServer.broadcastToken(dResponse); // message
 	}
 
+	/* Senderek */
+	/**
+	 * Create uzenetre valaszol
+	 * @param c A connector, ahova ezt kuldjuk (pl aEvent.getConnector() )
+	 * @param ObjectID a letrejott object IDja
+	 * @param aToken az eredeti uzenete, amibol majd kinyerjuk az infokat
+	 */
+	public void sendCreateResponse(WebSocketConnector c, String ObjectID, Token aToken){
+		log.debug("sendCreate" + c.toString());
+		Token response = getMessageBone(4);
+		String createdAt = aToken.getString("timestamp");
+		@SuppressWarnings("unchecked")
+		Map<String, String> message = aToken.getMap("message");
+		message.put("createdAt", createdAt);
+		message.put("savePos", "false");
+		String objId = saveToken(aToken);
+		message.put("objId", objId);
+		response.setMap("message", message);
+		_tServer.sendToken(c,response);
+	}
+	
+	
 	/**
 	 * Kikuldi az osszes db-ben talalhato objectet az adott connectionre
 	 * 
@@ -294,11 +316,8 @@ public class messenger {
 	private void handleCreate(WebSocketConnector c, Token aToken) {
 		// Generaljuk valasz uzenetet, es kozben mentjuk az eredetit
 		log.debug("handleCreate " + c.toString() + " - " + aToken);
-		Token response = createObject(aToken);
-		this._tServer.broadcastToken(c, response);// az elso parameter
-													// megmondja, hogy kinek NE
-													// broadcastolja, a masodik
-													// maga a Token
+		String objId = saveToken(aToken);
+		this.sendCreateResponse(c,objId,aToken);
 	}
 
 	/**
@@ -399,28 +418,6 @@ public class messenger {
 			message.put("data", o.get("data").toString());
 		r.setMap("message", message);
 		return r;
-
-	}
-
-	/**
-	 * Letrehozzuk az objectumot, es legyartjuk a valaszuzenetet
-	 * 
-	 * @param aToken
-	 *            a letrehozando objectet tartalmazo message
-	 * @return a valasz Token
-	 */
-
-	private Token createObject(Token aToken) {
-		Token response = getMessageBone(2);
-		String createdAt = aToken.getString("timestamp");
-		@SuppressWarnings("unchecked")
-		Map<String, String> message = aToken.getMap("message");
-		message.put("createdAt", createdAt);
-		message.put("savePos", "false");
-		String objId = saveToken(aToken);
-		message.put("objId", objId);
-		response.setMap("message", message);
-		return response;
 
 	}
 

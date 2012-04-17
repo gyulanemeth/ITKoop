@@ -38,7 +38,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	public coopMessageListener() {
 		super();
 		log.info("Coop Server listener successfully loaded");
-		_users = new userManager();
+		_users = new userManager(this);
 		this._messageHandler = new messenger(_tServer, "CoopProjectServer",
 				"127.0.0.1", "coproject", "objects", this);
 	}
@@ -61,7 +61,7 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 	public void processOpened(WebSocketServerEvent aEvent) {
 		// ha valaki csatlakozik, küldjüki ki neki a welcome objecteket unicast
 		// üzenetben
-		this._messageHandler.sendAllObjects(aEvent.getConnector());
+		
 
 	}
 
@@ -105,6 +105,15 @@ public class coopMessageListener implements WebSocketServerTokenListener {
 		log.info("Login message from  "+this._users.getUsername(c));
 		this._users.handleLogin(c,username);
 		
+	}
+	/*
+	 * Miutan beloggol a user, elkuldjuk neki a dolgokat, es az udvozlest 
+	 * @param c A csatlakozo user connectora
+	 * @param username A usernev
+	 */
+	public void userJoined(WebSocketConnector c, String username) {
+		this._messageHandler.userJoined(c,username);
+		this._messageHandler.sendAllObjects(c);
 	}
 
 }

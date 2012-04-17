@@ -11,9 +11,10 @@ public class userManager {
 
 	private HashMap<String, WebSocketConnector> _users;
 	private static Logger log = Logger.getLogger(userManager.class.getName());
-
-	public userManager() {
-		_users = new HashMap<String, WebSocketConnector>();
+	private coopMessageListener _coopMessageListener;
+	public userManager(coopMessageListener parent) {
+		this._coopMessageListener = parent;
+		this._users = new HashMap<String, WebSocketConnector>();
 	}
 
 	/**
@@ -66,6 +67,7 @@ public class userManager {
 	public void handleLogin(WebSocketConnector c, String username) {
 		if (!_users.containsKey(c.getSession().getSessionId())) {
 			c.setBoolean("login", true);
+			this._coopMessageListener.userJoined(c,username);
 		}
 	}
 
