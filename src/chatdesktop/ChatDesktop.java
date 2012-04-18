@@ -10,11 +10,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -26,9 +25,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.*;
 import javafx.util.Duration;
 
 /**
@@ -45,12 +42,14 @@ public class ChatDesktop extends Application {
     private Canvas canvas=new Canvas();
     private ChatPane chat=new ChatPane();
     private LoginPane login=new LoginPane(); 
+    private Stage stage, editStage;
     static boolean isConnected=false;
     private ContextMenu contextMenu;
     public static final int WIDTH=1110,HEIGHT=630;    
     
     @Override
-    public void start(Stage primaryStage) {          
+    public void start(Stage primaryStage) {
+        stage=primaryStage;
         wsClient.setDesktop(this);
         wsClient.setCanvas(canvas);
         //Init containers*******************************************************
@@ -96,7 +95,7 @@ public class ChatDesktop extends Application {
         menuEvent();
         loginEvent();
         chatEvent();
-        canvasEvent();
+        canvasMenuEvent();
         login.accountField.requestFocus();
         //other*****************************************************************
         primaryStage.setTitle("ChatProgram 1.013c");
@@ -206,13 +205,12 @@ public class ChatDesktop extends Application {
                 wsClient.sendText(chat.name, chat.sendMsg());
             }});
     }
-    
-    public void canvasEvent(){
+    public void canvasMenuEvent(){
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(final MouseEvent ev) {
-                if(isConnected && ev.getButton()==MouseButton.SECONDARY) {
-                    final GraphRectangle rect=canvas.clickIn(ev.getX(), ev.getY());
+            public void handle(final MouseEvent event) {
+                if(isConnected && event.getButton()==MouseButton.SECONDARY) {
+                    final GraphRectangle rect=canvas.clickIn(event.getX(), event.getY());
                     if(rect==null){
                         newRect.setDisable(false);
                         remRect.setDisable(true);
@@ -225,7 +223,7 @@ public class ChatDesktop extends Application {
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent arg0) {
-                            canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)ev.getX(), (int)ev.getY(), 0, "newRectangle");
+                            canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)event.getX(), (int)event.getY(), 0, "newRectangle");
                             //wsClient.sendCreateObject("newRectangle", (int)ev.getX(), (int)ev.getY(), 0);
                         }
                     });
@@ -238,12 +236,33 @@ public class ChatDesktop extends Application {
                     });
                     editRect.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
-                        public void handle(ActionEvent arg0) {
+                        public void handle(ActionEvent ev) {
+                            contextMenu.hide();
+                            editStage=new Stage(StageStyle.UNDECORATED);
+                            Group rootGroup = new Group();
+                            final TextField textField=new TextField(rect.text.getText());
+                            textField.resize(rect.getWidth(), rect.getHeight());
+                            textField.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent arg0) {
+                                    rect.text.setText(textField.getText());                                    
+                                    rect.resize();
+                                    editStage.close();
+                                }
+                            });
+                            rootGroup.getChildren().add(textField);
+                            Scene scene = new Scene(rootGroup, 130,20, Color.BLACK);
+                            editStage.setScene(scene);
+                            editStage.setResizable(false);
+                            editStage.setX(event.getScreenX());
+                            editStage.setY(event.getScreenY());
+                            editStage.show();
                         }
                     });
-                    contextMenu.show(canvas, ev.getScreenX(), ev.getScreenY());
+                    contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
                 }else{
                     contextMenu.hide();
+                    editStage.close();
                 }
             }
         });

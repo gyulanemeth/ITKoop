@@ -89,9 +89,9 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         super.toFront();
         text.toFront();        
     }
-
-    void setData(String data) {
-        text=new Text(data);
+    
+    public void resize(){
+        this.setWidth(text.getText().length()*10+80);
     }
     
     void actionRectangleNode(final JWSClient handler){

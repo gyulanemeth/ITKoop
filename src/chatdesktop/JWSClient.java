@@ -234,7 +234,7 @@ public class JWSClient implements WebSocketClientTokenListener{
                         GraphRectangle rec = canvas.getObject(objId);
                         rec.setX(x);
                         rec.setY(y);
-                        rec.setData(data);
+                        rec.text.setText(data);
                     }else{
                         Platform.runLater(new Runnable() { 
                             @Override
@@ -263,7 +263,7 @@ public class JWSClient implements WebSocketClientTokenListener{
                     //z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
                     if(canvas.containsObject(objId)){
                         GraphRectangle rec = canvas.getObject(objId);
-                        rec.setData(data);
+                        rec.text.setText(data);
                     }
                     break;
                 default:
