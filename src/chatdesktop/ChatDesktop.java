@@ -223,8 +223,9 @@ public class ChatDesktop extends Application {
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent arg0) {
-                            canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)event.getX(), (int)event.getY(), 0, "newRectangle");
-                            //wsClient.sendCreateObject("newRectangle", (int)ev.getX(), (int)ev.getY(), 0);
+                            //csak create kérést küldünk, nem kreálunk azonnal, majd csak ha a server engedi.
+                            //canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)event.getX(), (int)event.getY(), 0, "newRectangle");
+                            wsClient.sendCreateObject("newRectangle", (int)event.getX(), (int)event.getY(), 0);
                         }
                     });
                     remRect.setOnAction(new EventHandler<ActionEvent>() {
@@ -232,6 +233,7 @@ public class ChatDesktop extends Application {
                         public void handle(ActionEvent arg0) {
                             canvas.remove(rect);
                             //Ide kellene a delete object
+                            wsClient.sendDeleteObject(rect.getObjId());
                         }
                     });
                     editRect.setOnAction(new EventHandler<ActionEvent>() {
@@ -247,6 +249,7 @@ public class ChatDesktop extends Application {
                                 public void handle(ActionEvent arg0) {
                                     rect.text.setText(textField.getText());                                    
                                     rect.resize();
+                                    wsClient.sendModifyObject(rect.getObjId(), textField.getText());
                                     editStage.close();
                                 }
                             });

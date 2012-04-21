@@ -51,6 +51,10 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         text.setY(super.getY()+30);
     }
     
+    public String getObjId()
+    {
+        return this.id;
+    }
     public final void setEnabled(final boolean visible){
         final FadeTransition recfade=new FadeTransition(new Duration(300),this);
         final FadeTransition textfade=new FadeTransition(new Duration(300), text);
