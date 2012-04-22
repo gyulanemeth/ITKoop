@@ -100,6 +100,11 @@ public class messenger {
 			int cType = 0;
 			if (aToken.getString("type") != null) {
 				cType = Integer.parseInt(aToken.getString("type"));
+				log.debug("(STRING)Can't parse type field:"+aToken);
+			}
+			if (aToken.getInteger("type") != null) {
+				cType = aToken.getInteger("type");
+				log.debug("(INT)Can't parse type field:"+aToken);
 			}
 			String cSenderName = aToken.getString("sender");
 			String cMessage = aToken.getString("message");
