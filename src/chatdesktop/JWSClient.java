@@ -167,12 +167,13 @@ public class JWSClient implements WebSocketClientTokenListener{
     public void processToken(WebSocketClientEvent wsce, Token token) {
         System.out.println("IN: "+token.toString());
         if(token.getString("type").equals("welcome")) return; //csak a default welcome jott
+        if(token.getString("type").equals("event")) return; //csak a vmi nemtom milyen event jott
         try{
             // Dolgozzuk fel a letezo fieldeket
             int cType = 0;
             if (token.getString("type") != null) {
-                //cType = Integer.parseInt(token.getString("type"));
-                cType = token.getInteger("type");
+                cType = Integer.parseInt(token.getString("type"));
+                //cType = token.getInteger("type");
             }
             String cSenderName = token.getString("sender");
             String cMessage = token.getString("message");
@@ -184,120 +185,33 @@ public class JWSClient implements WebSocketClientTokenListener{
                     break;
                 // ModidifyObject (NINCS WIKIN, csak emailben)
                 case 1:
+                    System.out.println("It's a modify");
                     handleModify(token);
                     break;
                 // MoveObject + mentes
                 case 2:
+                    System.out.println("It's a move");
                     handleMove(token);
                     break;
                 // Create Object!
                 case 3:
+                    System.out.println("It's a create");
                     handleCreate(token);
                     break;
                 // MoveObject mentes nelkul!
                 case 4:
+                    System.out.println("It's a move");
                     handleMove(token);
                     break;
                 // Egy chat message. Egyelore csak broadcastoljuk
                 case 1000:
+                    System.out.println("It's a chat");
                     handleChatMessage(cSenderName, cMessage);
                     break;
             }
         }catch(Exception e){
             Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, e);
         }
-        /*System.out.println(token.toString());
-        String type =token.getString("type");
-        Map message;
-        final String objId;
-        final String data;
-        final int x,y,z;
-        String userName;
-        try{
-            if(type.equals("welcome")) return;
-            String sender=token.getString("sender") == null? "unkown host" : token.getString("sender").toString();
-            switch(Integer.parseInt(type)){ 
-                case 1000://CHAT
-                    message = token.getMap("message");
-                    userName = message.get("userName") == null? "*noname*" : message.get("userName").toString();
-                    String textMessage = message.get("msg") == null? "_-_" : message.get("msg").toString();
-                    chatDesktop.newMessage(userName, textMessage);
-                    /*OLD
-                    String textMessage=token.getString("message") == null? " " : token.getString("message").toString();
-                    chatDesktop.chat.addText(sender, textMessage);*/
-                    /*break;
-                case 2://MOVE
-                    message=token.getMap("message");
-                    objId = message.get("objId").toString();
-                    data=message.get("data")==null? " ":message.get("data").toString();
-                    x=Integer.parseInt(message.get("x") == null? "0" : message.get("x").toString());
-                    y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
-                    z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
-                    
-                    if(canvas.containsObject(objId)){
-                        GraphRectangle rec = canvas.getObject(objId);
-                        rec.setX(x);
-                        rec.setY(y);
-                    }else{
-                        Platform.runLater(new Runnable() { 
-                            @Override
-                            public void run() {
-                                canvas.initRectangleNode(_instance, objId, x, y, z, data);
-                            }
-                        });
-                    }
-                    break;
-                case 3://CREATE
-                    message = token.getMap("message");
-                    objId = message.get("objId").toString();
-                    data = message.get("data")==null? " ":message.get("data").toString();
-                    x=Integer.parseInt(message.get("x")==null? "0": message.get("x").toString());
-                    y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
-                    z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
-                    if(canvas.containsObject(objId)){
-                        GraphRectangle rec = canvas.getObject(objId);
-                        rec.setX(x);
-                        rec.setY(y);
-                        rec.text.setText(data);
-                    }else{
-                        Platform.runLater(new Runnable() { 
-                            @Override
-                            public void run() {
-                                canvas.initRectangleNode(_instance, objId, x, y, z, data);
-                            }
-                        }); 
-                    }
-                    break;
-                case 4://DELETE
-                    message = token.getMap("message");
-                    objId = message.get("objId").toString();
-                    if(canvas.containsObject(objId)){
-                        Platform.runLater(new Runnable() { 
-                            @Override
-                            public void run() {
-                                canvas.deleteObject(objId);
-                            }
-                        }); 
-                    }
-                    break;
-                case 5://MODIFY
-                    message = token.getMap("message");
-                    objId = message.get("objId").toString();
-                    data = message.get("data")==null? " ":message.get("data").toString();
-                    //z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
-                    if(canvas.containsObject(objId)){
-                        GraphRectangle rec = canvas.getObject(objId);
-                        rec.text.setText(data);
-                    }
-                    break;
-                default:
-                    System.out.println(token.toString());
-                    break;
-            }
-        }catch(Exception e){
-            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, e);
-        }*/
-        
     }
 
     @Override
