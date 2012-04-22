@@ -100,11 +100,11 @@ public class messenger {
 			int cType = 0;
 			if (aToken.getString("type") != null) {
 				cType = Integer.parseInt(aToken.getString("type"));
-				log.debug("(STRING)Can't parse type field:"+aToken);
+				log.debug("Client sent type field as STRING:"+aToken);
 			}
 			if (aToken.getInteger("type") != null) {
 				cType = aToken.getInteger("type");
-				log.debug("(INT)Can't parse type field:"+aToken);
+				log.debug("Client sent type field as INT"+aToken);
 			}
 			String cSenderName = aToken.getString("sender");
 			String cMessage = aToken.getString("message");
@@ -442,7 +442,12 @@ public class messenger {
 		// Kesobb, ha letisztul az uzenetkuldes, hasznalhatjuk a JSON.parse
 		// parancsot is, es akkor nem kell ennyit bohockodni :(
 		// Nyerjuk ki a nekunk kello infokat
-		String objId = message.get("objId").toString();
+		String objId = "";
+		if(message.get("objId").toString()!=null){
+			objId = message.get("objId").toString();
+			log.debug("Found objID :"+objId);
+		}
+		
 
 		BasicDBObject d = new BasicDBObject();
 		d.put("x", (message.get("x") == null ? 0 : message.get("x").toString()));
@@ -455,9 +460,12 @@ public class messenger {
 		// Nem biztos, hogy mongo dob exception, de azert hatha
 		try {
 			// létezik-e már az adott id-jű dokumentum?
-			DBObject doc = _c.findOne(new BasicDBObject("_id", new ObjectId(
+			DBObject doc = null;
+			if(!objId.isEmpty()){
+				doc = _c.findOne(new BasicDBObject("_id", new ObjectId(
 					objId)));
-			if (doc != null) {
+			}
+			if (doc != null && !objId.isEmpty()) {
 				log.debug("Object found, it's an update!");
 				_c.update(doc, new BasicDBObject().append("$set", d));
 				log.debug("Old object successfully updated: " + d.toString());
