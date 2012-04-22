@@ -443,7 +443,7 @@ public class messenger {
 		// parancsot is, es akkor nem kell ennyit bohockodni :(
 		// Nyerjuk ki a nekunk kello infokat
 		String objId = "";
-		if(message.get("objId").toString()!=null){
+		if(message.get("objId") !=null){
 			objId = message.get("objId").toString();
 			log.debug("Found objID :"+objId);
 		}
