@@ -249,6 +249,7 @@ public class ChatDesktop extends Application {
                                 public void handle(ActionEvent arg0) {
                                     rect.text.setText(textField.getText());                                    
                                     rect.resize();
+                                    System.out.println("PUKK");
                                     wsClient.sendModifyObject(rect.getObjId(), textField.getText());
                                     editStage.close();
                                 }

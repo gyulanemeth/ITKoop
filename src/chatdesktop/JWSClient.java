@@ -47,9 +47,8 @@ public class JWSClient implements WebSocketClientTokenListener{
             else
                 tClient.open("ws://nemgy.itk.ppke.hu:61160");
             System.out.println("Open");
-            //System.out.println(tClient.getClientId().toString());
-            //Itt van egy kis hiba
-            //tClient.login(name, pass);
+            
+            sendLogin(pass);
             return true;
         } catch (WebSocketException ex) {
             Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
@@ -65,6 +64,20 @@ public class JWSClient implements WebSocketClientTokenListener{
             return false;
         }
         return true;
+    }
+    
+    private boolean sendLogin(String pass)
+    {
+        try {
+            Token token = getMessageBone(0);
+            
+            tClient.sendToken(token);
+            System.out.println("Logging in...");
+            return true;
+        } catch (WebSocketException ex) {
+            Logger.getLogger(JWSClient.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
     
     public boolean sendText(String userName, String text) {
