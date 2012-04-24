@@ -65,7 +65,7 @@ public class userManager {
 	 *            A usernev
 	 */
 	public void handleLogin(WebSocketConnector c, String username) {
-		if (!_users.containsKey(c.getSession().getSessionId())) {
+		if (_users.containsKey(c.getSession().getSessionId())) {
 			c.setBoolean("login", true);
 			this._coopMessageListener.userJoined(c,username);
 		}

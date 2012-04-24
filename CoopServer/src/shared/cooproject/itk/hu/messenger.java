@@ -97,7 +97,7 @@ public class messenger {
 		if (handleAuth(c, aToken)) {
 			log.debug("Auth ok"+c.toString()+" message:"+aToken);
 			// Dolgozzuk fel a letezo fieldeket
-			int cType = 0;
+			int cType = -1;
 			if (aToken.getString("type") != null) {
 				cType = Integer.parseInt(aToken.getString("type"));
 				log.debug("Client sent type field as STRING:"+aToken);
