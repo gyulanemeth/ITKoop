@@ -35,7 +35,9 @@ public class userManager {
 			_users.put(c.getSession().getSessionId(), c);
 			log.info("New record in _users map : "
 					+ c.getSession().getSessionId() + " - " + c.getUsername());
-
+			// Egyelora itt
+			//TODO:RemoveME
+			this._coopMessageListener.userJoined(c,username);
 			// Ha benne van, es nevet valtott
 		} else {
 			if (_users.get(c.getSession().getSessionId()).getUsername() != username) {
