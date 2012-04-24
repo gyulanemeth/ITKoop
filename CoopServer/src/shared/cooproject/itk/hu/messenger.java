@@ -385,7 +385,7 @@ public class messenger {
 		simpleMessage.setString("sender", this._sender);
 		// Timestampet
 		double timestamp = System.currentTimeMillis() / 1000;
-		simpleMessage.setDouble("timestamp", timestamp);
+		simpleMessage.setString("timestamp", Double.toString(timestamp));
 		return simpleMessage;
 	}
 
