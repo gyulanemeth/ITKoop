@@ -165,7 +165,15 @@ public class JWSClient implements WebSocketClientTokenListener{
     
     @Override
     public void processToken(WebSocketClientEvent wsce, Token token) {
+        System.out.println("AA");
         System.out.println("IN: "+token.toString());
+        System.out.println("AB");
+        //Ez megkerüli a GUI-t welcome-ra kér 1 objectet.
+        /*if(token.getString("type").equals("welcome"))
+        {
+            this.sendCreateObject("newRectangle", 180, 400, 0);
+            return;
+        }*/
         if(token.getString("type").equals("welcome")) return; //csak a default welcome jott
         if(token.getString("type").equals("event")) return; //csak a vmi nemtom milyen event jott
         try{
@@ -176,7 +184,9 @@ public class JWSClient implements WebSocketClientTokenListener{
                 //cType = token.getInteger("type");
             }
             String cSenderName = token.getString("sender");
+            System.out.println("A");
             String cMessage = token.getString("message");
+            System.out.println("B");
             // dolgozzuk fel type alapjan
             switch (cType) {
                 // loginEvent
@@ -256,13 +266,14 @@ public class JWSClient implements WebSocketClientTokenListener{
     }
     
     private void handleMove(Token token) {
+        System.out.println("NYEH");
         Map message=token.getMap("message");
         final String objId = message.get("objId").toString();
         final String data=message.get("data")==null? " ":message.get("data").toString();
         final int x=Integer.parseInt(message.get("x") == null? "0" : message.get("x").toString());
         final int y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
         final int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
-                    
+        System.out.println("C");
         if(canvas.containsObject(objId)){
             GraphRectangle rec = canvas.getObject(objId);
             rec.setX(x);
@@ -326,7 +337,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         simpleMessage.setString("sender", this.userName);
         // Timestampet
         double timestamp = System.currentTimeMillis() / 1000;
-        simpleMessage.setDouble("timestamp", timestamp);
+        //simpleMessage.setDouble("timestamp", timestamp);
+        simpleMessage.setString("timestamp", Double.toString(timestamp));
         return simpleMessage;
     }
 }
