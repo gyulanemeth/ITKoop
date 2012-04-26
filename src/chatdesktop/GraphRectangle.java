@@ -63,7 +63,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         else
             setY(0);
     }
-    void moveText(){
+    private void moveText(){
         text.setX(super.getX()+30);
         text.setY(super.getY()+30);                
     }
@@ -135,18 +135,14 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
                 else
                     setY(0);
                 moveText();
-                handler.sendMoveObject("hiba", id, (int)newPositionX, (int)newPositionY, false);
+                handler.sendMoveObject(ChatDesktop.name, id, (int)newPositionX, (int)newPositionY, false);
             }            
         });
-        this.setOnDragDropped(new EventHandler<DragEvent>() {
+        this.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
             @Override
-            public void handle(DragEvent arg0) {
-                handler.sendMoveObject("hiba", id, (int)getX(), (int)getY(), true);
-            }
-        });
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent ev) {
+            public void handle(MouseEvent arg0) {
+                handler.sendMoveObject(ChatDesktop.name, id, (int)getX(), (int)getY(), true);
             }
         });
         this.setOnMousePressed(new EventHandler<MouseEvent>() {

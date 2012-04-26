@@ -4,12 +4,6 @@
  */
 package chatdesktop;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
  
 /**
  *
@@ -34,8 +27,6 @@ public final class ChatPane extends BorderPane{
     TextArea messages=new TextArea(), mytext=new TextArea();
     //submit: ezzel a gombbal is el lehet küldeni a saját üzenetünket
     Button submit=new Button("Submit");
-    //felhasználó neve
-    String name;
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
     
@@ -56,13 +47,6 @@ public final class ChatPane extends BorderPane{
      */
     void addText(String member, String text){
         messages.appendText(member+" says: "+text+"\n");
-    }
-    /**
-     * Név változó értékének beállítása
-     * @param name felhazsnáló neve
-     */
-    void setName(String name){
-        this.name=name;
     }
     /**
      * Szövegmező szövegeinek törlése

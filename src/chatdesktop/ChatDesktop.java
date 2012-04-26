@@ -44,6 +44,7 @@ public class ChatDesktop extends Application {
     private ChatPane chat=new ChatPane();
     private LoginPane login=new LoginPane(); 
     private Stage stage, editStage;
+    public static String name;
     static boolean isConnected=false;
     private ContextMenu contextMenu;
     public static final int WIDTH=1110,HEIGHT=630;    
@@ -160,7 +161,7 @@ public class ChatDesktop extends Application {
                         }else{
                             changeAnimation();
                             isConnected=true;
-                            chat.setName(login.accountField.getText());
+                            name=login.accountField.getText();
                             login.clear();
                             canvas.setConnected(isConnected);
                             
@@ -177,7 +178,7 @@ public class ChatDesktop extends Application {
                         }else{
                             changeAnimation();
                             isConnected=true;
-                            chat.setName(login.accountField.getText());
+                            name=login.accountField.getText();
                             login.clear();
                             canvas.setConnected(isConnected);                        
         }}}});
@@ -196,14 +197,14 @@ public class ChatDesktop extends Application {
                     if(ev.isShiftDown())
                         chat.mytext.appendText("\n");
                     else
-                        wsClient.sendText(chat.name, chat.sendMsg());
+                        wsClient.sendText(name, chat.sendMsg());
             }});
         chat.submit.setMinSize(100, 20);
         chat.submit.setPrefSize(100, 20);
         chat.submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent ev) {
-                wsClient.sendText(chat.name, chat.sendMsg());
+                wsClient.sendText(name, chat.sendMsg());
             }});
     }
     public void canvasMenuEvent(){
