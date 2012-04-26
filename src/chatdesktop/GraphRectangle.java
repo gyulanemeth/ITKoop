@@ -47,9 +47,6 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         super.setOpacity(value);
     }
     public void move(int x, int y){
-        super.setX(x);
-        super.setY(y);
-        moveText();
         if(x<=Canvas.WIDTH-getWidth() && x>=0)
             setX(x);
         else if(x>Canvas.WIDTH-getWidth())
@@ -62,6 +59,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
             setY(Canvas.HEIGHT-getHeight());
         else
             setY(0);
+        moveText();
     }
     private void moveText(){
         text.setX(super.getX()+30);
