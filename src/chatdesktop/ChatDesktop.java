@@ -1,6 +1,5 @@
 package chatdesktop;
 
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
@@ -13,7 +12,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -25,7 +23,10 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.*;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 /**
@@ -153,17 +154,17 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        /*if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
+                        if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
-                        }else{*/
+                        }else{
                             changeAnimation();
                             isConnected=true;
                             chat.setName(login.accountField.getText());
                             login.clear();
                             canvas.setConnected(isConnected);
                             
-                    //}
+                    }
             }}});
         login.pwField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -266,6 +267,7 @@ public class ChatDesktop extends Application {
                     contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
                 }else{
                     contextMenu.hide();
+                    if(editStage!= null)
                     editStage.close();
                 }
             }

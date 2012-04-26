@@ -283,8 +283,7 @@ public class JWSClient implements WebSocketClientTokenListener{
         final int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
         if(canvas.containsObject(objId)){
             GraphRectangle rec = canvas.getObject(objId);
-            rec.setX(x);
-            rec.setY(y);
+            rec.move(x, y);
         }else{
             Platform.runLater(new Runnable() { 
                 @Override
@@ -339,7 +338,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         // Fogj 1 message-t
         Token simpleMessage = TokenFactory.createToken();
         // Rakj bele typeot
-        simpleMessage.setInteger("type", type);
+        //simpleMessage.setInteger("type", type);
+        simpleMessage.setString("type", Integer.toString(type));
         // Sendert
         simpleMessage.setString("sender", this.userName);
         // Timestampet

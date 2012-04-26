@@ -46,11 +46,27 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
     private void setAlpha(double value){
         super.setOpacity(value);
     }
+    public void move(int x, int y){
+        super.setX(x);
+        super.setY(y);
+        moveText();
+        if(x<=Canvas.WIDTH-getWidth() && x>=0)
+            setX(x);
+        else if(x>Canvas.WIDTH-getWidth())
+            setX(Canvas.WIDTH-getWidth());
+        else
+            setX(0);
+        if(y<=Canvas.HEIGHT-getHeight() && y>=0)
+            setY(y);
+        else if(y>Canvas.HEIGHT-getHeight())
+            setY(Canvas.HEIGHT-getHeight());
+        else
+            setY(0);
+    }
     void moveText(){
         text.setX(super.getX()+30);
-        text.setY(super.getY()+30);
+        text.setY(super.getY()+30);                
     }
-    
     public String getObjId()
     {
         return this.id;
@@ -119,13 +135,13 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
                 else
                     setY(0);
                 moveText();
-                //handler.sendMoveObject("hiba", id, (int)newPositionX, (int)newPositionY, false);
+                handler.sendMoveObject("hiba", id, (int)newPositionX, (int)newPositionY, false);
             }            
         });
         this.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent arg0) {
-                //handler.sendMoveObject("hiba", id, (int)getX(), (int)getY(), true);
+                handler.sendMoveObject("hiba", id, (int)getX(), (int)getY(), true);
             }
         });
         this.setOnMouseClicked(new EventHandler<MouseEvent>() {
