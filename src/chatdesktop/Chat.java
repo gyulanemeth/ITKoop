@@ -22,7 +22,7 @@ import javafx.scene.text.Font;
  *
  * @author Chuckie
  */
-public final class ChatPane extends BorderPane{
+public final class Chat extends BorderPane{
     //messages: az üzenetek mutatására;  mytext: a saját üzenet szerkeztésére.
     TextArea messages=new TextArea(), mytext=new TextArea();
     //submit: ezzel a gombbal is el lehet küldeni a saját üzenetünket
@@ -78,7 +78,7 @@ public final class ChatPane extends BorderPane{
         }
     }
 
-    ChatPane(){
+    Chat(){
         super();
         this.setMinWidth(300);
         this.setMaxWidth(300);
@@ -112,7 +112,7 @@ public final class ChatPane extends BorderPane{
         chatPanel.setAlignment(Pos.BOTTOM_LEFT);
         //positioning***********************************************************
         setBottom(chatPanel);
-        //setRight(memberPanel);
+        setRight(memberPanel);
         setCenter(messages);
         //base attributes*******************************************************
         setVisible(false);

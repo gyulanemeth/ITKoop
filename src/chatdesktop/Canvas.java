@@ -43,22 +43,22 @@ public final class Canvas extends Group{
        text.setFill(Color.WHITE);
        text.setDisable(true);
        
-       final GraphRectangle rec=new GraphRectangle(x, y, nodeWidth, nodeHeight, text, id);      
+       final Node rec=new Node(x, y, nodeWidth, nodeHeight, text, id);      
        add(rec);
-       rec.actionRectangleNode(handler);
+       rec.addEvent(handler);
     }
     
-    public void add(GraphRectangle rec){
+    public void add(Node rec){
        this.getChildren().add(rec); 
-       this.getChildren().add(rec.text);
-       objects.put(rec.id, rec);
+       this.getChildren().add(rec.getText());
+       objects.put(rec.getNodeId(), rec);
     }
     
-    public void remove(GraphRectangle rec){
-        if(containsObject(rec.id)){
+    public void remove(Node rec){
+        if(containsObject(rec.getNodeId())){
             this.getChildren().remove(rec);
-            this.getChildren().remove(rec.text);
-            objects.remove(rec.id);
+            this.getChildren().remove(rec.getText());
+            objects.remove(rec.getNodeId());
         }
     }
     
@@ -66,9 +66,9 @@ public final class Canvas extends Group{
         return objects.containsKey(objId);
     }
     
-    public GraphRectangle clickIn(double x, double y){
-        for(Enumeration<GraphRectangle> rects=objects.elements();rects.hasMoreElements();){
-            GraphRectangle rect=rects.nextElement();
+    public Node clickIn(double x, double y){
+        for(Enumeration<Node> rects=objects.elements();rects.hasMoreElements();){
+            Node rect=rects.nextElement();
             if(rect.contains(x, y))
                 return rect;                
         }
@@ -80,13 +80,13 @@ public final class Canvas extends Group{
     }
     
     public void setConnected(boolean isConnected){
-        for(Enumeration<GraphRectangle> rects=objects.elements();rects.hasMoreElements();){
+        for(Enumeration<Node> rects=objects.elements();rects.hasMoreElements();){
             rects.nextElement().setEnabled(isConnected);
         }
     }
 
-    public GraphRectangle getObject(String objId) {
-        return (GraphRectangle)objects.get(objId);
+    public Node getObject(String objId) {
+        return (Node)objects.get(objId);
     }
 
     public boolean deleteObject(String objId) {

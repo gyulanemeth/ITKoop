@@ -41,8 +41,8 @@ public class ChatDesktop extends Application {
             editRect=new MenuItem("Edit selected rectangle");
     private JWSClient wsClient = JWSClient.getInstance();
     private Canvas canvas=new Canvas();
-    private ChatPane chat=new ChatPane();
-    private LoginPane login=new LoginPane(); 
+    private Chat chat=new Chat();
+    private Login login=new Login(); 
     private Stage stage, editStage;
     public static String name;
     static boolean isConnected=false;
@@ -212,7 +212,7 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(final MouseEvent event) {
                 if(isConnected && event.getButton()==MouseButton.SECONDARY) {
-                    final GraphRectangle rect=canvas.clickIn(event.getX(), event.getY());
+                    final Node rect=canvas.clickIn(event.getX(), event.getY());
                     if(rect==null){
                         newRect.setDisable(false);
                         remRect.setDisable(true);
@@ -225,8 +225,6 @@ public class ChatDesktop extends Application {
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent arg0) {
-                            //csak create kérést küldünk, nem kreálunk azonnal, majd csak ha a server engedi.
-                            //canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)event.getX(), (int)event.getY(), 0, "newRectangle");
                             wsClient.sendCreateObject("newRectangle", (int)event.getX(), (int)event.getY(), 0);
                         }
                     });
@@ -234,7 +232,6 @@ public class ChatDesktop extends Application {
                         @Override
                         public void handle(ActionEvent arg0) {
                             canvas.remove(rect);
-                            //Ide kellene a delete object
                             wsClient.sendDeleteObject(rect.getObjId());
                         }
                     });
@@ -244,14 +241,12 @@ public class ChatDesktop extends Application {
                             contextMenu.hide();
                             editStage=new Stage(StageStyle.UNDECORATED);
                             Group rootGroup = new Group();
-                            final TextField textField=new TextField(rect.text.getText());
+                            final TextField textField=new TextField(rect.getText().getText());
                             textField.resize(rect.getWidth(), rect.getHeight());
                             textField.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent arg0) {
-                                    rect.text.setText(textField.getText());                                    
-                                    rect.resize();
-                                    System.out.println("PUKK");
+                                    rect.setText(textField.getText());                                    
                                     wsClient.sendModifyObject(rect.getObjId(), textField.getText());
                                     editStage.close();
                                 }
@@ -269,12 +264,12 @@ public class ChatDesktop extends Application {
                 }else{
                     contextMenu.hide();
                     if(editStage!= null)
-                    editStage.close();
+                        editStage.close();
                 }
             }
         });
     }
-    void changeAnimation(){
+    private void changeAnimation(){
         final FadeTransition fadelogin=new FadeTransition(new Duration(500), login);
         final FadeTransition fadechat=new FadeTransition(new Duration(500), chat);
         if(!isConnected){

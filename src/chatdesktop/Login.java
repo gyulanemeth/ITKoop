@@ -17,7 +17,7 @@ import javafx.scene.text.Text;
  *
  * @author Chuckie
  */
-public class LoginPane extends BorderPane{
+public class Login extends BorderPane{
     TextField accountField=new TextField();
     PasswordField pwField=new PasswordField();
     Button submit=new Button("Submit");
@@ -37,7 +37,7 @@ public class LoginPane extends BorderPane{
         pwField.setText("");
     }
 
-    public LoginPane() {
+    public Login() {
         super();
         //TOP*******************************************************************
         final Text title=new Text("Login");   
