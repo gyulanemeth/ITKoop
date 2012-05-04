@@ -133,6 +133,9 @@ public class messenger {
 			case 4:
 				handleMoveWithoutSave(c, aToken);
 				break;
+			// Delete
+			case 5:
+				handleDelete(c,aToken);
 			// Egy chat message. Egyelore csak broadcastoljuk
 			//
 			case 1000:
@@ -339,6 +342,30 @@ public class messenger {
 		this._coopMessageListener.handleLogin(c, username);
 		
 	}
+	/**
+	 * Torlesi event kezelese
+	 * @param c A connector
+	 * @param aToken A token
+	 */
+	/* Hogy mukodik?
+	 * A server var egy type = 5 uzenetet.
+	 * Ha az objId letezik, es a torles alatt nem lep fel problema,
+	 *  akkor a server MINDENKINEK broadcastolja az uzenetet. Igen, a kuldo
+	 *  is megkapja, mivel vele is valahogy tudatni kell, hogy sikeres volt
+	 *  a torles.
+	 *  Amennyiben a fenti feltetelek kozul valami nem teljesul (null objID, nem tudja
+	 *  betolteni az adatbazisbol, akkor nem kuldi tovabb az uzenetet)
+	 */
+	private void handleDelete(WebSocketConnector c, Token aToken){
+		log.debug("handleDelete " + c.toString() + " - " + aToken);
+		if(deleteObject(aToken)){
+			log.debug("Object successfully deleted:" + aToken);
+			//broadcast original message
+			this._tServer.broadcastToken(aToken);
+		}else{
+			log.debug("Error while deleting the object:" + aToken);
+		}
+	}
 
 	/* Kuldessel kapcsolatos dolgok */
 	/**
@@ -480,6 +507,41 @@ public class messenger {
 			log.warn("Error while saving aToken: " + d.toString() + " Error:"
 					+ e.getMessage());
 			return null;
+		}
+	}
+	
+	private boolean deleteObject(Token aToken){
+		DBCollection _c = _mongo.getCollection(this._collection);//
+		Map message = aToken.getMap("message");
+		log.info("Delete token message:" + message.toString());
+		// Kesobb, ha letisztul az uzenetkuldes, hasznalhatjuk a JSON.parse
+		// parancsot is, es akkor nem kell ennyit bohockodni :(
+		// Nyerjuk ki a nekunk kello infokat
+		String objId = "";
+		if(message.get("objId") !=null){
+			objId = message.get("objId").toString();
+			log.debug("objID found :"+objId);
+		}else{
+			log.debug("objID not found!");
+			return false;
+		}
+		try {
+			// Betoltjuk az adatbazisbol
+			DBObject doc = _c.findOne(new BasicDBObject("_id", new ObjectId(objId)));
+			
+			if (doc != null ) {
+				log.debug("Object found, let's remove it!");
+				_c.remove(doc);
+				log.debug("Object removed");
+				return true;
+			} else {
+				log.debug("Object not found!");
+				return false;
+			}
+		} catch (Exception e) {
+			log.warn("Error while deleting aToken: " + objId.toString() + " Error:"
+					+ e.getMessage());
+			return false;
 		}
 	}
 
