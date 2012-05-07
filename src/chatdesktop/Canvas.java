@@ -21,6 +21,7 @@ public final class Canvas extends Group{
     public static int WIDTH=800, HEIGHT=600;
     private Hashtable objects=new Hashtable();
     Rectangle backgroundrec;
+    Edge temporaryEdge;
     public Canvas() {
         super();
         //BackGround

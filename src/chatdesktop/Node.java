@@ -24,16 +24,18 @@ public class Node extends javafx.scene.shape.Rectangle{
     private final String id;
     private Text text;
     private Point2D dragAnchor;
+    //Edge.Point point;
     private double initX, initY;
     private ScaleTransition scale;
     public Node(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
         super(arg0, arg1, arg2, arg3);
-        super.setArcWidth(15.0);
-        super.setArcHeight(15.0);
-        setColor();        
-        setOpacity(0.8);
         this.text=text;
         this.id=id;
+        setArcWidth(15.0);
+        setArcHeight(15.0);
+        setColor();        
+        setOpacity(0.8);
+
         setEnabled(true);
         scale=new ScaleTransition(Duration.seconds(0.1),this);
     }
@@ -50,7 +52,7 @@ public class Node extends javafx.scene.shape.Rectangle{
     }
     private void setColor(){
         Random random=new Random();
-        super.setFill(Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+        setFill(Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
     }
     public void move(int x, int y){
         if(x<=Canvas.WIDTH-getWidth() && x>=0)
@@ -68,8 +70,8 @@ public class Node extends javafx.scene.shape.Rectangle{
         moveText();
     }
     private void moveText(){
-        text.setX(super.getX()+30);
-        text.setY(super.getY()+30);                
+        text.setX(getX()+30);
+        text.setY(getY()+30);                
     }
     public String getObjId()
     {
@@ -117,7 +119,6 @@ public class Node extends javafx.scene.shape.Rectangle{
     public void resize(){
         this.setWidth(text.getText().length()*10+80);
     }
-    
     void addEvent(final JWSClient handler){
         this.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
@@ -139,6 +140,9 @@ public class Node extends javafx.scene.shape.Rectangle{
                 else
                     setY(0);
                 moveText();
+                /*point.setX(newPositionX);
+                point.setY(newPositionY);
+                System.out.println(point);*/
                 handler.sendMoveObject(ChatDesktop.name, id, (int)newPositionX, (int)newPositionY, false);
             }            
         });

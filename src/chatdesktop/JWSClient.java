@@ -110,8 +110,7 @@ public class JWSClient implements WebSocketClientTokenListener{
             else
                 token = getMessageBone(4);
             token.setMap("message", message);
-            
-            System.out.println("OUT Move: "+token.toString());
+            //System.out.println("OUT Move: "+token.toString());
             tClient.sendToken(token);
             return true;
         } catch (WebSocketException ex) {

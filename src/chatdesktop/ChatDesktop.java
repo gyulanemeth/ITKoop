@@ -1,5 +1,6 @@
 package chatdesktop;
 
+import com.sun.javafx.geom.Point2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
@@ -8,6 +9,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -208,63 +210,86 @@ public class ChatDesktop extends Application {
             }});
     }
     public void canvasMenuEvent(){
+        canvas.setOnMouseMoved(new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                if(canvas.temporaryEdge!=null){
+                    canvas.temporaryEdge.setEnd(event.getX(), event.getY());
+                }
+            }
+        });
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(final MouseEvent event) {
-                if(isConnected && event.getButton()==MouseButton.SECONDARY) {
-                    final Node rect=canvas.clickIn(event.getX(), event.getY());
-                    if(rect==null){
-                        newRect.setDisable(false);
-                        remRect.setDisable(true);
-                        editRect.setDisable(true);
-                    } else {
-                        newRect.setDisable(true);
-                        remRect.setDisable(false);
-                        editRect.setDisable(false);
+                if(isConnected){
+                    final Node rect;
+                    if(event.getButton()==MouseButton.SECONDARY) {                        
+                        if((rect=canvas.clickIn(event.getX(), event.getY()))==null){
+                            newRect.setDisable(false);
+                            remRect.setDisable(true);
+                            editRect.setDisable(true);
+                        } else {
+                            newRect.setDisable(true);
+                            remRect.setDisable(false);
+                            editRect.setDisable(false);
+                        }
+                        newRect.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent arg0) {
+                                wsClient.sendCreateObject("newRectangle", (int)event.getX(), (int)event.getY(), 0);
+                            }
+                        });
+                        remRect.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent arg0) {
+                                canvas.remove(rect);
+                                wsClient.sendDeleteObject(rect.getObjId());
+                            }
+                        });
+                        editRect.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent ev) {
+                                contextMenu.hide();
+                                editStage=new Stage(StageStyle.UNDECORATED);
+                                Group rootGroup = new Group();
+                                final TextField textField=new TextField(rect.getText().getText());
+                                textField.resize(rect.getWidth(), rect.getHeight());
+                                textField.setOnAction(new EventHandler<ActionEvent>() {
+                                    @Override
+                                    public void handle(ActionEvent arg0) {
+                                        rect.setText(textField.getText());                                    
+                                        wsClient.sendModifyObject(rect.getObjId(), textField.getText());
+                                        editStage.close();
+                                    }
+                                });
+                                rootGroup.getChildren().add(textField);
+                                Scene scene = new Scene(rootGroup, 130,20, Color.BLACK);
+                                editStage.setScene(scene);
+                                editStage.setResizable(false);
+                                editStage.setX(event.getScreenX());
+                                editStage.setY(event.getScreenY());
+                                editStage.show();
+                            }
+                        });
+                        contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
+                    }else{
+                        if((rect=canvas.clickIn(event.getX(), event.getY()))!=null && event.getClickCount()==2){
+                            if(canvas.temporaryEdge==null){
+                                canvas.temporaryEdge=new Edge(event.getX(), event.getY(), rect,"10101");
+                                canvas.getChildren().add(canvas.temporaryEdge);
+                                //rect.point=canvas.temporaryEdge.start;
+                            }else if (canvas.temporaryEdge.getStartNode()!=rect){
+                                canvas.temporaryEdge.setEndNode(rect);
+                                //rect.point=canvas.temporaryEdge.end;
+                                canvas.temporaryEdge=null;
+                            }
+                            
+                        }
+                        contextMenu.hide();
+                        if(editStage!= null)
+                            editStage.close();
                     }
-                    newRect.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent arg0) {
-                            wsClient.sendCreateObject("newRectangle", (int)event.getX(), (int)event.getY(), 0);
-                        }
-                    });
-                    remRect.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent arg0) {
-                            canvas.remove(rect);
-                            wsClient.sendDeleteObject(rect.getObjId());
-                        }
-                    });
-                    editRect.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent ev) {
-                            contextMenu.hide();
-                            editStage=new Stage(StageStyle.UNDECORATED);
-                            Group rootGroup = new Group();
-                            final TextField textField=new TextField(rect.getText().getText());
-                            textField.resize(rect.getWidth(), rect.getHeight());
-                            textField.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent arg0) {
-                                    rect.setText(textField.getText());                                    
-                                    wsClient.sendModifyObject(rect.getObjId(), textField.getText());
-                                    editStage.close();
-                                }
-                            });
-                            rootGroup.getChildren().add(textField);
-                            Scene scene = new Scene(rootGroup, 130,20, Color.BLACK);
-                            editStage.setScene(scene);
-                            editStage.setResizable(false);
-                            editStage.setX(event.getScreenX());
-                            editStage.setY(event.getScreenY());
-                            editStage.show();
-                        }
-                    });
-                    contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
-                }else{
-                    contextMenu.hide();
-                    if(editStage!= null)
-                        editStage.close();
                 }
             }
         });
