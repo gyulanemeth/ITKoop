@@ -14,7 +14,7 @@ body,html {
     height: auto;
 }
 
-#canvas_container, #login_container, #chat_container{
+#canvas_container, #login_container, #chat_container, #chat_messages{
 	border-radius: 10px; 
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -34,15 +34,19 @@ body,html {
 	margin-bottom: 10px;
 }
 
-#chat_container{
+#chat_messages{
+	margin-top:10px;
+	background: #ffccff;
+	height: 77%;
+}
 
+#chat_container{
     position: relative;
-    background: #cccccc;
+    /*background: #cccccc;*/
     height: 100%;
 }
 
 #chat_input{
-    background: #bbbbbb;
     position: absolute;
     bottom:0;
     left: 0;
