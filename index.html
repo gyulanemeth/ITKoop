@@ -42,16 +42,24 @@
                 <div class="span8" id="canvas_container">
                     <canvas id="canvas"></canvas>
                 </div>
-                <div class="span4" id="chat_container">
+		<div class="span4" id="chat_container">
+                    <div id="login_container">
+                        <table id="login_table">
+                            <tr><td>User:</td> <td><input type="text" name="firstname" /></td></tr>
+                            <tr><td>Password:</td> <td><input type="password" name="pwd" /></td></tr>
+			</table>
+			<button class="btn btn-primary">Login</button>
+                    </div>
+
                     <div id="chat_messages">
                         <ul>
                             <li>qwerty: Message 1</li>
-                            <li>qwerty: Message 2</li>
-                            <li>qwerty: Message 3</li>
-                            <li>qwerty: Message 4</li>
-                        </ul>
+                                <li>qwerty: Message 2</li>
+				<li>qwerty: Message 3</li>
+				<li>qwerty: Message 4</li>
+			</ul>
                     </div>
-                    
+
                     <div id="chat_input" align="right">
                         <input type="text" style="right:0;left:0;width:95%;margin-left:5px;">
                         <br/>

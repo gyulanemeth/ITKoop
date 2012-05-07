@@ -14,12 +14,28 @@ body,html {
     height: auto;
 }
 
+#canvas_container, #login_container, #chat_container{
+	border-radius: 10px; 
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	-o-border-radius: 10px;
+	-ms-border-radius: 10px;
+}
+
 #canvas_container{
     background: #cccccc;
     height: 100%;
 }
 
+#login_container{
+	background: #ffccff;
+	padding: 10px;
+	padding-bottom: 2px;
+	margin-bottom: 10px;
+}
+
 #chat_container{
+
     position: relative;
     background: #cccccc;
     height: 100%;
