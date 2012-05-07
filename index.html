@@ -54,15 +54,22 @@
                     </div>
 
                     <div id="chat_messages">
-                        <ul>
+                        <div id="scrollbar1">
+                        <div class="scrollbar"><div class="track"><div class="thumb"><div class="end"></div></div></div></div>
+                        <div class="viewport" id="viewport">
+                            <div class="overview">
+
+                        <ul id="chat_messages_ul">
 							<li>qwerty: Message 1</li>
                             <li>qwerty: Message 2</li>
 							<li>qwerty: Message 3</li>
 							<li>qwerty: Message 4</li>
 						</ul>
+                            </div>
+                        </div>
 
 						<div id="chat_input" align="right">
-							<input type="text" style="right:0;left:0;width:95%;margin-left:5px;">
+                                                    <input type="text" style="right:0;left:0;width:95%;margin-left:5px;" id="chat_input_field">
 							<br/>
 							<button class="btn btn-primary">Send</button>
 						</div>
@@ -79,7 +86,8 @@
         <!-- End of Main container -->
         
             <!-- JavaScripts -->
-			<script src="js_css/jquery.js"></script>
+            <script src="js_css/jquery.js"></script>
+            <script src="js_css/jquery.tinyscrollbar.js"></script>
             <script src="js_css/scripts.js"></script>
             <script src="js_css/bootstrap/js/bootstrap.js"></script>
             <!-- End of JavaScripts -->
