@@ -43,22 +43,33 @@
                 <div class="span8" id="canvas_container">
                     <canvas id="canvas"></canvas>
                 </div>
-                <div class="span4" id="chat_container">
-                    <div id="chat_messages">
-                        <ul>
-                            <li>qwerty: Message 1</li>
-                            <li>qwerty: Message 2</li>
-                            <li>qwerty: Message 3</li>
-                            <li>qwerty: Message 4</li>
-                        </ul>
-                    </div>
+				<div class="span4" id="chat_login_container">
+					<div id="login_container">
+						<form>
+							<table id="login">
+							<tr><td>User:</td> <td><input type="text" name="firstname" /></td></tr>
+							<tr><td>Password:</td> <td><input type="password" name="pwd" /></td></tr>
+							</table>
+							<div class="btn btn-primary">Login</div>
+						</form>
+					</div>
+				    <div id="chat_container">
+					    <div id="chat_messages">
+						    <ul>
+							    <li>qwerty: Message 1</li>
+								<li>qwerty: Message 2</li>
+								<li>qwerty: Message 3</li>
+								<li>qwerty: Message 4</li>
+							</ul>
+						</div>
                     
-                    <div id="chat_input">
-                        <textarea class="input-xlarge"></textarea><br/>
-                        <button class="btn btn-primary">Send</button>
-                    </div>
-                </div>
-            </div>
+						<div id="chat_input">
+							<textarea class="input-xlarge"></textarea><br/>
+							<button class="btn btn-primary">Send</button>
+					    </div>
+					</div>
+				</div>
+			</div>
         </div>
         <!-- End of Main container -->
         
