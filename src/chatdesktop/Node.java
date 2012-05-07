@@ -17,16 +17,25 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 /**
- *
+ * Csúcsok reprezentálására szolgáló osztály
  * @author Chuckie
  */
 public class Node extends javafx.scene.shape.Rectangle{
-    private final String id;
-    private Text text;
-    private Point2D dragAnchor;
-    //Edge.Point point;
-    private double initX, initY;
-    private ScaleTransition scale;
+    private final String id; //csúcs azonosítója
+    private Text text; //csúcsban tárolt szöveg grafikus vetülése
+    private Point2D dragAnchor; //ebben tároljuk el, hol fogtuk meg a csúcsot
+    //Edge.Point point; //próba él
+    private double initX, initY; // csúcs mozgatásához szükséges pontok
+    private ScaleTransition scale; //grafikus boost
+    /**
+     * Konstruktor, ami átadja a koordinátákat az ősosztálynak
+     * @param arg0 négyzet bf koordinátája
+     * @param arg1 négyzet jf koordinátája
+     * @param arg2 négyzet bl koordinátája
+     * @param arg3 négyzet jl koordinátája
+     * @param text szöveget tároló beépített javafx osztály
+     * @param id csúcs azonosítója
+     */
     public Node(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
         super(arg0, arg1, arg2, arg3);
         this.text=text;
@@ -39,21 +48,33 @@ public class Node extends javafx.scene.shape.Rectangle{
         setEnabled(true);
         scale=new ScaleTransition(Duration.seconds(0.1),this);
     }
-
-    public void setText(String value){
-        text.setText(value);
+    /**
+     * szöveget tudjuk itt beállítani
+     * @param arg0 adott string
+     */
+    public void setText(String arg0){
+        text.setText(arg0);
         autosize();
     }
+    /**
+     * Visszaadja a szöveget tároló osztály pointerét
+     * @return Text
+     */
     public Text getText(){
         return text;
     }
-    public String getNodeId(){
-        return id;
-    }
+    /**
+     * Random színt generál a csúcsnak
+     */
     private void setColor(){
         Random random=new Random();
         setFill(Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
     }
+    /**
+     * Kiszámolja a csúcs elmozfulását, attól függően, hogy hol fogtuk meg
+     * @param x int koordináta-x
+     * @param y int koordináta-y
+     */
     public void move(int x, int y){
         if(x<=Canvas.WIDTH-getWidth() && x>=0)
             setX(x);
@@ -69,14 +90,25 @@ public class Node extends javafx.scene.shape.Rectangle{
             setY(0);
         moveText();
     }
+    /**
+     * a csúcshoz passzintjuk a szöveget
+     */
     private void moveText(){
         text.setX(getX()+30);
         text.setY(getY()+30);                
     }
+    /**
+     * Visszaadja a csúcs azonosítóját
+     * @return 
+     */
     public String getObjId()
     {
         return this.id;
     }
+    /**
+     * Attól függően, hogy a param true vagy false, a csúcs látható.
+     * @param visible bool
+     */
     public final void setEnabled(final boolean visible){
         final FadeTransition recfade=new FadeTransition(new Duration(300),this);
         final FadeTransition textfade=new FadeTransition(new Duration(300), text);
@@ -110,15 +142,24 @@ public class Node extends javafx.scene.shape.Rectangle{
         recfade.play();
         textfade.play();
     }
+    /**
+     * A csúcs előre helyezése a láthatósági sorrendben
+     */
     @Override
     public void toFront(){
         super.toFront();
         text.toFront();        
     }
-    
+    /**
+     * Csúcs átméretezése
+     */
     public void resize(){
         this.setWidth(text.getText().length()*10+80);
     }
+    /**
+     * Eseménykezelők hozzárendelése a csúcshoz
+     * @param handler 
+     */
     void addEvent(final JWSClient handler){
         this.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override

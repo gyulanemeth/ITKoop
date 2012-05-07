@@ -1,6 +1,5 @@
 package chatdesktop;
 
-import com.sun.javafx.geom.Point2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
@@ -9,7 +8,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -106,6 +104,11 @@ public class ChatDesktop extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+    /**
+     * Ablak eseménykezelője
+     * @param stage
+     * @param scene 
+     */
     void windowEvent(final Stage stage, final Scene scene){
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -133,6 +136,9 @@ public class ChatDesktop extends Application {
                 }
             });
     }
+    /**
+     * Menu eseménykezelője
+     */
     void menuEvent(){
         fileDisconnect.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -143,6 +149,7 @@ public class ChatDesktop extends Application {
                     wsClient.disconnect();
                     isConnected=false;
                     canvas.setConnected(isConnected);
+                    //canvas.clear();
                 }
             }});
         fileExit.setOnAction(new EventHandler<ActionEvent>() {
@@ -151,7 +158,10 @@ public class ChatDesktop extends Application {
                 if(!isConnected)
                     System.exit(1);
             }});
-    }    
+    }
+    /**
+     * Login osztály eseménykezelője
+     */
     void loginEvent(){
         login.submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -185,6 +195,9 @@ public class ChatDesktop extends Application {
                             canvas.setConnected(isConnected);                        
         }}}});
     }
+    /**
+     * Chat osztály eseménykezelője
+     */
     void chatEvent(){
         chat.mytext.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
@@ -209,6 +222,9 @@ public class ChatDesktop extends Application {
                 wsClient.sendText(name, chat.sendMsg());
             }});
     }
+    /**
+     * Vanvas osztály eseménykezelője
+     */
     public void canvasMenuEvent(){
         canvas.setOnMouseMoved(new EventHandler<MouseEvent>() {
 
@@ -243,7 +259,6 @@ public class ChatDesktop extends Application {
                         remRect.setOnAction(new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent arg0) {
-                                canvas.remove(rect);
                                 wsClient.sendDeleteObject(rect.getObjId());
                             }
                         });
@@ -281,7 +296,7 @@ public class ChatDesktop extends Application {
                                 //rect.point=canvas.temporaryEdge.start;
                             }else if (canvas.temporaryEdge.getStartNode()!=rect){
                                 canvas.temporaryEdge.setEndNode(rect);
-                                //rect.point=canvas.temporaryEdge.end;
+                                //rect.point=canvas.temporaryEdge.getSt;
                                 canvas.temporaryEdge=null;
                             }
                             
@@ -294,6 +309,9 @@ public class ChatDesktop extends Application {
             }
         });
     }
+    /**
+     * Animáció be- és kijelentkezés között
+     */
     private void changeAnimation(){
         final FadeTransition fadelogin=new FadeTransition(new Duration(500), login);
         final FadeTransition fadechat=new FadeTransition(new Duration(500), chat);

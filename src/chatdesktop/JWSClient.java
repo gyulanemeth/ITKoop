@@ -426,9 +426,16 @@ public class JWSClient implements WebSocketClientTokenListener{
      */
     private void handleDelete(Token token) {
         Map message = token.getMap("message");
-        String objId = message.get("objId").toString();
+        final String objId = message.get("objId").toString();
         if(canvas.containsObject(objId)){
-            canvas.deleteObject(objId);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Node deleted=canvas.getObject(objId);            
+                    canvas.remove(deleted);
+                }
+            });
+            
         }
     }
     
