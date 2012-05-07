@@ -266,7 +266,7 @@ public class ChatDesktop extends Application {
                     contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
                 }else{
                     contextMenu.hide();
-                    editStage.close();
+                    //editStage.close();
                 }
             }
         });
