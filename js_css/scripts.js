@@ -3,6 +3,9 @@ window.onload = function () {
        var canvasNode = document.getElementById('canvas');
        canvasNode.width = canvasNode.parentNode.clientWidth;
        canvasNode.height = canvasNode.parentNode.clientHeight;
+       var scrollbarNode = document.getElementById('viewport');
+       $("#viewport").css({"height" : scrollbarNode.parentNode.parentNode.clientHeight});
+       
     }
     document.body.onresize();
 };
@@ -23,12 +26,15 @@ $(document).ready(function() {
         return;
     }
 
-    var chat_messages=$('#chat_messages');
+    var chat_messages=$('#chat_messages_ul');
 
     var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
 	var objects = new Array();
     //ONOPEN
     ws.onopen = function(){
+        $('#login_container').hide();
+        $('#scrollbar1').tinyscrollbar();
+
         console.log("succesfull connect");
         console.log("Sending username");
         var user_msg={
@@ -71,7 +77,7 @@ $(document).ready(function() {
                 handleChatMessage(json);
                 break;
             default: //hiba
-                console.log("Valami nagyon nem jo.. szivas..")
+                console.log("Valami nagyon nem jo.. szivas..");
         }
         
         //DEBUG
@@ -130,8 +136,25 @@ $(document).ready(function() {
 	}
 
     function handleChatMessage(json){
-        chat_messages.append(json.userName + ":" + json.msg)        //ezmeg szar
+        chat_messages.append("<li>"+json.sender + ": " + json.message+"</li>")
+        $('#scrollbar1').tinyscrollbar_update('bottom');
     }
+
+$('#chat_input_field').keydown(function(e) {
+        if (e.keyCode === 13) {
+            var msg = $(this).val();
+            var chat_msg = {
+                "sender":user,
+                "message":msg,
+                "type":1000
+            }
+            
+            ws.send(JSON.stringify(chat_msg));
+            handleChatMessage(chat_msg);
+            $(this).val('');
+        }
+    });
+  
 })
 })
 
