@@ -1,3 +1,24 @@
+body,html {
+    height: 90%;
+}
+
 #main_container{
     margin-top: 60px;
+    height: 100%;
+}
+
+#canvas_container{
+    background: #cccccc;
+    height: 100%;
+}
+
+#chat_container{
+    background: #ffccff;
+    height: 100%;
+}
+
+#chat_input{
+    position: absolute;
+    bottom:70px;
+    margin-left: 10px;
 }
