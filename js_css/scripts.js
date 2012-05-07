@@ -7,46 +7,75 @@ window.onload = function () {
     document.body.onresize();
 };
 
-function s_open(ev){
-	console.log("succesfull connect");
-}
-
-function s_message(ev){
-	console.log("tokom tudja, uzenet");
-}
-
-function s_close(ev){
-	console.log("disconnected");
-}
-
-function s_error(ev){
-	console.log("gondolom baj van");
-}
 
 $(document).ready(function() {
+    $("#login_btn").click(function() {
+        user = $('#username').val();
+	if(user == ""){
+            user = "anonymus" + Math.ceil(Math.random()*100000);
+	}
+            console.log("Username: " + user);
+        
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
+    if (!window.WebSocket) {
+        console.log("Szar a bongeszod!");
+        return;
+    }
 
-	$("#login_btn").click(function() {
-		user = $("#login_table input:first-child").val();
-		if(user == ""){
-			user = "anonymus" + Math.ceil(Math.random()*100000);
-		}
-		console.log(user);
-		if ("WebSocket" in window)
-		{
-			ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
-			ws.onopen = function(ev){ s_open(ev);}
-			ws.onmessage = function(ev){s_message(ev);}
-			ws.onclose = function(ev){s_close(ev);}
-			ws.onerror = function(ev){s_error(ev);}
-		}
-		else
-		{
-			alert("WebSocket NOT supported by your Browser!");
-		}
-	});
+    var chat_messages=$('#chat_messages');
 
-	$("#chat_input button").click( function() {
-		
-	});
+    var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
+    //ONOPEN
+    ws.onopen = function(){
+        console.log("succesfull connect");
+        console.log("Sending username");
+        var user_msg={
+            "type":"0",
+            "sender":user
+        }
+        ws.send(JSON.stringify(user_msg));
+    }
+    
+    //ONCLOSE
+    ws.onclose = function(){
+        console.log("connection closed...");
+    }
+    
+    //ONERROR
+    ws.onerror = function(error) {
+        console.log("gondolom baj van");     
+    }
+    
+    //ONMESSAGE
+    ws.onmessage = function (message) {
+        console.log("Got message");
+        try {
+            var json = JSON.parse(message.data);
+        } catch (e) {
+            console.log('This doesn\'t look like a valid JSON: ', message.data);
+            return;
+        }
+        
+        switch(json.type){
+            case 2: //Objektum modositasa
+                break;
+            case 3: //Objektum letrehozasa
+                break;
+            case 4: //Objektum torlese
+                break;
+            case 1000: //CHAT
+                handleChatMessage(json);
+                break;
+            default: //hiba
+                console.log("Valami nagyon nem jo.. szivas..")
+        }
+        
+        //DEBUG
+        console.log(json);
+    }
+    function handleChatMessage(json){
+        chat_messages.append(json.userName + ":" + json.msg)        //ezmeg szar
+    }
+})
+})
 
-});
