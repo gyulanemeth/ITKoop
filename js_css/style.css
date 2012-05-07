@@ -1,10 +1,17 @@
 body,html {
-    height: 90%;
+    height: 100%;
 }
 
 #main_container{
+    display: block;
+    position:absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     margin-top: 60px;
-    height: 100%;
+    margin-bottom: 20px;
+    height: auto;
 }
 
 #canvas_container{
@@ -13,12 +20,17 @@ body,html {
 }
 
 #chat_container{
-    background: #ffccff;
+    position: relative;
+    background: #cccccc;
     height: 100%;
 }
 
 #chat_input{
+    background: #bbbbbb;
     position: absolute;
-    bottom:70px;
-    margin-left: 10px;
+    bottom:0;
+    left: 0;
+    right: 0;
+    width: auto;
+    margin-bottom: 20px;
 }
