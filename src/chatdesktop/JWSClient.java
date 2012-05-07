@@ -19,7 +19,7 @@ import org.jwebsocket.token.TokenFactory;
 public class JWSClient implements WebSocketClientTokenListener{
     
     private static JWSClient _instance = null;
-    private ChatDesktop chatDesktop;
+    private ChatDesktop form;
     private BaseTokenClient tClient;
     private Canvas canvas;
     private String userName;
@@ -262,8 +262,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    void setDesktop(ChatDesktop chatdesktop) {
-        this.chatDesktop=chatdesktop;
+    void setDesktop(ChatDesktop form) {
+        this.form=form;
     }
     
     
@@ -271,7 +271,7 @@ public class JWSClient implements WebSocketClientTokenListener{
     /// HANDLES
     
     private void handleChatMessage(String sender, String message) {
-        this.chatDesktop.newMessage(sender, message);
+        form.newMessage(sender, message);
     }
     
     private void handleMove(Token token) {
@@ -282,9 +282,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         final int y=Integer.parseInt(message.get("y") == null? "0" : message.get("y").toString());
         final int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
         if(canvas.containsObject(objId)){
-            GraphRectangle rec = canvas.getObject(objId);
-            rec.setX(x);
-            rec.setY(y);
+            Node rec = canvas.getObject(objId);
+            rec.move(x, y);
         }else{
             Platform.runLater(new Runnable() { 
                 @Override
@@ -301,8 +300,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         String data = message.get("data")==null? " ":message.get("data").toString();
         //z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
         if(canvas.containsObject(objId)){
-            GraphRectangle rec = canvas.getObject(objId);
-            rec.text.setText(data);
+            Node rec = canvas.getObject(objId);
+            rec.setText(data);
         }
     }
     
@@ -315,10 +314,9 @@ public class JWSClient implements WebSocketClientTokenListener{
         final int z=Integer.parseInt(message.get("z") == null? "0" : message.get("z").toString());
         //double timestamp = Double.parseDouble(message.get("timestamp").toString());
         if(canvas.containsObject(objId)){
-            GraphRectangle rec = canvas.getObject(objId);
-            rec.setX(x);
-            rec.setY(y);
-            rec.text.setText(data);
+            Node rec = canvas.getObject(objId);
+            rec.move(x, y);
+            rec.setText(data);
         }else{
             Platform.runLater(new Runnable() { 
             @Override
@@ -339,7 +337,8 @@ public class JWSClient implements WebSocketClientTokenListener{
         // Fogj 1 message-t
         Token simpleMessage = TokenFactory.createToken();
         // Rakj bele typeot
-        simpleMessage.setInteger("type", type);
+        //simpleMessage.setInteger("type", type);
+        simpleMessage.setString("type", Integer.toString(type));
         // Sendert
         simpleMessage.setString("sender", this.userName);
         // Timestampet

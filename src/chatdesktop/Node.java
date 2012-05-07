@@ -10,7 +10,6 @@ import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -21,36 +20,57 @@ import javafx.util.Duration;
  *
  * @author Chuckie
  */
-public class GraphRectangle extends javafx.scene.shape.Rectangle{
-    final String id;
-    Text text;
+public class Node extends javafx.scene.shape.Rectangle{
+    private final String id;
+    private Text text;
     private Point2D dragAnchor;
     private double initX, initY;
     private ScaleTransition scale;
-    public GraphRectangle(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
+    public Node(double arg0, double arg1, double arg2, double arg3,Text text, String id) {
         super(arg0, arg1, arg2, arg3);
         super.setArcWidth(15.0);
         super.setArcHeight(15.0);
+        setColor();        
+        setOpacity(0.8);
         this.text=text;
         this.id=id;
-        scale=new ScaleTransition(Duration.seconds(0.1),this);
-        setColor();
         setEnabled(true);
-        setAlpha(0.8);
+        scale=new ScaleTransition(Duration.seconds(0.1),this);
     }
-    
+
+    public void setText(String value){
+        text.setText(value);
+        autosize();
+    }
+    public Text getText(){
+        return text;
+    }
+    public String getNodeId(){
+        return id;
+    }
     private void setColor(){
         Random random=new Random();
         super.setFill(Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
     }
-    private void setAlpha(double value){
-        super.setOpacity(value);
+    public void move(int x, int y){
+        if(x<=Canvas.WIDTH-getWidth() && x>=0)
+            setX(x);
+        else if(x>Canvas.WIDTH-getWidth())
+            setX(Canvas.WIDTH-getWidth());
+        else
+            setX(0);
+        if(y<=Canvas.HEIGHT-getHeight() && y>=0)
+            setY(y);
+        else if(y>Canvas.HEIGHT-getHeight())
+            setY(Canvas.HEIGHT-getHeight());
+        else
+            setY(0);
+        moveText();
     }
-    void moveText(){
+    private void moveText(){
         text.setX(super.getX()+30);
-        text.setY(super.getY()+30);
+        text.setY(super.getY()+30);                
     }
-    
     public String getObjId()
     {
         return this.id;
@@ -98,7 +118,7 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
         this.setWidth(text.getText().length()*10+80);
     }
     
-    void actionRectangleNode(final JWSClient handler){
+    void addEvent(final JWSClient handler){
         this.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent ev) {
@@ -119,18 +139,14 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
                 else
                     setY(0);
                 moveText();
-                //handler.sendMoveObject("hiba", id, (int)newPositionX, (int)newPositionY, false);
+                handler.sendMoveObject(ChatDesktop.name, id, (int)newPositionX, (int)newPositionY, false);
             }            
         });
-        this.setOnDragDropped(new EventHandler<DragEvent>() {
+        this.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
             @Override
-            public void handle(DragEvent arg0) {
-                //handler.sendMoveObject("hiba", id, (int)getX(), (int)getY(), true);
-            }
-        });
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent ev) {
+            public void handle(MouseEvent arg0) {
+                handler.sendMoveObject(ChatDesktop.name, id, (int)getX(), (int)getY(), true);
             }
         });
         this.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -145,13 +161,13 @@ public class GraphRectangle extends javafx.scene.shape.Rectangle{
             @Override
             public void handle(MouseEvent ev) {
                 toFront();
-                setAlpha(1.0);
+                setOpacity(1.0);
             }
         });
         this.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent arg0) {
-                setAlpha(0.8);
+                setOpacity(0.8);
             }
         });
     }

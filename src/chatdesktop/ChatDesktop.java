@@ -1,6 +1,5 @@
 package chatdesktop;
 
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
@@ -13,7 +12,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -25,7 +23,10 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.*;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 /**
@@ -40,9 +41,10 @@ public class ChatDesktop extends Application {
             editRect=new MenuItem("Edit selected rectangle");
     private JWSClient wsClient = JWSClient.getInstance();
     private Canvas canvas=new Canvas();
-    private ChatPane chat=new ChatPane();
-    private LoginPane login=new LoginPane(); 
+    private Chat chat=new Chat();
+    private Login login=new Login(); 
     private Stage stage, editStage;
+    public static String name;
     static boolean isConnected=false;
     private ContextMenu contextMenu;
     public static final int WIDTH=1110,HEIGHT=630;    
@@ -153,17 +155,17 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                     if(login.isFilled()){
-                        /*if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
+                        if(!wsClient.login(login.accountField.getText(), login.pwField.getText(),login.secure.selectedProperty().getValue())) {
                             Logger.getLogger(ChatDesktop.class.getName()).log(Level.SEVERE, null, "Login Failed");
                             System.err.println("Login Failed");
-                        }else{*/
+                        }else{
                             changeAnimation();
                             isConnected=true;
-                            chat.setName(login.accountField.getText());
+                            name=login.accountField.getText();
                             login.clear();
                             canvas.setConnected(isConnected);
                             
-                    //}
+                    }
             }}});
         login.pwField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -176,7 +178,7 @@ public class ChatDesktop extends Application {
                         }else{
                             changeAnimation();
                             isConnected=true;
-                            chat.setName(login.accountField.getText());
+                            name=login.accountField.getText();
                             login.clear();
                             canvas.setConnected(isConnected);                        
         }}}});
@@ -195,14 +197,14 @@ public class ChatDesktop extends Application {
                     if(ev.isShiftDown())
                         chat.mytext.appendText("\n");
                     else
-                        wsClient.sendText(chat.name, chat.sendMsg());
+                        wsClient.sendText(name, chat.sendMsg());
             }});
         chat.submit.setMinSize(100, 20);
         chat.submit.setPrefSize(100, 20);
         chat.submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent ev) {
-                wsClient.sendText(chat.name, chat.sendMsg());
+                wsClient.sendText(name, chat.sendMsg());
             }});
     }
     public void canvasMenuEvent(){
@@ -210,7 +212,7 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(final MouseEvent event) {
                 if(isConnected && event.getButton()==MouseButton.SECONDARY) {
-                    final GraphRectangle rect=canvas.clickIn(event.getX(), event.getY());
+                    final Node rect=canvas.clickIn(event.getX(), event.getY());
                     if(rect==null){
                         newRect.setDisable(false);
                         remRect.setDisable(true);
@@ -223,8 +225,6 @@ public class ChatDesktop extends Application {
                     newRect.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent arg0) {
-                            //csak create kérést küldünk, nem kreálunk azonnal, majd csak ha a server engedi.
-                            //canvas.initRectangleNode(wsClient, ((Integer)new Random().nextInt(10000)).toString(), (int)event.getX(), (int)event.getY(), 0, "newRectangle");
                             wsClient.sendCreateObject("newRectangle", (int)event.getX(), (int)event.getY(), 0);
                         }
                     });
@@ -232,7 +232,6 @@ public class ChatDesktop extends Application {
                         @Override
                         public void handle(ActionEvent arg0) {
                             canvas.remove(rect);
-                            //Ide kellene a delete object
                             wsClient.sendDeleteObject(rect.getObjId());
                         }
                     });
@@ -242,14 +241,12 @@ public class ChatDesktop extends Application {
                             contextMenu.hide();
                             editStage=new Stage(StageStyle.UNDECORATED);
                             Group rootGroup = new Group();
-                            final TextField textField=new TextField(rect.text.getText());
+                            final TextField textField=new TextField(rect.getText().getText());
                             textField.resize(rect.getWidth(), rect.getHeight());
                             textField.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent arg0) {
-                                    rect.text.setText(textField.getText());                                    
-                                    rect.resize();
-                                    System.out.println("PUKK");
+                                    rect.setText(textField.getText());                                    
                                     wsClient.sendModifyObject(rect.getObjId(), textField.getText());
                                     editStage.close();
                                 }
@@ -266,12 +263,13 @@ public class ChatDesktop extends Application {
                     contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
                 }else{
                     contextMenu.hide();
-                    //editStage.close();
+                    if(editStage!= null)
+                        editStage.close();
                 }
             }
         });
     }
-    void changeAnimation(){
+    private void changeAnimation(){
         final FadeTransition fadelogin=new FadeTransition(new Duration(500), login);
         final FadeTransition fadechat=new FadeTransition(new Duration(500), chat);
         if(!isConnected){
