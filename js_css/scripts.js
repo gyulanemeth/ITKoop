@@ -18,7 +18,7 @@ $(document).ready(function() {
 		if(user == ""){
             user = "anonymus" + Math.ceil(Math.random()*100000);
 		}
-            console.log("Username: " + user);
+        console.log("Username: " + user);
         
     window.WebSocket = window.WebSocket || window.MozWebSocket;
     if (!window.WebSocket) {
@@ -63,16 +63,25 @@ $(document).ready(function() {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
-        
-        switch(json.type){
-            case 2: //Objektum modositasa
-				draw(json);
+        switch(json.type){ //mivel nincs sehol ertelmesen osszefoglalva, igy ki kellett lesnem a desktop kliensbol..
+			case 1: break; //objektum modositasa
+            case 2: //Objektum mozgatasa +mentese 
+				if(objects[json.message.objId] == undefined){ //mert az a kocsog szerver valamiert 2es type-u uzenettel kuldi ki az elejen az objektumokat -.-
+					create(json);
+				}
+				else{
+					move(json,true); //meg nem teszteltem FOS!
+				}
                 break;
             case 3: //Objektum letrehozasa
-				//draw(json);
+				create(json);
+				//elvileg akkor ilyen nem johet -.-
                 break;
-            case 4: //Objektum torlese
+            case 4: //Objektum mozgatasa
+				move(json,false); //meg nem teszteltem
                 break;
+			case 5: //Objektum torlese
+				break;
             case 1000: //CHAT
                 handleChatMessage(json);
                 break;
@@ -84,28 +93,58 @@ $(document).ready(function() {
         //console.log(json);
     }
 
-	function draw(json){
-		if(objects[json.message.objId] == undefined ){
-		var color = randomcolor();
-		var c=document.getElementById("canvas");
-		var ctx=c.getContext("2d");
-		var x = json.message.x;
-		var y = json.message.y;
+	$("#canvas").click(function() {
+		console.log("canvas click");
+	});
 
-		ctx.fillStyle = color;
-		ctx.fillRect(x,y,json.message.data.length*10+30,30);
-		ctx.fillStyle = "#000000";
-		var hossz = (json.message.data).length;
-		ctx.font="10px Arial";
-		ctx.fillText(json.message.data,x+15,y+20);
-		var obj = {"x":x,"y":y,"z":json.message.z,"img":ctx.getImageData(x,y,json.message.data.length+30,30)};
-		objects[json.message.objId]= obj;
+	var ctx=document.getElementById("canvas").getContext("2d");
+	
+	function create(json){
+		if(objects[json.message.objId] == undefined ){
+			var color = randomcolor();
+			var x = parseInt(json.message.x);
+			var y = parseInt(json.message.y);
+
+			ctx.fillStyle = color;
+			ctx.fillRect(x,y,json.message.data.length*10+30,30);
+			ctx.fillStyle = "#000000";
+			ctx.font="10px Arial";
+			ctx.fillText(json.message.data,x+15,y+20);
+			var obj = {"x":x,"y":y,"z":json.message.z,"size": json.message.data.length*10+30,"img":ctx.getImageData(x,y,json.message.data.length*10+30,30)};
+			objects[json.message.objId]= obj;
 		}
 	}
 
+	var movearray = new Array();
+	function move(json,save){ //nem szar
+		var temp = objects[json.message.objId];
+		if(temp != undefined){
+			var tmp = movearray[json.message.objId];
+			if(tmp == undefined){
+				ctx.clearRect(temp["x"],temp["y"],temp["size"],30);
+			}
+			else{
+				ctx.clearRect(tmp["x"],tmp["y"],temp["size"],30);
+			}
+			ctx.putImageData(temp["img"],json.message.x,json.message.y);
+			if(save){
+				if(tmp != undefined){
+					delete movearray[json.message.objId];
+				}
+				objects[json.message.objId]["x"]=json.message.x;
+				objects[json.message.objId]["y"]=json.message.y;
+			}
+			else{
+				movearray[json.message.objId]={"x":json.message.x,"y":json.message.y};
+			}
+		}
+	}
+
+
+
 	function modify(json){
 		var temp = objects[json.messages.objId];
-		if(temp != "undefine"){
+		if(temp != undefined){
 			
 		}
 		else{
