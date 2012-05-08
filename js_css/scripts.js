@@ -107,8 +107,6 @@ $(document).ready(function() {
 		}
 	}
 
-
-
 	var movearray = new Array();
 	function move(json,save){
 		var temp = objects[json.message.objId];
@@ -183,6 +181,7 @@ $(document).ready(function() {
 		return color;
 	}
 
+	//konstruktor egy objektumunkhoz
 	function Rectangle(json, c){
 		
 		this.x = parseInt(json.message.x);
@@ -193,6 +192,7 @@ $(document).ready(function() {
 		this.color = c;
 	}
 
+	//hogy rajzolja ki az objektumot
 	Rectangle.prototype.draw = function() {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.data.length*10+30,30);
@@ -200,14 +200,13 @@ $(document).ready(function() {
 		ctx.fillText(this.data,this.x+15,this.y+20);
 	}
 
+	//az adott pontok az objektum hatarain belul vannak-e?
 	Rectangle.prototype.contains = function(mx, my) {
 		return  (this.x <= mx) && (this.x + this.data.length*10+30 >= mx) && (this.y <= my) && (this.y + 30 >= my);
 	}
-
-	Rectangle.prototype.getId = function(){
-		return this.id;
-	}
-
+	
+	
+	// lenyegeben ez az osztaly fogja kezelni a canvas allapotait
 	function state(){
 		this.redrawed  = false;
 		this.objects = [];
@@ -221,72 +220,72 @@ $(document).ready(function() {
 		this.width = canvas.width;
 		this.height = canvas.height;
 
+		//eger lenyomasra mengfog egy elemet ha aarra kattintottunk
 		canvas.bind('mousedown', function(e) {
-			var mouse = state.getMouse(e);
+			var mouse = state.getMouse(e); //eger pozicio lekerese
 			var mx = mouse.x;
 			var my = mouse.y;
 			var objects = state.objects;
 			var l = objects.length;
+			console.log("yeaH");
+			console.log(mx + " : "+ my); //Nan : Nan :S
 			for (var i = l-1; i >= 0; i--) {
 				if (objects[i].contains(mx, my)) {
 					var selected = objects[i];
-					state.fromx = mx - selected.x;
+					state.fromx = mx - selected.x; //hogy azon a ponton mozgassuk az objektumot ahol megfogtuk, ne pedig mondjuk mindig a sarkat
 					state.fromy = my - selected.y;
 					state.moving = true;
 					state.selection = selected;
-					state.redrawed = false;
+					state.redrawed = false; 
 					return;
 				}
 			}
-			if(state.selected){
-				state.selected = null;
-				state.redrawed = false;
-			}
 		});
-
+		
 		 canvas.bind('mousemove', function(e) {
-			if (state.moving){
+			if (state.moving){ //ha van megfogva objektum akkor mozog az egerrel
 				var mouse = state.getMouse(e);
       			state.selection.x = mouse.x - myState.dragoffx;
 				state.selection.y = mouse.y - myState.dragoffy;   
-				state.redrrawed = false;
+				state.redrrawed = false; //ki kell rajzolni a valtozast
+				ws.send(JSON.stringify({"type": 4,"sender":user,"message":{"objId":selection.id,"x":selection.x,"y":selection.y}})); //mozgatas mentes nelkul
 			}
 		});
 
-		canvas.bind('mouseup', function(e) {
-			state.moving = false;
+		canvas.bind('mouseup', function(e) { 
+			state.moving = false;  //mar nem mozgatjuk tovabb az elemet, lenyegeben elengedtuk
+			if(state.selection){ // de csak ha volt kivalsztva elem
+				ws.send(JSON.stringify({"type": 2,"sender":user,"message":{"objId":selection.id,"x":selection.x,"y":selection.y}})); //mozgatas mentessel
+				state.selection = null; //elengedes
+			}
 		 });
 		
 		this.interval = 30;
 		setInterval(function() { state.draw(); }, state.interval);
 	}
 
-	state.prototype.containId = function(id){
+	state.prototype.containId = function(id){ //megmondja, hogy van-e mar olyan id-ju elemunk
 		var objects = this.objects;
 		var le = objects.length;
-		console.log(le);
 		for (var i = le-1; i >= 0; i--) {
-			if(objects[i] == undefined){
-				return false;
-			}
-			if(objects[i].getId() == id){
+			if(objects[i].id == id){
 				return true;
 			}
 		}
 		return false;
 	}
 
-	state.prototype.addRectangle = function(Rectangle){
+	state.prototype.addRectangle = function(Rectangle){ //uj elem hozzaadasa
 		this.objects.push(Rectangle);
 		this.redrawed = false;
 	}
 
-	state.prototype.clear = function(){
+	state.prototype.clear = function(){ //canvas takaritas
 		ctx.clearRect(0,0,this.width,this.height);
 	}
 
-	state.prototype.getMouse = function(e){
-		var element = this.canvas, offsetX = 0, offsetY = 0, mx, my;
+	state.prototype.getMouse = function(e){  //eger pozicio meghatarozasa .. rossz
+		var element = $("#canvas"), offsetX = 0, offsetY = 0, mx, my;
   
 		if (element.offsetParent !== undefined) {
 			do {
@@ -295,29 +294,29 @@ $(document).ready(function() {
 			} while ((element = element.offsetParent));
 		}
 
+		//canvashoz igazaitas/nromalas
 		mx = e.pageX - offsetX;
 		my = e.pageY - offsetY;
   
 		return {x: mx, y: my};
 	}
 	
-	state.prototype.draw = function() {
+	state.prototype.draw = function() { //kirajzolas a canvasra
 		if (!this.redrawed) {
 			var objects = this.objects;
 			this.clear();
 			var l = objects.length;
 			for (var i = 0; i < l; i++) {
 				//var obj = objects[i];
-				//if (obj.x > this.width || obj.y > this.height || obj.x + obj.data.length*10+30 < 0 || shape.y + 30 < 0) continue;
+				//if (obj.x > this.width || obj.y > this.height || obj.x + obj.data.length*10+30 < 0 || shape.y + 30 < 0) continue; ha kiment volna az elem a canvasrol, nem vagyok biztos, hogy olyat tudunk, mivel ahhoz le kell huzni az egeret a canvasrol, akkor meg nincs eger move event
 				objects[i].draw(ctx);
 			}
-			if (this.selection != null) {
-				ctx.strokeStyle = this.selectionColor;
-				ctx.lineWidth = this.selectionWidth;
+		/*	if (this.selection != null) {
+				ctx.strokeStyle = "red";
 				var selected = this.selection;
 				ctx.strokeRect(selected.x,selected.y,selected.data.length*10+30,30);
-			}
-    		this.redrawed = true;
+			}  ha ki akarjuk a kivalasztott elemet emelni egy kerettel*/
+    		this.redrawed = true; //nem kell ujra kirajzolni amig nincs valtozas
 		}
 	}
 	});
