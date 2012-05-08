@@ -13,6 +13,7 @@ window.onload = function () {
 
 
 $(document).ready(function() {
+	
     $("#login_btn").click(function() {
         user = $('#username').val();
 		if(user == ""){
@@ -20,17 +21,19 @@ $(document).ready(function() {
 		}
         console.log("Username: " + user);
         
-    window.WebSocket = window.WebSocket || window.MozWebSocket;
-    if (!window.WebSocket) {
-        console.log("Szar a bongeszod!");
-        return;
-    }
+		window.WebSocket = window.WebSocket || window.MozWebSocket;
+		if (!window.WebSocket) {
+			console.log("Szar a bongeszod!");
+			return;
+		}
 
-    var chat_messages=$('#chat_messages_ul');
+		var chat_messages=$('#chat_messages_ul');
 
-    var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
-	var objects = new Array();
-    //ONOPEN
+		var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
+		//var objects = new Array();
+		var s = new state();
+	
+	//ONOPEN
     ws.onopen = function(){
         $('#login_container').hide();
         $('#scrollbar1').tinyscrollbar();
@@ -66,19 +69,11 @@ $(document).ready(function() {
         switch(json.type){ //mivel nincs sehol ertelmesen osszefoglalva, igy ki kellett lesnem a desktop kliensbol..
 			case 1: break; //objektum modositasa
             case 2: //Objektum mozgatasa +mentese 
-				if(objects[json.message.objId] == undefined){ //mert az a kocsog szerver valamiert 2es type-u uzenettel kuldi ki az elejen az objektumokat -.-
-					create(json);
-				}
-				else{
-					move(json,true); //meg nem teszteltem FOS!
-				}
+				newobj(json);
                 break;
-            case 3: //Objektum letrehozasa
-				create(json);
-				//elvileg akkor ilyen nem johet -.-
+            case 3: //Objektum letrehozasa ...most akkor ilyen nem erkezik? ilyet csk kuldunk a szervernek? 
                 break;
             case 4: //Objektum mozgatasa
-				move(json,false); //meg nem teszteltem
                 break;
 			case 5: //Objektum torlese
 				break;
@@ -93,13 +88,10 @@ $(document).ready(function() {
         //console.log(json);
     }
 
-	$("#canvas").click(function() {
-		console.log("canvas click");
-	});
 
 	var ctx=document.getElementById("canvas").getContext("2d");
 	
-	function create(json){
+	/*function create(json){
 		if(objects[json.message.objId] == undefined ){
 			var color = randomcolor();
 			var x = parseInt(json.message.x);
@@ -115,8 +107,10 @@ $(document).ready(function() {
 		}
 	}
 
+
+
 	var movearray = new Array();
-	function move(json,save){ //nem szar
+	function move(json,save){
 		var temp = objects[json.message.objId];
 		if(temp != undefined){
 			var tmp = movearray[json.message.objId];
@@ -138,20 +132,35 @@ $(document).ready(function() {
 				movearray[json.message.objId]={"x":json.message.x,"y":json.message.y};
 			}
 		}
-	}
+	}*/
 
-
-
-	function modify(json){
-		var temp = objects[json.messages.objId];
-		if(temp != undefined){
-			
-		}
-		else{
-			console.log("aaaaAAaaaAAaAAaAaAaa");
+	
+	function newobj(json){
+		if(!s.containId(json.message.objId)){
+			s.addRectangle(new Rectangle(json,randomcolor()));
 		}
 	}
 
+    function handleChatMessage(json){
+        chat_messages.append("<li>"+json.sender + ": " + json.message+"</li>")
+        $('#scrollbar1').tinyscrollbar_update('bottom');
+    }
+
+	$('#chat_input_field').keydown(function(e) {
+        if (e.keyCode === 13) {
+            var msg = $(this).val();
+            var chat_msg = {
+                "sender":user,
+                "message":msg,
+                "type":1000
+            }
+            
+            ws.send(JSON.stringify(chat_msg));
+            handleChatMessage(chat_msg);
+            $(this).val('');
+        }
+    });
+  
 	//random color generalo
 	function randomcolor(){
 		var color = "#";
@@ -174,26 +183,143 @@ $(document).ready(function() {
 		return color;
 	}
 
-    function handleChatMessage(json){
-        chat_messages.append("<li>"+json.sender + ": " + json.message+"</li>")
-        $('#scrollbar1').tinyscrollbar_update('bottom');
-    }
+	function Rectangle(json, c){
+		
+		this.x = parseInt(json.message.x);
+		this.y = parseInt(json.message.y);
+		this.z = parseInt(json.message.z);
+		this.data = json.message.data;
+		this.id = json.message.objId;
+		this.color = c;
+	}
 
-$('#chat_input_field').keydown(function(e) {
-        if (e.keyCode === 13) {
-            var msg = $(this).val();
-            var chat_msg = {
-                "sender":user,
-                "message":msg,
-                "type":1000
-            }
-            
-            ws.send(JSON.stringify(chat_msg));
-            handleChatMessage(chat_msg);
-            $(this).val('');
-        }
-    });
+	Rectangle.prototype.draw = function() {
+		ctx.fillStyle = this.color;
+		ctx.fillRect(this.x, this.y, this.data.length*10+30,30);
+		ctx.fillStyle = "#000000";
+		ctx.fillText(this.data,this.x+15,this.y+20);
+	}
+
+	Rectangle.prototype.contains = function(mx, my) {
+		return  (this.x <= mx) && (this.x + this.data.length*10+30 >= mx) && (this.y <= my) && (this.y + 30 >= my);
+	}
+
+	Rectangle.prototype.getId = function(){
+		return this.id;
+	}
+
+	function state(){
+		this.redrawed  = false;
+		this.objects = [];
+		this.moving = false;
+		this.selection = null;
+		this.fromx = 0;
+		this.fromy = 0;
+
+		var state = this;
+		var canvas = $("#canvas");
+		this.width = canvas.width;
+		this.height = canvas.height;
+
+		canvas.bind('mousedown', function(e) {
+			var mouse = state.getMouse(e);
+			var mx = mouse.x;
+			var my = mouse.y;
+			var objects = state.objects;
+			var l = objects.length;
+			for (var i = l-1; i >= 0; i--) {
+				if (objects[i].contains(mx, my)) {
+					var selected = objects[i];
+					state.fromx = mx - selected.x;
+					state.fromy = my - selected.y;
+					state.moving = true;
+					state.selection = selected;
+					state.redrawed = false;
+					return;
+				}
+			}
+			if(state.selected){
+				state.selected = null;
+				state.redrawed = false;
+			}
+		});
+
+		 canvas.bind('mousemove', function(e) {
+			if (state.moving){
+				var mouse = state.getMouse(e);
+      			state.selection.x = mouse.x - myState.dragoffx;
+				state.selection.y = mouse.y - myState.dragoffy;   
+				state.redrrawed = false;
+			}
+		});
+
+		canvas.bind('mouseup', function(e) {
+			state.moving = false;
+		 });
+		
+		this.interval = 30;
+		setInterval(function() { state.draw(); }, state.interval);
+	}
+
+	state.prototype.containId = function(id){
+		var objects = this.objects;
+		var le = objects.length;
+		console.log(le);
+		for (var i = le-1; i >= 0; i--) {
+			if(objects[i] == undefined){
+				return false;
+			}
+			if(objects[i].getId() == id){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	state.prototype.addRectangle = function(Rectangle){
+		this.objects.push(Rectangle);
+		this.redrawed = false;
+	}
+
+	state.prototype.clear = function(){
+		ctx.clearRect(0,0,this.width,this.height);
+	}
+
+	state.prototype.getMouse = function(e){
+		var element = this.canvas, offsetX = 0, offsetY = 0, mx, my;
   
-})
-})
+		if (element.offsetParent !== undefined) {
+			do {
+				offsetX += element.offsetLeft;
+				offsetY += element.offsetTop;
+			} while ((element = element.offsetParent));
+		}
+
+		mx = e.pageX - offsetX;
+		my = e.pageY - offsetY;
+  
+		return {x: mx, y: my};
+	}
+	
+	state.prototype.draw = function() {
+		if (!this.redrawed) {
+			var objects = this.objects;
+			this.clear();
+			var l = objects.length;
+			for (var i = 0; i < l; i++) {
+				//var obj = objects[i];
+				//if (obj.x > this.width || obj.y > this.height || obj.x + obj.data.length*10+30 < 0 || shape.y + 30 < 0) continue;
+				objects[i].draw(ctx);
+			}
+			if (this.selection != null) {
+				ctx.strokeStyle = this.selectionColor;
+				ctx.lineWidth = this.selectionWidth;
+				var selected = this.selection;
+				ctx.strokeRect(selected.x,selected.y,selected.data.length*10+30,30);
+			}
+    		this.redrawed = true;
+		}
+	}
+	});
+});
 
