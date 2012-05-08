@@ -37,7 +37,7 @@ $(document).ready(function() {
 		  height:$('#canvas_container')[0].clientHeight
     });
 	var layer = new Kinetic.Layer();
-//	stage.add(layer);
+	stage.add(layer);
 
 
 	//End: KINETICJS
@@ -102,6 +102,7 @@ $(document).ready(function() {
 		var color = randomcolor();
 		var x = json.message.x;
 		var y = json.message.y;
+		var z = json.message.z;
 		/*
 		var c=document.getElementById("canvas");
 		var ctx=c.getContext("2d");
@@ -119,7 +120,8 @@ $(document).ready(function() {
 				"y":json.message.y,
 				"width":json.message.data.length*10+30,
 				"height":30,
-				"fill":color
+				"fill":color,
+				draggable: true
 				});
 		var simpleText = new Kinetic.Text({
 				"x":parseInt(json.message.x)+15,
@@ -131,9 +133,9 @@ $(document).ready(function() {
 				})
 		layer.add(rect);
 		layer.add(simpleText);
-		stage.add(layer);
-//		var obj = {"x":x,"y":y,"z":json.message.z,"img":ctx.getImageData(x,y,json.message.data.length+30,30)};
-//		objects[json.message.objId]= obj;
+		var obj = {"x":x,"y":y,"z":z};
+		objects[json.message.objId]= obj;
+		stage.draw();
 		}
 	}
 
