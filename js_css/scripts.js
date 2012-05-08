@@ -211,7 +211,7 @@ $(document).ready(function() {
 	//hogy rajzolja ki az objektumot
 	Rectangle.prototype.draw = function() {
 		ctx.fillStyle = this.color;
-                if(!this.data)this.data='undef';
+        if(!this.data)this.data='undef';
 		ctx.fillRect(this.x, this.y, this.data.length*10+30,30);
 		ctx.fillStyle = "#000000";
 		ctx.fillText(this.data,this.x+15,this.y+20);
@@ -237,7 +237,7 @@ $(document).ready(function() {
 		this.width = canvas.width;
 		this.height = canvas.height;
 
-		//eger lenyomasra mengfog egy elemet ha aarra kattintottunk
+		//eger lenyomasra megfog egy elemet ha aarra kattintottunk
 		canvas.bind('mousedown', function(e) {
 			var mouse = state.getMouse(e); //eger pozicio lekerese
 			var mx = mouse.x;
