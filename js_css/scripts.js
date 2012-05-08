@@ -62,6 +62,7 @@ $(document).ready(function() {
         console.log("Got message");
         try {
             var json = JSON.parse(message.data);
+			console.log(json.type);
         } catch (e) {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
@@ -74,6 +75,7 @@ $(document).ready(function() {
             case 3: //Objektum letrehozasa ...most akkor ilyen nem erkezik? ilyet csk kuldunk a szervernek? 
                 break;
             case 4: //Objektum mozgatasa
+				move(json);
                 break;
 			case 5: //Objektum torlese
 				break;
@@ -132,10 +134,23 @@ $(document).ready(function() {
 		}
 	}*/
 
+
+	function move(json){
+		if(s.containId(json.message.objId)){ //ha uj objektumot crealt valaki akkor lesz ez...
+			var tmp = {"message":{"x":json.message.x,"y":json.message.y,"z": "0","data":"newRectangle","objId":json.message.objId}}; //ez mert szar a rendszer!
+			s.addRectangle(new Rectangle(tmp,randomcolor()));
+		}
+		else{
+			s.moveRect(json);
+		}
+	}
 	
 	function newobj(json){
 		if(!s.containId(json.message.objId)){
 			s.addRectangle(new Rectangle(json,randomcolor()));
+		}
+		else{
+			
 		}
 	}
 
@@ -227,39 +242,53 @@ $(document).ready(function() {
 			var my = mouse.y;
 			var objects = state.objects;
 			var l = objects.length;
-			console.log("yeaH");
-			console.log(mx + " : "+ my); //Nan : Nan :S
 			for (var i = l-1; i >= 0; i--) {
 				if (objects[i].contains(mx, my)) {
-					var selected = objects[i];
-					state.fromx = mx - selected.x; //hogy azon a ponton mozgassuk az objektumot ahol megfogtuk, ne pedig mondjuk mindig a sarkat
-					state.fromy = my - selected.y;
-					state.moving = true;
-					state.selection = selected;
-					state.redrawed = false; 
+					if($("#hand").attr("checked")  != "undefined" && $("#hand").attr("checked") == "checked"){
+						var selected = objects[i];
+						state.fromx = mx - selected.x; //hogy azon a ponton mozgassuk az objektumot ahol megfogtuk, ne pedig mondjuk mindig a sarkat
+						state.fromy = my - selected.y;
+						state.moving = true;
+						state.selection = selected;
+						//state.redrawed = false; 
+					}
+					else if($("#delete").attr("checked")  != "undefined" && $("#delete").attr("checked") == "checked"){
+						alert("torolted az elemet aminek az idja:" + objects[i].id);
+						//delete objects[i];
+						state.redrawed = false;
+						ws.send(JSON.stringify({"type": 5,"sender":user,"message":{"objId":state.selection.id}}));
+					}
 					return;
 				}
+			}
+			if($("#create").attr("checked")  != "undefined" && $("#create").attr("checked") == "checked"){
+				ws.send(JSON.stringify({"type": 3,"sender": user,"message":{"data":"newRectangle","x":mx,"y":my,"z":0}}));
+				state.redrawed = false;
 			}
 		});
 		
 		 canvas.bind('mousemove', function(e) {
 			if (state.moving){ //ha van megfogva objektum akkor mozog az egerrel
 				var mouse = state.getMouse(e);
-      			state.selection.x = mouse.x - myState.dragoffx;
-				state.selection.y = mouse.y - myState.dragoffy;   
-				state.redrrawed = false; //ki kell rajzolni a valtozast
-				ws.send(JSON.stringify({"type": 4,"sender":user,"message":{"objId":selection.id,"x":selection.x,"y":selection.y}})); //mozgatas mentes nelkul
+      			state.selection.x = mouse.x - state.fromx;
+				state.selection.y = mouse.y - state.fromy;   
+				state.redrawed = false; //ki kell rajzolni a valtozast
+				ws.send(JSON.stringify({"type": 4,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentes nelkul
 			}
 		});
 
 		canvas.bind('mouseup', function(e) { 
 			state.moving = false;  //mar nem mozgatjuk tovabb az elemet, lenyegeben elengedtuk
 			if(state.selection){ // de csak ha volt kivalsztva elem
-				ws.send(JSON.stringify({"type": 2,"sender":user,"message":{"objId":selection.id,"x":selection.x,"y":selection.y}})); //mozgatas mentessel
+				ws.send(JSON.stringify({"type": 2,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentessel
 				state.selection = null; //elengedes
 			}
 		 });
 		
+		canvas.bind('dblclick', function() {
+			console.log("dbclick");
+		});
+
 		this.interval = 30;
 		setInterval(function() { state.draw(); }, state.interval);
 	}
@@ -280,12 +309,8 @@ $(document).ready(function() {
 		this.redrawed = false;
 	}
 
-	state.prototype.clear = function(){ //canvas takaritas
-		ctx.clearRect(0,0,this.width,this.height);
-	}
-
 	state.prototype.getMouse = function(e){  //eger pozicio meghatarozasa .. rossz
-		var element = $("#canvas"), offsetX = 0, offsetY = 0, mx, my;
+		var element =document.getElementById('canvas') , offsetX = 0, offsetY = 0, mx, my;
   
 		if (element.offsetParent !== undefined) {
 			do {
@@ -293,8 +318,7 @@ $(document).ready(function() {
 				offsetY += element.offsetTop;
 			} while ((element = element.offsetParent));
 		}
-
-		//canvashoz igazaitas/nromalas
+			
 		mx = e.pageX - offsetX;
 		my = e.pageY - offsetY;
   
@@ -304,21 +328,30 @@ $(document).ready(function() {
 	state.prototype.draw = function() { //kirajzolas a canvasra
 		if (!this.redrawed) {
 			var objects = this.objects;
-			this.clear();
+			ctx.clearRect(0,0,this.width,this.height);
 			var l = objects.length;
 			for (var i = 0; i < l; i++) {
 				//var obj = objects[i];
 				//if (obj.x > this.width || obj.y > this.height || obj.x + obj.data.length*10+30 < 0 || shape.y + 30 < 0) continue; ha kiment volna az elem a canvasrol, nem vagyok biztos, hogy olyat tudunk, mivel ahhoz le kell huzni az egeret a canvasrol, akkor meg nincs eger move event
-				objects[i].draw(ctx);
+				objects[i].draw();
 			}
-		/*	if (this.selection != null) {
-				ctx.strokeStyle = "red";
-				var selected = this.selection;
-				ctx.strokeRect(selected.x,selected.y,selected.data.length*10+30,30);
-			}  ha ki akarjuk a kivalasztott elemet emelni egy kerettel*/
-    		this.redrawed = true; //nem kell ujra kirajzolni amig nincs valtozas
+			this.redrawed = true; //nem kell ujra kirajzolni amig nincs valtozas
 		}
 	}
+
+	state.prototype.moveRect = function(json){
+		var objects = this.objects;
+		var len = objects.length
+		for(var i = l-1;i>=0;i--){
+			if(objects[i].id == json.message.id){
+				objects[i].x = json.message.x;
+				objects[i].y = json.message.y;
+				state.redrawed = false;
+				return;
+			}
+		}
+	}
+
 	});
 });
 
