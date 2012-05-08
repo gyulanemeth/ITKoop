@@ -93,11 +93,11 @@ $(document).ready(function() {
 		var y = json.message.y;
 
 		ctx.fillStyle = color;
-		ctx.fillRect(x,y,json.message.data.length+30,30);
-		ctx.fillStyle = "#000000";
+		ctx.fillRect(x,y,json.message.data.length*10+30,30);
+		ctx.fillStyle = 'black';
 		console.log((json.message.data.length)*10+30);
-		ctx.font="10px Arial";
-		ctx.fillText(json.message.data,x+15,y+20);
+		ctx.font="10pt Calibri";
+		ctx.fillText(json.message.data,parseInt(x)+15,parseInt(y)+20);
 		var obj = {"x":x,"y":y,"z":json.message.z,"img":ctx.getImageData(x,y,json.message.data.length+30,30)};
 		objects[json.message.objId]= obj;
 		}
