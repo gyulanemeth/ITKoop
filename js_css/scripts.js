@@ -13,7 +13,7 @@ window.onload = function () {
 
 
 $(document).ready(function() {
-	
+
     $("#login_btn").click(function() {
         user = $('#username').val();
 		if(user == ""){
@@ -32,7 +32,7 @@ $(document).ready(function() {
 		var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
 		//var objects = new Array();
 		var s = new state();
-	
+
 	//ONOPEN
     ws.onopen = function(){
         $('#login_container').hide();
@@ -92,7 +92,7 @@ $(document).ready(function() {
 
 
 	var ctx=document.getElementById("canvas").getContext("2d");
-	
+
 	/*function create(json){
 		if(objects[json.message.objId] == undefined ){
 			var color = randomcolor();
@@ -144,13 +144,13 @@ $(document).ready(function() {
 			s.moveRect(json);
 		}
 	}
-	
+
 	function newobj(json){
 		if(!s.containId(json.message.objId)){
 			s.addRectangle(new Rectangle(json,randomcolor()));
 		}
 		else{
-			
+			//s.moveRect(json);
 		}
 	}
 
@@ -198,7 +198,7 @@ $(document).ready(function() {
 
 	//konstruktor egy objektumunkhoz
 	function Rectangle(json, c){
-		
+
 		this.x = parseInt(json.message.x);
 		this.y = parseInt(json.message.y);
 		this.z = parseInt(json.message.z);
@@ -220,8 +220,8 @@ $(document).ready(function() {
 	Rectangle.prototype.contains = function(mx, my) {
 		return  (this.x <= mx) && (this.x + this.data.length*10+30 >= mx) && (this.y <= my) && (this.y + 30 >= my);
 	}
-	
-	
+
+
 	// lenyegeben ez az osztaly fogja kezelni a canvas allapotait
 	function state(){
 		this.redrawed  = false;
@@ -268,7 +268,7 @@ $(document).ready(function() {
 				state.redrawed = false;
 			}
 		});
-		
+
 		 canvas.bind('mousemove', function(e) {
 			if (state.moving){ //ha van megfogva objektum akkor mozog az egerrel
 				var mouse = state.getMouse(e);
@@ -286,7 +286,7 @@ $(document).ready(function() {
 				state.selection = null; //elengedes
 			}
 		 });
-		
+
 		canvas.bind('dblclick', function() {
 			console.log("dbclick");
 		});
@@ -320,13 +320,13 @@ $(document).ready(function() {
 				offsetY += element.offsetTop;
 			} while ((element = element.offsetParent));
 		}
-			
+
 		mx = e.pageX - offsetX;
 		my = e.pageY - offsetY;
   
 		return {x: mx, y: my};
 	}
-	
+
 	state.prototype.draw = function() { //kirajzolas a canvasra
 		if (!this.redrawed) {
 			var objects = this.objects;
@@ -343,12 +343,12 @@ $(document).ready(function() {
 
 	state.prototype.moveRect = function(json){
 		var objects = this.objects;
-		var l = objects.length
-		for(var i = l-1;i>=0;i--){
-			if(objects[i].id == json.message.id){
+		var len = objects.length
+		for(var i = len-1;i>=0;i--){
+			if(objects[i].id == json.message.objId){
 				objects[i].x = json.message.x;
 				objects[i].y = json.message.y;
-				state.redrawed = false;
+				this.redrawed = false;
 				return;
 			}
 		}
