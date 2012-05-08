@@ -136,7 +136,7 @@ $(document).ready(function() {
 
 
 	function move(json){
-		if(s.containId(json.message.objId)){ //ha uj objektumot crealt valaki akkor lesz ez...
+		if(!s.containId(json.message.objId)){ //ha uj objektumot crealt valaki akkor lesz ez...
 			var tmp = {"message":{"x":json.message.x,"y":json.message.y,"z": "0","data":"newRectangle","objId":json.message.objId}}; //ez mert szar a rendszer!
 			s.addRectangle(new Rectangle(tmp,randomcolor()));
 		}
@@ -253,10 +253,11 @@ $(document).ready(function() {
 						//state.redrawed = false; 
 					}
 					else if($("#delete").attr("checked")  != "undefined" && $("#delete").attr("checked") == "checked"){
-						alert("torolted az elemet aminek az idja:" + objects[i].id);
 						//delete objects[i];
 						state.redrawed = false;
-						ws.send(JSON.stringify({"type": 5,"sender":user,"message":{"objId":state.selection.id}}));
+						ws.send(JSON.stringify({"type": 5,"sender":user,"message":{"objId":objects[i].id}}));
+						console.log("torol");
+						alert("torolted az elemet aminek az idja:" + objects[i].id);
 					}
 					return;
 				}
@@ -341,7 +342,7 @@ $(document).ready(function() {
 
 	state.prototype.moveRect = function(json){
 		var objects = this.objects;
-		var len = objects.length
+		var l = objects.length
 		for(var i = l-1;i>=0;i--){
 			if(objects[i].id == json.message.id){
 				objects[i].x = json.message.x;
