@@ -78,6 +78,7 @@ $(document).ready(function() {
 				move(json);
                 break;
 			case 5: //Objektum torlese
+				s.deleteRect(json.message.objId);
 				break;
             case 1000: //CHAT
                 handleChatMessage(json);
@@ -150,7 +151,7 @@ $(document).ready(function() {
 			s.addRectangle(new Rectangle(json,randomcolor()));
 		}
 		else{
-			//s.moveRect(json);
+		//	s.moveRect(json);
 		}
 	}
 
@@ -254,11 +255,10 @@ $(document).ready(function() {
 						//state.redrawed = false; 
 					}
 					else if($("#delete").attr("checked")  != "undefined" && $("#delete").attr("checked") == "checked"){
-						//delete objects[i];
 						state.redrawed = false;
 						ws.send(JSON.stringify({"type": 5,"sender":user,"message":{"objId":objects[i].id}}));
-						console.log("torol");
-						alert("torolted az elemet aminek az idja:" + objects[i].id);
+						alert("torolted az elemet aminek az idja:" + objects[i].id +" ami a kutyat se erdekelte");
+						objects.splice(i,1);
 					}
 					return;
 				}
@@ -300,7 +300,7 @@ $(document).ready(function() {
 					//itt kell felugrani az ablaknak
 					var newdata = ""; //ebbe beolvasni az ablakbol a szoveget
 					objects[i].data = newdata;
-					ws.send(JSON.stringify({"type":1,"sender":user,"message":{"objId":objects[i].id,"data":newdata}}); //remelem ezt kell
+					ws.send(JSON.stringify({"type":1,"sender":user,"message":{"objId":objects[i].id,"data":newdata}})); //remelem ezt kell
 				}
 			}
 
@@ -363,6 +363,18 @@ $(document).ready(function() {
 			if(objects[i].id == json.message.objId){
 				objects[i].x = json.message.x;
 				objects[i].y = json.message.y;
+				this.redrawed = false;
+				return;
+			}
+		}
+	}
+
+	state.prototype.deleteRect = function(id){
+		var objects = this.objects;
+		var len = objects.length
+		for(var i = len-1;i>=0;i--){
+			if(objects[i].id == id){
+				objects.splice(i,1);
 				this.redrawed = false;
 				return;
 			}
