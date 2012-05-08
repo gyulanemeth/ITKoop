@@ -269,7 +269,9 @@ $(document).ready(function() {
 			}
 		});
 
-		 canvas.bind('mousemove', function(e) {
+		canvas.bind('selectstart', function(e) { e.preventDefault(); return false; }); //kettos akttintaskor ne legyen keveredes
+
+		canvas.bind('mousemove', function(e) {
 			if (state.moving){ //ha van megfogva objektum akkor mozog az egerrel
 				var mouse = state.getMouse(e);
       			state.selection.x = mouse.x - state.fromx;
@@ -287,8 +289,21 @@ $(document).ready(function() {
 			}
 		 });
 
-		canvas.bind('dblclick', function() {
-			console.log("dbclick");
+		canvas.bind('dblclick', function(e) {
+			var mouse = state.getMouse(e);
+			var mx = mouse.x;
+			var my = mouse.y;
+			var objects = state.objects;
+			var l = objects.length;
+			for (var i = l-1; i >= 0; i--) {
+				if (objects[i].contains(mx, my)) {
+					//itt kell felugrani az ablaknak
+					var newdata = ""; //ebbe beolvasni az ablakbol a szoveget
+					objects[i].data = newdata;
+					ws.send(JSON.stringify({"type":1,"sender":user,"message":{"objId":objects[i].id,"data":newdata}}); //remelem ezt kell
+				}
+			}
+
 		});
 
 		this.interval = 30;
