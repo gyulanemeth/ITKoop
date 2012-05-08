@@ -1,15 +1,14 @@
 window.onload = function () {
     document.body.onresize = function () {
-       var canvasNode = document.getElementById('canvas');
-       canvasNode.width = canvasNode.parentNode.clientWidth;
-       canvasNode.height = canvasNode.parentNode.clientHeight;
+//       var canvasNode = document.getElementById('canvas');
+//       canvasNode.width = canvasNode.parentNode.clientWidth;
+//       canvasNode.height = canvasNode.parentNode.clientHeight;
        var scrollbarNode = document.getElementById('viewport');
        $("#viewport").css({"height" : scrollbarNode.parentNode.parentNode.clientHeight});
        
     }
     document.body.onresize();
 };
-
 
 
 $(document).ready(function() {
@@ -30,6 +29,20 @@ $(document).ready(function() {
 
     var ws = new WebSocket("ws://nemgy.itk.ppke.hu:61160");
 	var objects = new Array();
+
+	//KINETICJS
+    var stage = new Kinetic.Stage({
+          container: "canvas_container",
+		  width:$('#canvas_container')[0].clientWidth,
+		  height:$('#canvas_container')[0].clientHeight
+    });
+	var layer = new Kinetic.Layer();
+//	stage.add(layer);
+
+
+	//End: KINETICJS
+
+
     //ONOPEN
     ws.onopen = function(){
         $('#login_container').hide();
@@ -87,10 +100,12 @@ $(document).ready(function() {
 	function draw(json){
 		if(objects[json.message.objId] == undefined ){
 		var color = randomcolor();
-		var c=document.getElementById("canvas");
-		var ctx=c.getContext("2d");
 		var x = json.message.x;
 		var y = json.message.y;
+		/*
+		var c=document.getElementById("canvas");
+		var ctx=c.getContext("2d");
+
 
 		ctx.fillStyle = color;
 		ctx.fillRect(x,y,json.message.data.length*10+30,30);
@@ -98,8 +113,27 @@ $(document).ready(function() {
 		console.log((json.message.data.length)*10+30);
 		ctx.font="10pt Calibri";
 		ctx.fillText(json.message.data,parseInt(x)+15,parseInt(y)+20);
-		var obj = {"x":x,"y":y,"z":json.message.z,"img":ctx.getImageData(x,y,json.message.data.length+30,30)};
-		objects[json.message.objId]= obj;
+		*/
+		var rect=new Kinetic.Rect({
+				"x":json.message.x,
+				"y":json.message.y,
+				"width":json.message.data.length*10+30,
+				"height":30,
+				"fill":color
+				});
+		var simpleText = new Kinetic.Text({
+				"x":parseInt(json.message.x)+15,
+				"y":parseInt(json.message.y)+10,
+				text: json.message.data,
+				fontSize:11,
+				fontFamily: "Calibri",
+				textFill: "black"
+				})
+		layer.add(rect);
+		layer.add(simpleText);
+		stage.add(layer);
+//		var obj = {"x":x,"y":y,"z":json.message.z,"img":ctx.getImageData(x,y,json.message.data.length+30,30)};
+//		objects[json.message.objId]= obj;
 		}
 	}
 
