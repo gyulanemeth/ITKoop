@@ -210,6 +210,7 @@ $(document).ready(function() {
 	//hogy rajzolja ki az objektumot
 	Rectangle.prototype.draw = function() {
 		ctx.fillStyle = this.color;
+                if(!this.data)this.data='undef';
 		ctx.fillRect(this.x, this.y, this.data.length*10+30,30);
 		ctx.fillStyle = "#000000";
 		ctx.fillText(this.data,this.x+15,this.y+20);
@@ -329,7 +330,7 @@ $(document).ready(function() {
 	state.prototype.draw = function() { //kirajzolas a canvasra
 		if (!this.redrawed) {
 			var objects = this.objects;
-			ctx.clearRect(0,0,this.width,this.height);
+			ctx.clearRect(0,0,canvas.width,canvas.height);
 			var l = objects.length;
 			for (var i = 0; i < l; i++) {
 				//var obj = objects[i];
