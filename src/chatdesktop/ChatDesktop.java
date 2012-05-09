@@ -1,5 +1,6 @@
 package chatdesktop;
 
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
@@ -269,7 +270,7 @@ public class ChatDesktop extends Application {
                                 editStage=new Stage(StageStyle.UNDECORATED);
                                 Group rootGroup = new Group();
                                 final TextField textField=new TextField(rect.getText().getText());
-                                textField.resize(rect.getWidth(), rect.getHeight());
+                                textField.resize(rect.getGraphics().getWidth(), rect.getGraphics().getHeight());
                                 textField.setOnAction(new EventHandler<ActionEvent>() {
                                     @Override
                                     public void handle(ActionEvent arg0) {
@@ -291,15 +292,12 @@ public class ChatDesktop extends Application {
                     }else{
                         if((rect=canvas.clickIn(event.getX(), event.getY()))!=null && event.getClickCount()==2){
                             if(canvas.temporaryEdge==null){
-                                canvas.temporaryEdge=new Edge(event.getX(), event.getY(), rect,"10101");
-                                canvas.getChildren().add(canvas.temporaryEdge);
-                                //rect.point=canvas.temporaryEdge.start;
+                                canvas.temporaryEdge=new Edge(rect,String.valueOf(new Random().nextInt(12312)),wsClient);                                
+                                canvas.add(canvas.temporaryEdge);
                             }else if (canvas.temporaryEdge.getStartNode()!=rect){
-                                canvas.temporaryEdge.setEndNode(rect);
-                                //rect.point=canvas.temporaryEdge.getSt;
+                                canvas.temporaryEdge.setEndNode(rect);                                
                                 canvas.temporaryEdge=null;
-                            }
-                            
+                            }                            
                         }
                         contextMenu.hide();
                         if(editStage!= null)

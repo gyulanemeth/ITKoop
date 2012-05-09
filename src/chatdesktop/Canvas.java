@@ -19,7 +19,7 @@ import javafx.scene.text.Text;
  */
 public final class Canvas extends Group{
     public static int WIDTH=800, HEIGHT=600; //canvas méretei
-    private Hashtable objects=new Hashtable(); //id- tárolására szükséges hashtábla
+    private static Hashtable objects=new Hashtable(); //id- tárolására szükséges hashtábla
     Rectangle backgroundrec; //canvas háttere
     Edge temporaryEdge; //próbaverziós él
     public Canvas() {
@@ -45,10 +45,10 @@ public final class Canvas extends Group{
      * @param userData csúcsban tárolt infó
      */
     public void initRectangleNode(final JWSClient handler, String id, int x, int y, int zOrder, String userData){
-       int nodeWidth=userData.length()*10+80; 
-       int nodeHeight=50;
-       Text text=new Text(x+30, y+30, userData);
-       text.setFont(Font.font("Courier New", 18.0));
+       int nodeWidth=userData.length()*8+60; 
+       int nodeHeight=30;
+       Text text=new Text(x+15, y+15, userData);
+       text.setFont(Font.font("Courier New", 14.0));
        text.setFill(Color.WHITE);
        text.setDisable(true);       
        final Node rec=new Node(x, y, nodeWidth, nodeHeight, text, id);
@@ -60,9 +60,11 @@ public final class Canvas extends Group{
      * @param rec adott csúcs
      */
     public void add(Node rec){
-       this.getChildren().add(rec); 
-       this.getChildren().add(rec.getText());
-       objects.put(rec.getObjId(), rec);
+        if(!objects.contains(rec)){
+            this.getChildren().add(rec.getGraphics());
+            this.getChildren().add(rec.getText());
+            objects.put(rec.getObjId(), rec);
+        }
     }
     /**
      * kiveszi a tárolókból a csúcsot
@@ -70,9 +72,31 @@ public final class Canvas extends Group{
      */
     public void remove(Node rec){
         if(containsObject(rec.getObjId())){
-            this.getChildren().remove(rec);
+            this.getChildren().remove(rec.getGraphics());
             this.getChildren().remove(rec.getText());
             objects.remove(rec.getObjId());
+            rec.setActive(false);
+        }
+    }
+    /**
+     * tárolókba helyezi a csúcsot
+     * @param rec adott csúcs
+     */
+    public void add(Edge edge){
+       if(!objects.contains(edge)){
+            this.getChildren().add(edge.getGraphics());
+            objects.put(edge.getObjId(), edge);
+       }
+    }
+    /**
+     * kiveszi a tárolókból a csúcsot
+     * @param rec adott csúcs
+     */
+    public void remove(Edge edg){
+        if(containsObject(edg.getObjId())){
+            this.getChildren().remove(edg.getGraphics());
+            objects.remove(edg.getObjId());
+            edg.setActive(false);
         }
     }
     /**
@@ -92,10 +116,11 @@ public final class Canvas extends Group{
      * @return ha csúcsra kattintottunk, csúcs pointerét, egyébként null
      */
     public Node clickIn(double x, double y){
-        for(Enumeration<Node> rects=objects.elements();rects.hasMoreElements();){
-            Node rect=rects.nextElement();
-            if(rect.contains(x, y))
-                return rect;                
+        for(Enumeration elem=objects.elements();elem.hasMoreElements();){
+            Object obj=elem.nextElement();
+            if(obj instanceof Node)
+            if(((Node)obj).getGraphics().contains(x, y))
+                return ((Node)obj);
         }
         return null;
     }
@@ -110,8 +135,12 @@ public final class Canvas extends Group{
      * @param isConnected true, ha csatlakozott, egyébként nem
      */
     public void setConnected(boolean isConnected){
-        for(Enumeration<Node> rects=objects.elements();rects.hasMoreElements();){
-            rects.nextElement().setEnabled(isConnected);
+        for(Enumeration elem=objects.elements();elem.hasMoreElements();){
+            Object obj=elem.nextElement();
+            if(obj instanceof Node)
+                ((Node)obj).setEnabled(isConnected);
+            else if(obj instanceof Edge)
+                ((Edge)obj).setEnabled(isConnected);               
         }
     }
     /**
@@ -133,5 +162,20 @@ public final class Canvas extends Group{
             return true;
         }
         return false;
+    }
+    public static void refresh(){
+        for(Enumeration elem=objects.elements();elem.hasMoreElements();){
+            Object obj=elem.nextElement();
+            if(obj instanceof Edge){
+                Edge edge=((Edge)obj);
+                if(edge.isBroken()){
+                    System.out.println("törött");
+                    edge.getGraphics().setDisable(true);
+                    edge.getGraphics().setVisible(false);
+                }else{
+                    edge.rePosition();
+                }
+            }
+        }
     }
 }

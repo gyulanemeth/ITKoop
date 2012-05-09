@@ -5,15 +5,20 @@
 package chatdesktop;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Éleket reprezentáló próbaosztály
  * @author Chuckie
  */
-public class Edge extends javafx.scene.shape.Line{
+public class Edge{
+    private Line line;
     private Node startNode,endNode; //Csúcsok, amiket összeköt az él
-    private Point start,end; //Kedző és végpontjai az élnek
     private String id; //Él azonosítója
+    private JWSClient client;
+    private boolean finished=false;
+    private boolean active=true; //működik-e még az elem
     /**
      * 4 paraméteres konstruktor
      * @param arg0 él x koordinátája
@@ -21,49 +26,37 @@ public class Edge extends javafx.scene.shape.Line{
      * @param startNode kezdeti csúcs amihez kötve van
      * @param id él azonosítója
      */
-    public Edge(double arg0, double arg1, Node startNode, String id) {
-        super(arg0, arg1, arg0, arg1);
-        start=new Point(arg0, arg1);
-        end=new Point(arg0, arg1);        
+    public Edge(Node startNode, String id,JWSClient client) {
+        double x=(2*startNode.getGraphics().getX()+startNode.getGraphics().getWidth())/2;
+        double y=(2*startNode.getGraphics().getY()+startNode.getGraphics().getHeight())/2;
+        line=new Line(x,y,x,y);      
         this.startNode=startNode;
-        setFill(Color.BLACK);
         this.id=id;
+        this.client=client;
+        line.setFill(Color.BLACK);        
     }
     /**
      * Beállítja az él koordinátáit
      */
-    private void setPosition(){
-        setStartX(start.getX());
-        setStartY(start.getY());
-        setEndX(end.getX());
-        setEndY(end.getY());
+    public void rePosition(){
+        Rectangle start=startNode.getGraphics();
+        line.setStartX((2*start.getX()+start.getWidth())/2);
+        line.setStartY((2*start.getY()+start.getHeight())/2);
+        if(finished){
+            Rectangle end=endNode.getGraphics();
+            line.setEndX((2*end.getX()+end.getWidth())/2);
+            line.setEndY((2*end.getY()+end.getHeight())/2);
+        }
+        /**
+         * Itt küldhetjük el a (line.getStartX,line.getStartY)-(line.getEndX,
+         * line.getEndy) pozíciókat,, illetve, ha endNode nem null, akkor 
+         * az él két végén lévő csúcsok idjét is. (Mivelhogy az is megvan)
+         */
     }
-    /**
-     * Beállítja az él kezdőpontjának koordinátáit
-     * @param arg0 kezdő x koordináta
-     * @param arg1 kezdő y koordináta
-     */
-    public void setStart(double arg0, double arg1){
-        start.setX(arg0);
-        start.setY(arg1);
-        setPosition();        
+    public void setEnd(double arg0, double arg1){
+        line.setEndX(arg0);
+        line.setEndY(arg1);
     }
-    /*public Point getStart(){
-        return start;
-    }*/
-    /**
-     * Beállítja az él végpontjának koordinátáit
-     * @param arg0 vég x koordináta
-     * @param arg1 vég x koordináta
-     */
-    public void setEnd(double arg0,double arg1){
-        end.setX(arg0);
-        end.setY(arg1);
-        setPosition();
-    }
-    /*public Point getEnd(){
-        return end;
-    }*/
     //getter-setterek a csúcsokra
     public void setStartNode(Node arg0){
         startNode=arg0;
@@ -73,40 +66,27 @@ public class Edge extends javafx.scene.shape.Line{
     }
     public void setEndNode(Node arg0){
         endNode=arg0;
+        finished=true;
     }
     public Node getEndNode(){
         return endNode;
     }
-    /**
-     * Saját magam által megírt point osztály, próba
-     */
-    class Point{
-        private double x,y;
-        Point(double arg0, double arg1){
-            this.x=arg0;
-            this.y=arg1;
-        }
-        public void setX(double arg0){
-            x=arg0;
-        }
-        public double getX(){
-            return x;
-        }
-        public void setY(double arg0){
-            y=arg0;
-        }
-        public double getY(){
-            return y;
-        }
-        public void setCoord(double arg0, double arg1){
-            x=arg0;
-            x=arg1;
-        }
-
-        @Override
-        public String toString() {
-            return x+" "+y;
-        }
-        
+    public void setEnabled(boolean arg0){
+        line.setOpacity(arg0?1.0:0.0);
+    }
+    public Line getGraphics(){
+        return line;
+    }
+    public String getObjId(){
+        return id;
+    }
+    boolean isBroken(){
+        return (finished && (!startNode.getActive() ||!endNode.getActive()))?true:false;
+    }
+    public void setActive(boolean arg0){
+        active=true;
+    }
+    public boolean getActive(){
+        return active;
     }
 }
