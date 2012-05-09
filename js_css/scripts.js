@@ -226,14 +226,14 @@ $(document).ready(function() {
 	Rectangle.prototype.draw = function() {
 		ctx.fillStyle = this.color;
         if(!this.data)this.data='undef';
-		ctx.fillRect(this.x, this.y, this.data.length*10+30,30);
+		ctx.fillRect(this.x, this.y, this.data.length*5+30,30);
 		ctx.fillStyle = "#000000";
-		ctx.fillText(this.data,this.x+15,this.y+20);
+		ctx.fillText(this.data,this.x+13,this.y+20);
 	}
 
 	//az adott pontok az objektum hatarain belul vannak-e?
 	Rectangle.prototype.contains = function(mx, my) {
-		return  (this.x <= mx) && (this.x + this.data.length*10+30 >= mx) && (this.y <= my) && (this.y + 30 >= my);
+		return  (this.x <= mx) && (this.x + this.data.length*5+30 >= mx) && (this.y <= my) && (this.y + 30 >= my);
 	}
 
 
