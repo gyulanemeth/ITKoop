@@ -154,7 +154,7 @@ public class Node{
      * Csúcs átméretezése
      */
     public void resize(){
-        rect.setWidth(text.getText().length()*10+80);
+        rect.setWidth(text.getText().length()*9+30);
     }
     /**
      * Eseménykezelők hozzárendelése a csúcshoz

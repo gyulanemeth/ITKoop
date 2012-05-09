@@ -45,7 +45,7 @@ public final class Canvas extends Group{
      * @param userData csúcsban tárolt infó
      */
     public void initRectangleNode(final JWSClient handler, String id, int x, int y, int zOrder, String userData){
-       int nodeWidth=userData.length()*8+60; 
+       int nodeWidth=userData.length()*9+30; 
        int nodeHeight=30;
        Text text=new Text(x+15, y+15, userData);
        text.setFont(Font.font("Courier New", 14.0));

@@ -4,6 +4,7 @@
  */
 package chatdesktop;
 
+import java.util.Vector;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,6 +28,7 @@ public final class Chat extends BorderPane{
     TextArea messages=new TextArea(), mytext=new TextArea();
     //submit: ezzel a gombbal is el lehet küldeni a saját üzenetünket
     Button submit=new Button("Submit");
+    private Vector<String> members=new Vector<String>();
     //itt tárolom a szerverhez csatlakozott felhasználókat
     private VBox memberPanel=new VBox();
     
@@ -59,22 +61,38 @@ public final class Chat extends BorderPane{
      * Szerveren más gépen lévőfelhasználók mutatására
      * @param name egy másik online felhasználó neve.
      */
-    final void addMembers(String name){
-            Label label=new Label(name);
-            label.setFont(Font.font("Berlin Sans FB", 12));
-            label.setPrefHeight(30);
-            label.setWrapText(true);
-            memberPanel.getChildren().add(label);     
+    final void addMember(String name){
+        boolean contains=false;
+            for(String i:members){
+                if(name.equals(i)){
+                    contains=true;
+                    break;
+                }
+            }
+            if(!contains){
+                Label label=new Label(name);
+                label.setFont(Font.font("Berlin Sans FB", 12));
+                label.setPrefHeight(30);
+                label.setWrapText(true);
+                memberPanel.getChildren().add(label);
+                members.add(name);
+            }
     }
     /**
      * Ha egy felhasználó kijelentkezett, akkor ezt a fügvényt meghívhatjuk,
      * hogy töröljük a listáról.
      * @param name kijelentkezett felhasználó neve.
      */
-    void removeMembers(String name){
+    void removeMember(String name){
         for(Node i:memberPanel.getChildren()){
-            if(((Label)i).getText().equals(name))
+            if(((Label)i).getText().equals(name)){
                 memberPanel.getChildren().remove(i);
+                for(String j:members){
+                    if(j.equals(name))
+                        members.remove(j);
+                        return;
+                }
+            }
         }
     }
 
@@ -103,11 +121,12 @@ public final class Chat extends BorderPane{
         chatPanel.setSpacing(10);
         chatPanel.setPadding(new Insets(15, 12, 15, 12));
         mytext.setPrefHeight(20);
+        mytext.setWrapText(true);
         DropShadow shadow=new DropShadow();
         shadow.setOffsetX(4);
         shadow.setOffsetY(5);
         mytext.setEffect(shadow);
-        messages.setEffect(shadow);
+        messages.setEffect(shadow);      
         chatPanel.getChildren().addAll(mytext, submit);
         chatPanel.setAlignment(Pos.BOTTOM_LEFT);
         //positioning***********************************************************

@@ -369,9 +369,18 @@ public class JWSClient implements WebSocketClientTokenListener{
      * @param sender
      * @param message 
      */
-    private void handleChatMessage(String sender, String message) {
-        form.newMessage(sender, message);
+    private void handleChatMessage(final String sender,final String message) {
+        form.newMessage(sender, message);{         
+            Platform.runLater(new Runnable() { 
+                @Override
+                public void run() {
+                     form.addMember(sender);
+                }
+            }); 
+
+        }
     }
+        
     
     /**
      * Bejovo mozgatasi esemeny kezelese.

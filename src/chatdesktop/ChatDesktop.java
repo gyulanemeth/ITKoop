@@ -210,9 +210,7 @@ public class ChatDesktop extends Application {
             @Override
             public void handle(KeyEvent ev) {
                 if(ev.getCode()==KeyCode.ENTER)
-                    if(ev.isShiftDown())
-                        chat.mytext.appendText("\n");
-                    else
+                    if(ev.isShiftDown()&&!chat.mytext.getText().equals(""))
                         wsClient.sendText(name, chat.sendMsg());
             }});
         chat.submit.setMinSize(100, 20);
@@ -220,7 +218,8 @@ public class ChatDesktop extends Application {
         chat.submit.setOnAction(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent ev) {
-                wsClient.sendText(name, chat.sendMsg());
+                if(!chat.mytext.getText().equals(""))
+                    wsClient.sendText(name, chat.sendMsg());
             }});
     }
     /**
@@ -352,7 +351,12 @@ public class ChatDesktop extends Application {
     public void newMessage(String userName, String message){
         chat.addText(userName, message);
     }
-    
+    public void addMember(String name){
+        chat.addMember(name);
+    }
+    public void removeMember(String name){
+        chat.removeMember(name);
+    }
     public static void main(String[] args) {
         launch(args);
     }        
