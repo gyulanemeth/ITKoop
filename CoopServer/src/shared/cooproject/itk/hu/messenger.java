@@ -195,7 +195,7 @@ public class messenger {
 		String objId = saveToken(aToken);
 		message.put("objId", objId);
 		response.setMap("message", message);
-		_tServer.sendToken(c,response);
+		_tServer.broadcastToken(response);
 	}
 	
 	
