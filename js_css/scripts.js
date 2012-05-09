@@ -68,7 +68,9 @@ $(document).ready(function() {
             return;
         }
         switch(json.type){ //mivel nincs sehol ertelmesen osszefoglalva, igy ki kellett lesnem a desktop kliensbol..
-			case 1: break; //objektum modositasa
+            case 1:
+                renameobj(json);
+                break; //objektum modositasa
             case 2: //Objektum mozgatasa +mentese 
 				newobj(json);
                 break;
@@ -88,7 +90,7 @@ $(document).ready(function() {
         }
         
         //DEBUG
-        //console.log(json);
+        console.log(json);
     }
 
 
@@ -158,6 +160,10 @@ $(document).ready(function() {
     function handleChatMessage(json){
         chat_messages.append("<li>"+json.sender + ": " + json.message+"</li>")
         $('#scrollbar1').tinyscrollbar_update('bottom');
+    }
+    
+    function renameobj(json){
+            s.renameRect(json);        
     }
 
 	$('#chat_input_field').keydown(function(e) {
@@ -384,6 +390,18 @@ $(document).ready(function() {
 		for(var i = len-1;i>=0;i--){
 			if(objects[i].id == id){
 				objects.splice(i,1);
+				this.redrawed = false;
+				return;
+			}
+		}
+	}
+        
+        	state.prototype.renameRect = function(json){
+		var objects = this.objects;
+		var len = objects.length
+		for(var i = len-1;i>=0;i--){
+			if(objects[i].id == json.message.objId){
+				objects[i].data = json.message.data;
 				this.redrawed = false;
 				return;
 			}
