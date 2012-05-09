@@ -161,12 +161,14 @@ $(document).ready(function() {
     }
 
 	$('#chat_input_field').keydown(function(e) {
+        var ts = Math.round((new Date()).getTime() / 1000);
         if (e.keyCode === 13) {
             var msg = $(this).val();
             var chat_msg = {
                 "sender":user,
                 "message":msg,
-                "type":1000
+                "type":1000,
+                "timestamp":ts
             }
             
             ws.send(JSON.stringify(chat_msg));
@@ -239,6 +241,7 @@ $(document).ready(function() {
 
 		//eger lenyomasra megfog egy elemet ha aarra kattintottunk
 		canvas.bind('mousedown', function(e) {
+                        var ts = Math.round((new Date()).getTime() / 1000);
 			var mouse = state.getMouse(e); //eger pozicio lekerese
 			var mx = mouse.x;
 			var my = mouse.y;
@@ -256,7 +259,7 @@ $(document).ready(function() {
 					}
 					else if($("#delete").attr("checked")  != "undefined" && $("#delete").attr("checked") == "checked"){
 						state.redrawed = false;
-						ws.send(JSON.stringify({"type": 5,"sender":user,"message":{"objId":objects[i].id}}));
+						ws.send(JSON.stringify({"type": 5,"timestamp":ts,"sender":user,"message":{"objId":objects[i].id}}));
 						alert("torolted az elemet aminek az idja:" + objects[i].id +" ami a kutyat se erdekelte");
 						objects.splice(i,1);
 					}
@@ -264,7 +267,7 @@ $(document).ready(function() {
 				}
 			}
 			if($("#create").attr("checked")  != "undefined" && $("#create").attr("checked") == "checked"){
-				ws.send(JSON.stringify({"type": 3,"sender": user,"message":{"data":"newRectangle","x":mx,"y":my,"z":0}}));
+				ws.send(JSON.stringify({"type": 3,"timestamp":ts,"sender": user,"message":{"data":"newRectangle","x":mx,"y":my,"z":0}}));
 				state.redrawed = false;
 			}
 		});
@@ -272,24 +275,27 @@ $(document).ready(function() {
 		canvas.bind('selectstart', function(e) { e.preventDefault(); return false; }); //kettos akttintaskor ne legyen keveredes
 
 		canvas.bind('mousemove', function(e) {
+                        var ts = Math.round((new Date()).getTime() / 1000);
 			if (state.moving){ //ha van megfogva objektum akkor mozog az egerrel
 				var mouse = state.getMouse(e);
       			state.selection.x = mouse.x - state.fromx;
 				state.selection.y = mouse.y - state.fromy;   
 				state.redrawed = false; //ki kell rajzolni a valtozast
-				ws.send(JSON.stringify({"type": 4,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentes nelkul
+				ws.send(JSON.stringify({"type": 4,"timestamp":ts,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentes nelkul
 			}
 		});
 
 		canvas.bind('mouseup', function(e) { 
+                        var ts = Math.round((new Date()).getTime() / 1000);
 			state.moving = false;  //mar nem mozgatjuk tovabb az elemet, lenyegeben elengedtuk
 			if(state.selection){ // de csak ha volt kivalsztva elem
-				ws.send(JSON.stringify({"type": 2,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentessel
+				ws.send(JSON.stringify({"type": 2,"timestamp":ts,"sender":user,"message":{"objId":state.selection.id,"x":state.selection.x,"y":state.selection.y}})); //mozgatas mentessel
 				state.selection = null; //elengedes
 			}
 		 });
 
 		canvas.bind('dblclick', function(e) {
+                        var ts = Math.round((new Date()).getTime() / 1000);
 			var mouse = state.getMouse(e);
 			var mx = mouse.x;
 			var my = mouse.y;
@@ -299,8 +305,11 @@ $(document).ready(function() {
 				if (objects[i].contains(mx, my)) {
 					//itt kell felugrani az ablaknak
 					var newdata = ""; //ebbe beolvasni az ablakbol a szoveget
+                                        newdata=prompt("Add meg az objektum nevet",objects[i].data)
 					objects[i].data = newdata;
-					ws.send(JSON.stringify({"type":1,"sender":user,"message":{"objId":objects[i].id,"data":newdata}})); //remelem ezt kell
+					ws.send(JSON.stringify({"type":1,"timestamp":ts,"sender":user,"message":{"objId":objects[i].id,"data":newdata}})); //remelem ezt kell
+                                        ws.send(JSON.stringify({"type":2,"timestamp":ts,"sender":user,"message":{"objId":objects[i].id,"x":objects[i].x,"y":objects[i].y}})); //Mert szar
+                                        state.redrawed=false;
 				}
 			}
 
