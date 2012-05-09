@@ -68,20 +68,26 @@ $(document).ready(function() {
             return;
         }
         switch(json.type){ //mivel nincs sehol ertelmesen osszefoglalva, igy ki kellett lesnem a desktop kliensbol..
+            case "1":
             case 1:
                 renameobj(json);
                 break; //objektum modositasa
+            case "2":
             case 2: //Objektum mozgatasa +mentese 
 				newobj(json);
                 break;
+            case "3":
             case 3: //Objektum letrehozasa ...most akkor ilyen nem erkezik? ilyet csk kuldunk a szervernek? 
-                break;
+                break0;
+            case "4":
             case 4: //Objektum mozgatasa
 				move(json);
                 break;
-			case 5: //Objektum torlese
+            case "5":
+            case 5: //Objektum torlese
 				s.deleteRect(json.message.objId);
 				break;
+            case "1000":
             case 1000: //CHAT
                 handleChatMessage(json);
                 break;
