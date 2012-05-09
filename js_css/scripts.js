@@ -382,8 +382,8 @@ $(document).ready(function() {
 		var len = objects.length
 		for(var i = len-1;i>=0;i--){
 			if(objects[i].id == json.message.objId){
-				objects[i].x = json.message.x;
-				objects[i].y = json.message.y;
+				objects[i].x = parseInt(json.message.x);
+				objects[i].y = parseInt(json.message.y);
 				this.redrawed = false;
 				return;
 			}
