@@ -78,7 +78,7 @@ $(document).ready(function() {
                 break;
             case "3":
             case 3: //Objektum letrehozasa ...most akkor ilyen nem erkezik? ilyet csk kuldunk a szervernek? 
-                break0;
+                break;
             case "4":
             case 4: //Objektum mozgatasa
 				move(json);
